@@ -5,6 +5,11 @@ import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as cheerio from "cheerio";
 import { z } from "zod";
+import { Models } from "@opencode-ai/models";
+import {
+  providers as snapshotProviders,
+  models as snapshotModels,
+} from "@opencode-ai/models/snapshot";
 
 /** Repo-Wurzel (eine Ebene über scripts/). */
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -199,7 +204,127 @@ export function parsePatternItems(input) {
   return patterns;
 }
 
-// ---- zod-Schemas (passend zu src/types.ts) ------------------------------------
+// ---- models.dev-Anreicherung (Kontextfenster + Hersteller) ------------------
+
+const MODELS_DEV_URL = "https://models.dev/api.json";
+const USER_AGENT = "provider-plans/0.1";
+
+/** Anzeige-Labels für Provider-Slugs (angeglichen an cc-price-tracker). */
+export const PROVIDER_LABELS = {
+  zhipuai: "Z.ai",
+  zai: "Z.ai",
+  bigmodel: "Z.ai",
+  glm: "Z.ai",
+  xiaomi: "Xiaomi",
+  opencode: "OpenCode",
+  "opencode-go": "OpenCode Go",
+  deepseek: "DeepSeek",
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  xai: "xAI",
+  google: "Google",
+  minimax: "MiniMax",
+  alibaba: "Alibaba",
+  moonshotai: "Moonshot AI",
+};
+
+export function formatProvider(raw) {
+  if (!raw) return null;
+  const key = String(raw).toLowerCase();
+  if (PROVIDER_LABELS[key]) return PROVIDER_LABELS[key];
+  return key
+    .split("-")
+    .map((w) => (w ? w.charAt(0).toUpperCase() + w.slice(1) : ""))
+    .join(" ");
+}
+
+/** Kontextfenster (Tokens) aus models.dev-Metadaten (`limit.context`). */
+export function toContextWindow(md) {
+  return typeof md?.limit?.context === "number" ? md.limit.context : null;
+}
+
+/** Modell-ID ohne Provider-Prefix, normalisiert ("xiaomi/mimo-v2.5-pro" → "mimov2.5pro"). */
+export function bareModelId(id) {
+  const seg = String(id ?? "").split(/[/:]/).pop() ?? "";
+  return seg.toLowerCase().replace(/[\s-_]+/g, "");
+}
+
+let cachedModelsDev = null;
+
+/**
+ * Lädt den models.dev-Katalog (Live, via Models-Client → `{providers, models}`)
+ * mit Snapshot-Fallback. Gecacht pro Lauf.
+ */
+export async function loadModelsDev() {
+  if (cachedModelsDev) return cachedModelsDev;
+  try {
+    const catalog = await Models.make({
+      baseUrl: "https://models.dev",
+      headers: { "User-Agent": USER_AGENT },
+    }).catalog({ signal: AbortSignal.timeout(20_000) });
+    cachedModelsDev = { providers: catalog.providers, models: catalog.models, source: "live" };
+  } catch (err) {
+    console.error(
+      `[scrape] models.dev nicht erreichbar (${err instanceof Error ? err.message : String(err)}); nutze Snapshot.`
+    );
+    cachedModelsDev = { providers: snapshotProviders, models: snapshotModels, source: "snapshot" };
+  }
+  return cachedModelsDev;
+}
+
+/** Bevorzugte Provider-Slugs für die Zuordnung (in dieser Reihenfolge). */
+const PREFERRED_PROVIDERS = ["zhipuai", "xiaomi", "zai", "opencode-go", "opencode"];
+
+/**
+ * Baut Lookup über ALLE Provider: Bare-Modell-ID → { md, slug }.
+ * Provider-Prefixe (z. B. "xiaomi/mimo-v2.5-pro") werden auf die nackte ID
+ * reduziert, damit unsere ("mimo-v2.5-pro") matcht.
+ */
+function buildModelsDevLookup(providers) {
+  const byBare = new Map();
+  const slugOf = new Map();
+  const order = new Map();
+  for (const [slug, pv] of Object.entries(providers ?? {})) {
+    const ms = pv?.models ?? {};
+    const list = Array.isArray(ms) ? ms : Object.values(ms);
+    for (const md of list) {
+      if (!md?.id) continue;
+      const bare = bareModelId(md.id);
+      const prio = PREFERRED_PROVIDERS.indexOf(slug);
+      const cur = order.get(bare);
+      if (!byBare.has(bare) || (prio !== -1 && (cur === -1 || prio < cur))) {
+        byBare.set(bare, md);
+        slugOf.set(bare, slug);
+        order.set(bare, prio);
+      }
+    }
+  }
+  return (id) => {
+    const bare = bareModelId(id);
+    return { md: byBare.get(bare) ?? null, slug: slugOf.get(bare) ?? null };
+  };
+}
+
+/**
+ * Reichert Modell-Rows mit `provider` und `contextWindow` an. Overrides je
+ * Vendor setzen den Anzeige-Hersteller (z. B. "Z.ai") und können Kontexte
+ * festzwingen; sonst kommen sie aus models.dev (Provider-Slug → Label).
+ */
+export function enrichModelMeta(models, providers, overrides = {}) {
+  const resolve = buildModelsDevLookup(providers);
+  for (const m of models) {
+    const { md, slug } = resolve(m.id);
+    const ov = overrides?.[m.id] ?? overrides?.[m.name];
+    if (ov && "provider" in ov) {
+      m.provider = ov.provider;
+    } else {
+      m.provider = formatProvider(slug) ?? m.provider ?? null;
+    }
+    m.contextWindow =
+      ov && "contextWindow" in ov ? ov.contextWindow : toContextWindow(md) ?? m.contextWindow ?? null;
+  }
+  return models;
+}
 
 const creditFieldsSchema = z.object({
   input: z.number().optional(),
@@ -231,6 +356,7 @@ const planSchema = z.object({
 const modelSchema = z.object({
   id: z.string(),
   name: z.string(),
+  provider: z.string().nullable().optional(),
   tier: z.enum(["peak", "off-peak"]).nullable(),
   contextWindow: z.number().nullable(),
   creditPerM: creditFieldsSchema.partial().optional(),

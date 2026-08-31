@@ -49,6 +49,20 @@ export function fmtTokens(n: number, lang: Lang): string {
   return new Intl.NumberFormat(lang === "de" ? "de-DE" : "en-US").format(n);
 }
 
+/** Kontextfenster kompakt (1M / 128K / 4096), Spiegelbild zu cc-price-tracker. */
+export function fmtContextWindow(n: number | null | undefined): string {
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
+  if (n >= 1_000_000) {
+    const v = n / 1_000_000;
+    return `${v >= 10 ? Math.round(v) : Math.round(v * 10) / 10}M`;
+  }
+  if (n >= 1000) {
+    const v = n / 1000;
+    return `${v >= 10 ? Math.round(v) : Math.round(v * 10) / 10}K`;
+  }
+  return String(n);
+}
+
 export function fmtDate(iso: string, lang: Lang): string {
   const d = new Date(iso);
   return new Intl.DateTimeFormat(lang === "de" ? "de-DE" : "en-US", {

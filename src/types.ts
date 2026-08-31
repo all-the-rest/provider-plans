@@ -46,6 +46,8 @@ export interface RequestPattern {
 export interface Model {
   id: string;
   name: string;
+  /** Hersteller-Anzeigename (Overwrite via models.dev + Vendor-Overrides). */
+  provider: string | null;
   tier: Phase | null;
   contextWindow: number | null;
   /** Credits pro 1M Tokens je CreditField (deterministisch aus der Provider-Formel). */

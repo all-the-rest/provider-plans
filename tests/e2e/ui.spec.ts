@@ -174,6 +174,13 @@ test.describe("Badges sichtbar", () => {
 });
 
 test.describe("Peak/Off-Peak-Zeilen", () => {
+  test("/z-ai: Provider & Kontextfenster sichtbar (Z.ai · 1M Tokens)", async ({ page }) => {
+    await goto(page, "/z-ai");
+    await page.getByTitle("Deutsch").click();
+    const firstRow = page.locator("tbody tr").first();
+    await expect(firstRow).toContainText("Z.ai");
+    await expect(firstRow).toContainText("1M Tokens");
+  });
   test("/z-ai: GLM-5.3 als peak+off-peak, inaktive Zeile gedimmt (Timer sichtbar)", async ({ page }) => {
     await goto(page, "/z-ai");
     await page.getByTitle("Deutsch").click();

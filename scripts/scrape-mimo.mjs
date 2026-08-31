@@ -2,8 +2,10 @@
 // Nacht-Rabatt aus dem Token-Plan-Doc, Overseas-API-Preise aus pay-as-you-go.
 import {
   assertPatternConsistency,
+  enrichModelMeta,
   extractTableRows,
   fetchText,
+  loadModelsDev,
   normalizeName,
   parseIntOrNull,
   parsePrice,
@@ -241,6 +243,15 @@ export async function scrapeMimo(opts = {}) {
     }
   }
   assertPatternConsistency(models);
+
+  // Kontextfenster + Hersteller aus models.dev (Provider-Zuordnung, Overwrite gewinnt).
+  // Im Stub-Modus (write === false) keine Netzwerk-Abhängigkeit: nur Overrides.
+  const providers =
+    opts.write === false ? {} : (await loadModelsDev()).providers;
+  enrichModelMeta(models, providers, {
+    "mimo-v2.5-pro": { provider: "Xiaomi", contextWindow: 1048576 },
+    "mimo-v2.5": { provider: "Xiaomi", contextWindow: 1048576 },
+  });
 
   const night = parsed.night;
   const data = {

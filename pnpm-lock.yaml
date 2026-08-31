@@ -18,6 +18,9 @@ importers:
       '@iconify/tailwind4':
         specifier: ^1.2.3
         version: 1.2.3(tailwindcss@4.3.3)
+      '@opencode-ai/models':
+        specifier: ^0.0.55
+        version: 0.0.55
       '@playwright/test':
         specifier: 1.62.1
         version: 1.62.1
@@ -329,6 +332,15 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@opencode-ai/models@0.0.55':
+    resolution: {integrity: sha512-dJTGe3XMq0T/UYVmwjyWly4xsGuVbWaAqCMTTxjWYbLBuos6c+46SQjFnnXk+nzOkJu5guuGJl7gvW5q1Z0pGA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      effect: 4.0.0-beta.83
+    peerDependenciesMeta:
+      effect:
+        optional: true
 
   '@oxc-project/types@0.147.0':
     resolution: {integrity: sha512-IJ3s6ltHLp45S0bh7phkX+gJO7A1Wuz2EaqpAhb8WjqDwbzMiWKHhyyT42tskaWjEYXtHtVCPpnBJVT9+dcRLg==}
@@ -1485,6 +1497,8 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.6.0
+
+  '@opencode-ai/models@0.0.55': {}
 
   '@oxc-project/types@0.147.0': {}
 
