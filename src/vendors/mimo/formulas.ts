@@ -42,10 +42,10 @@ export function makeFormulas(data: VendorPriceData, peak: PeakConfig, flagshipId
 
   const creditsPerRequest = (m: Model): number | null => patternCost(m, creditPerToken(m));
 
-  const requestCostUsd = (m: Model, plan: Plan): number | null => {
+  const requestCostUsd = (m: Model, plan: Plan, cycle: Cycle): number | null => {
     if (!m.pattern) return null;
     const cpr = patternCost(m, creditPerToken(m));
-    const ucp = usdPerCredit(plan);
+    const ucp = usdPerCredit(plan, cycle);
     if (cpr === null || ucp === null) return null;
     return cpr * phaseFactor(m, peak) * ucp;
   };
@@ -68,8 +68,8 @@ export function makeFormulas(data: VendorPriceData, peak: PeakConfig, flagshipId
     return (pool / (cpr * phaseFactor(flagship, peak))) * (apiCost / price);
   };
 
-  const fieldPriceUsd = (m: Model, field: CreditField, plan: Plan): number | null =>
-    sharedFieldPriceUsd(m, field, plan, peak, (f) => m.creditPerM[f] ?? null);
+  const fieldPriceUsd = (m: Model, field: CreditField, plan: Plan, cycle: Cycle): number | null =>
+    sharedFieldPriceUsd(m, field, plan, cycle, peak, (f) => m.creditPerM[f] ?? null);
 
   return {
     monthlyCredits,

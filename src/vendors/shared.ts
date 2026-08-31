@@ -66,31 +66,33 @@ export function patternApiCost(
 
 /**
  * USD/Credit eines Plans über Plan-Parität (echter $-Wert der Credits):
- * `Monatspreis (Listenpreis) ÷ Monats-Credit-Pool`. Bewusst OHNE externe
- * API-Listenpreise — für DS-Werte wie 6/4.1e9 ≈ 1.46e-9 sind JS-Doubles
+ * `Monatspreis des gewählten Zyklus ÷ Monats-Credit-Pool`. Bindungs-Rabatte
+ * (Jahr/Quartal) senken so die $-Preise mit. Bewusst OHNE externe
+ * API-Listenpreise — Werte wie 6/4.1e9 ≈ 1.46e-9 sind für JS-Doubles
  * (relative Genauigkeit ~1e-16) exakt genug; gerundet wird erst bei der Anzeige.
  */
-export function usdPerCredit(plan: Plan): number | null {
+export function usdPerCredit(plan: Plan, cycle: Cycle): number | null {
   const pool = monthlyCredits(plan);
-  const price = plan.priceMonthly;
+  const price = planPriceMonth(plan, cycle);
   if (pool === null || pool <= 0 || price === null) return null;
   return price / pool;
 }
 
 /**
- * USD/1M eines Feldes über Plan-Parität (phasenabhängig):
+ * USD/1M eines Feldes über Plan-Parität (phasen- und zyklusabhängig):
  * Credits/1M × Phase-Faktor × USD/Credit.
  */
 export function fieldPriceUsd(
   model: Model,
   field: CreditField,
   plan: Plan,
+  cycle: Cycle,
   peak: PeakConfig,
   creditOf: (field: CreditField) => number | null
 ): number | null {
   const cred = creditOf(field);
   if (cred === null) return null;
-  const ucp = usdPerCredit(plan);
+  const ucp = usdPerCredit(plan, cycle);
   if (ucp === null) return null;
   return cred * phaseFactor(model, peak) * ucp;
 }

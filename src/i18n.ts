@@ -39,7 +39,7 @@ export const shell = {
       "Requests/Monat = Monats-Credit-Pool ÷ Kreditkosten pro Anfrage ({poolDesc}). {phaseDesc} Wenn das Anfragemuster fehlt, ist keine Schätzung möglich („–“).",
     patternTooltip: "Muster: {input} Input · {cached} Cached · {output} Output Tokens/Anfrage",
     basisListDesc:
-      "USD = echte Kosten in $: Monatspreis ÷ Monats-Credits ist der $-Wert je Credit; Felder und Kosten = Credits × $/Credit. Off-Peak = weniger Credits → niedrigere $-Werte.",
+      "USD = echte Kosten in $: Monatspreis des gewählten Abrechnungszyklus ÷ Monats-Credits ist der $-Wert je Credit; Felder und Kosten = Credits × $/Credit. Wechselt der Zyklus (Rabatt), ändern sich die USD-Preise mit. Off-Peak = weniger Credits → niedrigere $-Werte.",
     basisFullDesc:
       "Feldpreise und Kosten je Anfrage in Credits: Credits/1M = Modell-Kreditkosten; Kosten/Anfrage = Anfragemuster × Credit-Kosten (Off-Peak = weniger Credits). Requests/Monat = Monats-Credit-Pool ÷ Kosten/Anfrage.",
     basisPaidDesc:
@@ -108,7 +108,7 @@ export const shell = {
       "Requests/month = monthly credit pool ÷ credit cost per request ({poolDesc}). {phaseDesc} If the request pattern is missing, no estimate is possible (“–”).",
     patternTooltip: "Pattern: {input} input · {cached} cached · {output} output tokens/request",
     basisListDesc:
-      "List price = pay-as-you-go API price (USD per 1M tokens). No discount, no plan credits.",
+      "USD = real costs in $: monthly price of the selected billing cycle ÷ monthly credits is the $ value per credit; fields and costs = credits × $/credit. Switching the cycle (discount) updates the USD prices accordingly. Off-peak = fewer credits → lower $ values.",
     basisFullDesc:
       "Field prices and cost per request in credits: credits/1M = the model's credit cost; cost/request = request pattern × credit cost (off-peak = fewer credits). Requests/month = monthly credit pool ÷ cost per request.",
     basisPaidDesc:

@@ -75,8 +75,16 @@ test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 r
 
   // USD über Plan-Parität: Credits/1M × (Monatspreis ÷ Monats-Credits) — z. B.
   // GLM-5.3 Input: 690 × (18/40.000) = 0,3105 (peak, Faktor 1.0).
-  const inputUsd = formulas.fieldPriceUsd(peakModel, "input", lite);
+  const inputUsd = formulas.fieldPriceUsd(peakModel, "input", lite, "monthly");
   assert.ok(close(inputUsd, 0.3105, 1e-9), `fieldPriceUsd(input, parity) = ${inputUsd}`);
+
+  // Zyklus-Rabatt ändert die USD-Preise: Jährlich −30 % → 690 × (12,6/40.000) = 0,21735.
+  const inputUsdYearly = formulas.fieldPriceUsd(peakModel, "input", lite, "yearly");
+  assert.ok(close(inputUsdYearly ?? -1, 0.21735, 1e-9), `fieldPriceUsd(input, yearly) = ${inputUsdYearly}`);
+
+  const costMonthly = formulas.requestCostUsd(peakModel, lite, "monthly");
+  const costYearly = formulas.requestCostUsd(peakModel, lite, "yearly");
+  assert.ok(costMonthly !== null && costYearly !== null && costYearly < costMonthly, "USD/Anfrage sinkt mit Rabatt");
 });
 
 test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈ 0,99)", async (t) => {
@@ -102,7 +110,7 @@ test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈
   // Monats-Credits). z. B. mimo-v2.5-pro Input (Cache-Hit): 2,5e6 × (6/4,1e9) =
   // 0,0036585… ≈ API-Listenpreis 0,0036. Zeigt, dass Doubles (~1e-16 relative
   // Genauigkeit) für diese Größenordnung exakt genug sind.
-  const hitUsd = formulas.fieldPriceUsd(pro, "input", lite);
+  const hitUsd = formulas.fieldPriceUsd(pro, "input", lite, "monthly");
   assert.ok(
     hitUsd !== null && Math.abs(hitUsd - 0.0036585365853658534) < 1e-9,
     `fieldPriceUsd(hit, parity) = ${hitUsd}`
