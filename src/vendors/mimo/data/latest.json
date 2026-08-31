@@ -66,13 +66,13 @@
       "contextWindow": null,
       "creditPerM": {
         "input": 2500000,
-        "inputMiss": 300000000,
-        "output": 600000000
+        "output": 600000000,
+        "inputMiss": 300000000
       },
       "apiPrice": {
         "input": 0.0036,
-        "inputMiss": 0.435,
-        "output": 0.87
+        "output": 0.87,
+        "inputMiss": 0.435
       },
       "pattern": {
         "input": 790,
@@ -88,13 +88,13 @@
       "contextWindow": null,
       "creditPerM": {
         "input": 2500000,
-        "inputMiss": 300000000,
-        "output": 600000000
+        "output": 600000000,
+        "inputMiss": 300000000
       },
       "apiPrice": {
         "input": 0.0036,
-        "inputMiss": 0.435,
-        "output": 0.87
+        "output": 0.87,
+        "inputMiss": 0.435
       },
       "pattern": {
         "input": 790,
@@ -110,13 +110,13 @@
       "contextWindow": null,
       "creditPerM": {
         "input": 2000000,
-        "inputMiss": 100000000,
-        "output": 200000000
+        "output": 200000000,
+        "inputMiss": 100000000
       },
       "apiPrice": {
         "input": 0.0028,
-        "inputMiss": 0.14,
-        "output": 0.28
+        "output": 0.28,
+        "inputMiss": 0.14
       },
       "pattern": {
         "input": 830,
@@ -132,13 +132,13 @@
       "contextWindow": null,
       "creditPerM": {
         "input": 2000000,
-        "inputMiss": 100000000,
-        "output": 200000000
+        "output": 200000000,
+        "inputMiss": 100000000
       },
       "apiPrice": {
         "input": 0.0028,
-        "inputMiss": 0.14,
-        "output": 0.28
+        "output": 0.28,
+        "inputMiss": 0.14
       },
       "pattern": {
         "input": 830,
