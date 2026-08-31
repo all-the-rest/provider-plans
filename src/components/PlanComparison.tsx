@@ -50,7 +50,7 @@ export default function PlanComparison(props: PlanComparisonProps) {
   const requestsText = (plan: Plan): string => {
     const f = flagship();
     if (!f?.pattern) return "–";
-    return fmtInt(module.formulas.requestsPerMonth(f, "full", plan, "monthly"), props.lang);
+    return fmtInt(module.formulas.requestsPerMonth(f, plan), props.lang);
   };
 
   const valueText = (plan: Plan): string => {

@@ -16,6 +16,9 @@
     "test": "node --import tsx --test \"tests/**/*.test.ts\"",
     "test:e2e": "playwright test -c playwright.config.ts",
     "test:screenshots": "playwright test -c playwright.screenshots.config.ts",
+    "release": "node scripts/ensure-release.mjs --all",
+    "release:check": "node scripts/check-release-sync.mjs",
+    "release:notes": "node scripts/release-notes.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

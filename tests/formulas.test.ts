@@ -68,13 +68,15 @@ test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 r
   assert.ok(lite, "Plan 'lite' erwartet");
 
   assert.ok(close(formulas.creditsPerRequest(peakModel), 9.683), `creditsPerRequest peak = ${formulas.creditsPerRequest(peakModel)}`);
-  const rpm = formulas.requestsPerMonth(peakModel, "full", lite, "monthly");
+  const rpm = formulas.requestsPerMonth(peakModel, lite);
   assert.ok(close(rpm, 4131, 1), `requestsPerMonth peak = ${rpm}`);
-  const rpmOff = formulas.requestsPerMonth(offPeakModel, "full", lite, "monthly");
+  const rpmOff = formulas.requestsPerMonth(offPeakModel, lite);
   assert.ok(close(rpmOff, 8262, 1), `requestsPerMonth off-peak = ${rpmOff}`);
 
-  const inputUsd = formulas.fieldPriceUsd(peakModel, "input", "list", lite, "monthly");
-  assert.ok(close(inputUsd, 1.4), `fieldPriceUsd(list, input) = ${inputUsd}`);
+  // USD über Plan-Parität: Credits/1M × (Monatspreis ÷ Monats-Credits) — z. B.
+  // GLM-5.3 Input: 690 × (18/40.000) = 0,3105 (peak, Faktor 1.0).
+  const inputUsd = formulas.fieldPriceUsd(peakModel, "input", lite);
+  assert.ok(close(inputUsd, 0.3105, 1e-9), `fieldPriceUsd(input, parity) = ${inputUsd}`);
 });
 
 test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈ 0,99)", async (t) => {
@@ -91,8 +93,18 @@ test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈
   assert.ok(lite, "Plan 'lite' erwartet");
 
   assert.ok(close(formulas.creditsPerRequest(pro), 635000, 1e-3), `creditsPerRequest = ${formulas.creditsPerRequest(pro)}`);
-  const rpm = formulas.requestsPerMonth(pro, "full", lite, "monthly");
+  const rpm = formulas.requestsPerMonth(pro, lite);
   assert.ok(close(rpm, 6457, 1), `requestsPerMonth = ${rpm}`);
   const pv = formulas.planValue(lite, "monthly");
   assert.ok(close(pv, 0.99, 0.01), `planValue = ${pv}`);
+
+  // JS-Präzision bei kleinen Zahlen: USD-Parität = Credits/1M × (Monatspreis ÷
+  // Monats-Credits). z. B. mimo-v2.5-pro Input (Cache-Hit): 2,5e6 × (6/4,1e9) =
+  // 0,0036585… ≈ API-Listenpreis 0,0036. Zeigt, dass Doubles (~1e-16 relative
+  // Genauigkeit) für diese Größenordnung exakt genug sind.
+  const hitUsd = formulas.fieldPriceUsd(pro, "input", lite);
+  assert.ok(
+    hitUsd !== null && Math.abs(hitUsd - 0.0036585365853658534) < 1e-9,
+    `fieldPriceUsd(hit, parity) = ${hitUsd}`
+  );
 });

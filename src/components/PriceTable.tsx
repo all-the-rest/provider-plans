@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 import { isTierActive, PeakIndicator, usePeakClock } from "../peak";
-import { fmt, fmtInt, fmtTokens } from "../util";
+import { fmt, fmtBig, fmtCredits, fmtInt, fmtTokens } from "../util";
 import Heading from "./Heading";
 import { Tooltip } from "./Tooltip";
 import type { Basis, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
@@ -19,19 +19,15 @@ export default function PriceTable(props: PriceTableProps) {
   const now = usePeakClock();
   const { module } = props;
 
-  const basisLabel = () =>
-    props.basis === "list"
-      ? props.t.basisList
-      : props.basis === "full"
-        ? props.t.basisFull
-        : props.t.basisPaid;
+  const basisLabel = () => (props.basis === "list" ? props.t.basisList : props.t.basisFull);
 
   const basisDesc = () =>
-    props.basis === "list"
-      ? (props.t.basisListDesc ?? "")
-      : props.basis === "full"
-        ? (props.t.basisFullDesc ?? "")
-        : (props.t.basisPaidDesc ?? "");
+    props.basis === "list" ? (props.t.basisListDesc ?? "") : (props.t.basisFullDesc ?? "");
+
+  const basisHelp = () =>
+    props.lang === "de"
+      ? "Umschalter USD / Credits. USD: Monatspreis ÷ Monats-Credits = $-Wert je Credit; Felder und Kosten = Credits × $/Credit (echte Plan-Preise, keine API-Listenpreise). Credits: Kosten in Credits — Credits/1M je Modell-Feld, Kosten/Anfrage = Anfragemuster × Credit-Kosten, Requests/Monat = Monats-Credit-Pool ÷ Kosten/Anfrage."
+      : "Toggle USD / credits. USD: monthly price ÷ monthly credits = $ value per credit; fields and costs = credits × $/credit (real plan prices, no API list prices). Credits: costs in credits — credits/1M per model field, cost/request = request pattern × credit cost, requests/month = monthly credit pool ÷ cost per request.";
 
   const poolDesc = () =>
     props.plan.kind === "weekly"
@@ -50,11 +46,17 @@ export default function PriceTable(props: PriceTableProps) {
     return props.lang === "de" ? `${name} = ${pct} % Credits.` : `${name} = ${pct}% credits.`;
   };
 
-  const costTooltip = (model: Model) =>
-    props.t.costTooltip
-      .replace("{basis}", basisLabel())
-      .replace("{basisDesc}", basisDesc())
-      .replace("{phaseDesc}", phaseNote(model));
+  const costTooltip = (model: Model) => {
+    if (props.basis === "list") {
+      return props.t.costTooltip
+        .replace("{basis}", basisLabel())
+        .replace("{basisDesc}", basisDesc())
+        .replace("{phaseDesc}", phaseNote(model));
+    }
+    return props.lang === "de"
+      ? `Kosten/Anfrage in Credits = Anfragemuster × Credit-Kosten der Felder. ${phaseNote(model)}`
+      : `Cost per request in credits = request pattern × field credit costs. ${phaseNote(model)}`;
+  };
 
   const requestsTooltip = (model: Model) =>
     props.t.requestsTooltip
@@ -70,14 +72,52 @@ export default function PriceTable(props: PriceTableProps) {
       .replace("{output}", fmtTokens(p.output, props.lang));
   };
 
+  /** Feldzelle: $/1M (list) bzw. Credits/1M (full, phasenabhängig). */
+  const fieldCell = (model: Model, field: (typeof module.fields)[number]): string => {
+    if (props.basis === "list") {
+      return fmt(module.formulas.fieldPriceUsd(model, field.key, props.plan));
+    }
+    const cred = model.creditPerM[field.key];
+    if (cred === undefined) return "–";
+    return fmtBig(cred * module.peak.phaseFactor[model.tier ?? "peak"]);
+  };
+
+  /** Kosten/Anfrage: $ (list) bzw. Credits (full, phasenabhängig). */
+  const costCell = (model: Model): string => {
+    if (props.basis === "list") {
+      return fmt(module.formulas.requestCostUsd(model, props.plan));
+    }
+    const cpr = module.formulas.creditsPerRequest(model);
+    if (cpr === null) return "–";
+    return fmtCredits(cpr * module.peak.phaseFactor[model.tier ?? "peak"]);
+  };
+
   return (
     <section>
       <Heading anchor="prices">{props.t.headingPrices}</Heading>
 
       <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs uppercase tracking-wide text-base-content/60">{props.t.basisLabel}</span>
-          <div class="join" role="group" aria-label={props.t.basisLabel}>
+          <span class="inline-flex items-center gap-1 text-xs uppercase tracking-wide text-base-content/60">
+            {props.t.basisLabel}
+            <Tooltip tip={basisHelp()} class="inline-flex">
+              <svg
+                class="h-3.5 w-3.5 text-base-content/50"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+            </Tooltip>
+          </span>
+          <div class="join" role="group" aria-label={props.t.basisLabel} data-testid="basis-selector">
             <button
               type="button"
               class="btn btn-sm join-item"
@@ -96,18 +136,13 @@ export default function PriceTable(props: PriceTableProps) {
             >
               {props.t.basisFull}
             </button>
-            <button
-              type="button"
-              class="btn btn-sm join-item"
-              classList={{ "btn-primary btn-active": props.basis === "paid" }}
-              aria-pressed={props.basis === "paid"}
-              onClick={() => props.setBasis("paid")}
-            >
-              {props.t.basisPaid}
-            </button>
           </div>
         </div>
       </div>
+
+      <p class="mt-1 text-xs text-base-content/60" data-testid="basis-desc">
+        {basisDesc()}
+      </p>
 
       <div class="card mt-4 overflow-x-auto border border-base-300 bg-base-100">
         <table class="table table-zebra table-sm table-pin-rows">
@@ -118,11 +153,13 @@ export default function PriceTable(props: PriceTableProps) {
                 {(field) => (
                   <th class="text-right">
                     <div>{props.t[field.labelKey]}</div>
-                    <div class="text-xs font-normal text-base-content/60">{props.t.per1m}</div>
+                    <div class="text-xs font-normal text-base-content/60">
+                      {props.basis === "list" ? props.t.per1m : props.t.per1mCredits}
+                    </div>
                   </th>
                 )}
               </For>
-              <th class="text-right">{props.t.colCost}</th>
+              <th class="text-right">{props.basis === "list" ? props.t.colCost : props.t.colCostCredits}</th>
               <th class="text-right">{props.t.colRequests}</th>
             </tr>
           </thead>
@@ -166,21 +203,18 @@ export default function PriceTable(props: PriceTableProps) {
                       )}
                     </td>
                     <For each={module.fields}>
-                      {(field) => {
-                        const v = module.formulas.fieldPriceUsd(model, field.key, props.basis, props.plan, props.cycle);
-                        return <td class="text-right tabular-nums">{fmt(v)}</td>;
-                      }}
+                      {(field) => <td class="text-right tabular-nums">{fieldCell(model, field)}</td>}
                     </For>
                     <td class="text-right tabular-nums">
                       <Tooltip tip={costTooltip(model)} class="inline-flex">
-                        <span>{fmt(module.formulas.requestCostUsd(model, props.basis, props.plan, props.cycle))}</span>
+                        <span>{costCell(model)}</span>
                       </Tooltip>
                     </td>
                     <td class="text-right tabular-nums">
                       {hasPattern ? (
                         <Tooltip tip={requestsTooltip(model)} class="inline-flex">
                           <span>
-                            {fmtInt(module.formulas.requestsPerMonth(model, props.basis, props.plan, props.cycle), props.lang)}
+                            {fmtInt(module.formulas.requestsPerMonth(model, props.plan), props.lang)}
                           </span>
                         </Tooltip>
                       ) : (

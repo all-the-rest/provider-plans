@@ -73,22 +73,6 @@ function formatDuration(milliseconds: number): string {
   return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
 }
 
-function formatUtcRange(ranges: [number, number][]): string {
-  return ranges.map(([start, end]) => `${String(start).padStart(2, "0")}:00–${String(end).padStart(2, "0")}:00`).join(", ");
-}
-
-function formatLocalRange(ranges: [number, number][], now: number): string {
-  const current = new Date(now);
-  const formatter = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false });
-  return ranges
-    .map(([start, end]) => {
-      const startDate = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate(), start));
-      const endDate = new Date(Date.UTC(current.getUTCFullYear(), current.getUTCMonth(), current.getUTCDate(), end));
-      return `${formatter.format(startDate)}–${formatter.format(endDate)}`;
-    })
-    .join(", ");
-}
-
 export function usePeakClock() {
   const [now, setNow] = createSignal(Date.now());
   onMount(() => {
@@ -114,13 +98,18 @@ export function PeakIndicator(props: PeakIndicatorProps) {
     return ts === null ? "–" : formatDuration(ts - props.now);
   };
   const phase = () => (active() ? "peak" : "off-peak");
+  // Lokale Uhrzeit des nächsten Wechsels (Ende der aktuellen Phase) — nie das
+  // Peak-Fenster selbst, wenn gerade off-peak gilt.
+  const time = () => {
+    const ts = transition();
+    if (ts === null) return "–";
+    return new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(ts));
+  };
   const tooltip = () =>
     props.t.peakTooltip
       .replace("{phase}", props.config.phaseLabel[phase()])
-      .replace("{utc}", formatUtcRange(props.ranges))
-      .replace("{local}", formatLocalRange(props.ranges, props.now))
-      .replace("{countdown}", countdown())
-      .replace("{weekend}", props.t.peakWeekendNote);
+      .replace("{time}", time())
+      .replace("{countdown}", countdown());
 
   return (
     <Tooltip tip={tooltip()} class="inline-flex items-center gap-1 leading-none">

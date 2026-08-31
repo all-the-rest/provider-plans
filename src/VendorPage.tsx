@@ -32,7 +32,7 @@ export default function VendorPage(props: VendorPageProps) {
     const planRaw = p.get("plan");
     const plan = planRaw && module.data.plans.some((pl) => pl.id === planRaw) ? planRaw : null;
     const basisRaw = p.get("basis");
-    const basis: Basis = basisRaw === "full" || basisRaw === "paid" ? basisRaw : "list";
+    const basis: Basis = basisRaw === "full" ? "full" : "list";
     const cycleRaw = p.get("cycle");
     const cycle: Cycle = cycleRaw === "quarterly" || cycleRaw === "yearly" ? cycleRaw : "monthly";
     const langRaw = p.get("lang");

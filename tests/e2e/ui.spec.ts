@@ -78,15 +78,15 @@ test.describe("Billing-Cycle oben + Wert ändert sich", () => {
     const py = (await pricesHeading.boundingBox())!.y;
     expect(cy).toBeLessThan(py);
 
-    // Lite monatlich → $18.00
-    expect((await priceStat.textContent())!.trim()).toBe("$18.00");
+    // Lite monatlich → $18 (4-Nachkomma-Format, getrimmt)
+    expect((await priceStat.textContent())!.trim()).toBe("$18");
 
     await page.getByRole("button", { name: "Quartal (−20%)" }).click();
-    expect((await priceStat.textContent())!.trim()).toBe("$14.40");
+    expect((await priceStat.textContent())!.trim()).toBe("$14.4");
     await expect(page.getByTestId("cycle-badge")).toContainText("Quartal");
 
     await page.getByRole("button", { name: "Jährlich (−30%)" }).click();
-    expect((await priceStat.textContent())!.trim()).toBe("$12.60");
+    expect((await priceStat.textContent())!.trim()).toBe("$12.6");
     await expect(page.getByTestId("cycle-badge")).toContainText("Jährlich");
   });
 
@@ -94,7 +94,7 @@ test.describe("Billing-Cycle oben + Wert ändert sich", () => {
     await goto(page, "/mimo");
     await page.getByTitle("Deutsch").click();
     const priceStat = page.getByTestId("hero-price");
-    expect((await priceStat.textContent())!.trim()).toBe("$6.00");
+    expect((await priceStat.textContent())!.trim()).toBe("$6");
     await page.getByRole("button", { name: /Jährlich/i }).click();
     expect((await priceStat.textContent())!.trim()).toBe("$5.28");
   });
@@ -227,6 +227,29 @@ test.describe("Abrechnungszeiträume", () => {
     expect(labels.join(" | ")).toContain("Quartal");
     expect(labels.join(" | ")).toContain("Jährlich");
   });
+});
+
+test.describe("Preisbasis USD / Credits", () => {
+  for (const path of ["/z-ai", "/mimo"]) {
+    test(`${path}: Basis-Wechsel ändert Einheiten, Credits/Monat-Pool bleibt gleich`, async ({ page }) => {
+      await goto(page, path);
+      await page.getByTitle("Deutsch").click();
+      const poolBefore = (await page.getByTestId("hero-pool").textContent())!.trim();
+      await expect(page.getByRole("button", { name: "USD", exact: true })).toHaveClass(/btn-primary/);
+      // USD = Plan-Parität (Monatspreis ÷ Credits)
+      await expect(page.getByTestId("basis-desc")).toContainText("Monatspreis");
+      const usdHead = await page.locator("table").first().locator("thead").textContent();
+      expect(usdHead).toContain("$/1M Tokens");
+
+      await page.getByRole("button", { name: "Credits", exact: true }).click();
+      const poolAfter = (await page.getByTestId("hero-pool").textContent())!.trim();
+      expect(poolAfter).toBe(poolBefore);
+      await expect(page.getByTestId("basis-desc")).toContainText("Credits/1M");
+      const thead = await page.locator("table").first().locator("thead").textContent();
+      expect(thead).toContain("Credits/1M Tokens");
+      expect(thead).toContain("≈ Credits/Anfrage");
+    });
+  }
 });
 
 test.describe("Header-Navigation", () => {

@@ -13,8 +13,8 @@ export const shell = {
     themeDark: "Dunkles Theme",
     themeLight: "Helles Theme",
     basisLabel: "Preisbasis",
-    basisList: "API-Listenpreis",
-    basisFull: "Credit-Pool",
+    basisList: "USD",
+    basisFull: "Credits",
     basisPaid: "Was du zahlst",
     cycleLabel: "Abrechnung",
     cycleMonthly: "Monatlich",
@@ -26,11 +26,12 @@ export const shell = {
     colCredits: "Credits",
     colValue: "Wert",
     per1m: "$/1M Tokens",
+    per1mCredits: "Credits/1M Tokens",
     perReq: "pro Anfrage",
+    colCostCredits: "≈ Credits/Anfrage",
     perMonth: "Monat",
     contextTokens: "Tokens",
-    peakTooltip:
-      "Jetzt {phase} (UTC {utc} / lokal {local}). Nächster Wechsel in {countdown}. · {weekend}",
+    peakTooltip: "Jetzt {phase} · Wechsel lokal um {time} · noch {countdown}",
     patternsSource: "Anfragemuster-Quelle",
     costTooltip:
       "Preisbasis „{basis}“: {basisDesc}. Kosten pro Anfrage = Kreditkosten des Anfragemusters × USD/Credit der Basis. {phaseDesc}",
@@ -38,11 +39,11 @@ export const shell = {
       "Requests/Monat = Monats-Credit-Pool ÷ Kreditkosten pro Anfrage ({poolDesc}). {phaseDesc} Wenn das Anfragemuster fehlt, ist keine Schätzung möglich („–“).",
     patternTooltip: "Muster: {input} Input · {cached} Cached · {output} Output Tokens/Anfrage",
     basisListDesc:
-      "Listenpreis = Pay-as-you-go-API-Preis (USD pro 1M Tokens). Kein Rabatt, keine Plan-Credits.",
+      "USD = echte Kosten in $: Monatspreis ÷ Monats-Credits ist der $-Wert je Credit; Felder und Kosten = Credits × $/Credit. Off-Peak = weniger Credits → niedrigere $-Werte.",
     basisFullDesc:
-      "Kreditkosten des Modells × USD/Credit auf den vollen monatlichen Credit-Pool zum Listenpreis des Plans umgerechnet.",
+      "Feldpreise und Kosten je Anfrage in Credits: Credits/1M = Modell-Kreditkosten; Kosten/Anfrage = Anfragemuster × Credit-Kosten (Off-Peak = weniger Credits). Requests/Monat = Monats-Credit-Pool ÷ Kosten/Anfrage.",
     basisPaidDesc:
-      "Kreditkosten des Modells × USD/Credit auf den tatsächlich gezahlten Monatspreis (inkl. Rabatt des gewählten Abrechnungszyklus) umgerechnet.",
+      "Wie „Credit-Pool“, aber mit dem tatsächlichen Monatspreis des gewählten Abrechnungszyklus (Jahr/Quartal inkl. Bindungs-Rabatt).",
     phaseDesc: "",
     headingPrices: "Preise",
     headingComparison: "Plan-Vergleich",
@@ -81,8 +82,8 @@ export const shell = {
     themeDark: "Dark theme",
     themeLight: "Light theme",
     basisLabel: "Price basis",
-    basisList: "API list price",
-    basisFull: "Credit pool",
+    basisList: "USD",
+    basisFull: "Credits",
     basisPaid: "What you pay",
     cycleLabel: "Billing",
     cycleMonthly: "Monthly",
@@ -94,11 +95,12 @@ export const shell = {
     colCredits: "Credits",
     colValue: "Value",
     per1m: "$/1M tokens",
+    per1mCredits: "credits/1M tokens",
     perReq: "per request",
+    colCostCredits: "≈ credits/request",
     perMonth: "month",
     contextTokens: "tokens",
-    peakTooltip:
-      "Now {phase} (UTC {utc} / local {local}). Next change in {countdown}. · {weekend}",
+    peakTooltip: "Now {phase} · changes locally at {time} · remaining {countdown}",
     patternsSource: "Request-pattern source",
     costTooltip:
       "Price basis “{basis}”: {basisDesc}. Cost per request = credit cost of the request pattern × USD/credit of the basis. {phaseDesc}",
@@ -108,7 +110,7 @@ export const shell = {
     basisListDesc:
       "List price = pay-as-you-go API price (USD per 1M tokens). No discount, no plan credits.",
     basisFullDesc:
-      "Credit cost of the model × USD/credit against the full monthly credit pool at the plan's list price.",
+      "Field prices and cost per request in credits: credits/1M = the model's credit cost; cost/request = request pattern × credit cost (off-peak = fewer credits). Requests/month = monthly credit pool ÷ cost per request.",
     basisPaidDesc:
       "Credit cost of the model × USD/credit against the actually paid monthly price (incl. discount of the selected billing cycle).",
     phaseDesc: "",
