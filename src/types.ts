@@ -7,8 +7,8 @@ export type Phase = "peak" | "off-peak";
 /** Abrechnungszyklus („Bindungs-Bonus"). */
 export type Cycle = "monthly" | "quarterly" | "yearly";
 
-/** Preisbasis in der Tabelle. */
-export type Basis = "list" | "full" | "paid";
+/** Preisbasis in der Tabelle. `paid` entfällt — kein Provider verspricht $-Nutzung. */
+export type Basis = "list" | "full";
 
 /** Primäre Credit-Pool-Einheit eines Plans: wöchentlich (z.ai) vs. monatlich (MiMo). */
 export type PoolKind = "weekly" | "monthly";
@@ -113,7 +113,9 @@ export type Translation = Record<string, string> & {
   colCredits: string;
   colValue: string;
   per1m: string;
+  per1mCredits: string;
   perReq: string;
+  colCostCredits: string;
   perMonth: string;
   contextTokens: string;
   peakTooltip: string;
@@ -156,14 +158,18 @@ export interface Formulas {
   planPriceMonth(plan: Plan, cycle: Cycle): number | null;
   /** Credits/Anfrage eines Modells (Basis-Faktor 1.0 = peak); null wenn Muster fehlt. */
   creditsPerRequest(model: Model): number | null;
-  /** USD/Anfrage auf Basis `basis` — berücksichtigt Phase (Tier) + Rabatte. */
-  requestCostUsd(model: Model, basis: Basis, plan: Plan, cycle: Cycle): number | null;
+  /**
+   * USD/Anfrage über Plan-Parität: Credits/Anfrage × ($/Credit), phasenabhängig.
+   * $/Credit = Monatspreis (Listenpreis) ÷ Monats-Credits — echte $, ohne
+   * externe API-Listenpreise.
+   */
+  requestCostUsd(model: Model, plan: Plan): number | null;
   /** Requests/Monat (4 Wochen bei Wochen-Pool) — berücksichtigt Phase. */
-  requestsPerMonth(model: Model, basis: Basis, plan: Plan, cycle: Cycle): number | null;
+  requestsPerMonth(model: Model, plan: Plan): number | null;
   /** „Wert" eines Plans = API-Äquivalenz des Pools ÷ tatsächlicher Monatspreis. */
   planValue(plan: Plan, cycle: Cycle): number | null;
-  /** USD/1M Tokens eines Feldes auf Basis `basis`. */
-  fieldPriceUsd(model: Model, field: CreditField, basis: Basis, plan: Plan, cycle: Cycle): number | null;
+  /** USD/1M eines Feldes über Plan-Parität: Credits/1M × ($/Credit), phasenabhängig. */
+  fieldPriceUsd(model: Model, field: CreditField, plan: Plan): number | null;
 }
 
 export interface FieldLens {

@@ -1,11 +1,25 @@
 import type { Lang } from "./types";
 
-/** USD-Preis kompakt (z. B. $1.40, $0.075). */
+/** USD-Preis kompakt, auf maximal 4 Nachkommastellen gerundet („$0.0036", „$18"). */
 export function fmt(n: number | null | undefined): string {
   if (n === null || n === undefined || Number.isNaN(n)) return "–";
-  if (n >= 1) return "$" + n.toFixed(2);
-  const s = n.toFixed(6);
-  return "$" + s.replace(/0+$/, "").replace(/\.$/, "");
+  const s = n
+    .toFixed(4)
+    .replace(/0+$/, "")
+    .replace(/\.$/, "");
+  return "$" + s;
+}
+
+/** Kreditkosten kompakt (z. B. 9,7 · 635K · 2.5M), mit bis zu 2 Nachkommastellen bei kleinen Werten. */
+export function fmtCredits(n: number | null | undefined): string {
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
+  if (n >= 1e6) return fmtBig(n);
+  if (n >= 1000) {
+    const v = n / 1000;
+    return (Number.isInteger(v) ? String(v) : String(Math.round(v * 10) / 10)) + "K";
+  }
+  if (n >= 100) return String(Math.round(n));
+  return String(Math.round(n * 100) / 100);
 }
 
 /** Große Zahlen mit Suffix (B/K/M/T), z. B. 4.1B Credits. */

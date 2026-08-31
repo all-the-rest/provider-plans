@@ -35,17 +35,15 @@ export function makeFormulas(data: VendorPriceData, peak: PeakConfig, flagshipId
 
   const creditsPerRequest = (m: Model): number | null => patternCost(m, creditPerToken(m));
 
-  const requestCostUsd = (m: Model, basis: Basis, plan: Plan, cycle: Cycle): number | null => {
+  const requestCostUsd = (m: Model, plan: Plan): number | null => {
     if (!m.pattern) return null;
-    if (basis === "list") return patternApiCost(m, apiPerToken(m));
     const cpr = patternCost(m, creditPerToken(m));
-    if (cpr === null) return null;
-    const ucp = usdPerCredit(plan, basis, cycle, (c) => planPriceMonth(plan, c));
-    if (ucp === null) return null;
+    const ucp = usdPerCredit(plan);
+    if (cpr === null || ucp === null) return null;
     return cpr * phaseFactor(m, peak) * ucp;
   };
 
-  const requestsPerMonth = (m: Model, _basis: Basis, plan: Plan, _cycle: Cycle): number | null => {
+  const requestsPerMonth = (m: Model, plan: Plan): number | null => {
     const cpr = patternCost(m, creditPerToken(m));
     if (cpr === null) return null;
     return sharedRequestsPerMonth(plan, m, cpr, peak);
@@ -63,23 +61,8 @@ export function makeFormulas(data: VendorPriceData, peak: PeakConfig, flagshipId
     return (pool / (cpr * phaseFactor(flagship, peak))) * (apiCost / price);
   };
 
-  const fieldPriceUsd = (
-    m: Model,
-    field: CreditField,
-    basis: Basis,
-    plan: Plan,
-    cycle: Cycle
-  ): number | null =>
-    sharedFieldPriceUsd(
-      m,
-      field,
-      basis,
-      plan,
-      cycle,
-      (f) => m.creditPerM[f] ?? null,
-      (f) => m.apiPrice[f] ?? null,
-      (c) => planPriceMonth(plan, c)
-    );
+  const fieldPriceUsd = (m: Model, field: CreditField, plan: Plan): number | null =>
+    sharedFieldPriceUsd(m, field, plan, peak, (f) => m.creditPerM[f] ?? null);
 
   return {
     monthlyCredits,

@@ -64,37 +64,35 @@ export function patternApiCost(
   return p.input * input + p.cached * cached + p.output * output;
 }
 
-/** USD/Credit für eine Plan-Basis (full/paid); `list` → null (Feld-API-Preis gilt). */
-export function usdPerCredit(
-  plan: Plan,
-  basis: "full" | "paid",
-  cycle: Cycle,
-  priceOf: (cycle: Cycle) => number | null
-): number | null {
+/**
+ * USD/Credit eines Plans über Plan-Parität (echter $-Wert der Credits):
+ * `Monatspreis (Listenpreis) ÷ Monats-Credit-Pool`. Bewusst OHNE externe
+ * API-Listenpreise — für DS-Werte wie 6/4.1e9 ≈ 1.46e-9 sind JS-Doubles
+ * (relative Genauigkeit ~1e-16) exakt genug; gerundet wird erst bei der Anzeige.
+ */
+export function usdPerCredit(plan: Plan): number | null {
   const pool = monthlyCredits(plan);
-  const price = basis === "paid" ? priceOf(cycle) : plan.priceMonthly;
+  const price = plan.priceMonthly;
   if (pool === null || pool <= 0 || price === null) return null;
   return price / pool;
 }
 
-/** USD/1M Tokens eines Feldes auf Basis `basis`. */
+/**
+ * USD/1M eines Feldes über Plan-Parität (phasenabhängig):
+ * Credits/1M × Phase-Faktor × USD/Credit.
+ */
 export function fieldPriceUsd(
   model: Model,
   field: CreditField,
-  basis: "list" | "full" | "paid",
   plan: Plan,
-  cycle: Cycle,
-  creditOf: (field: CreditField) => number | null,
-  apiOf: (field: CreditField) => number | null,
-  priceOf: (cycle: Cycle) => number | null
+  peak: PeakConfig,
+  creditOf: (field: CreditField) => number | null
 ): number | null {
   const cred = creditOf(field);
-  const api = apiOf(field);
-  if (cred === null || api === null) return null;
-  if (basis === "list") return api;
-  const ucp = usdPerCredit(plan, basis, cycle, priceOf);
+  if (cred === null) return null;
+  const ucp = usdPerCredit(plan);
   if (ucp === null) return null;
-  return cred * ucp;
+  return cred * phaseFactor(model, peak) * ucp;
 }
 
 /** Requests/Monat = Monats-Credit-Pool ÷ (Kreditkosten/Anfrage × Phase-Faktor). */

@@ -81,7 +81,7 @@ export default function Hero(props: HeroProps) {
         </div>
         <div class="stat">
           <div class="stat-title">{props.t.cmpPool}</div>
-          <div class="stat-value tabular-nums">{fmtBig(pool())}</div>
+          <div class="stat-value tabular-nums" data-testid="hero-pool">{fmtBig(pool())}</div>
           <div class="stat-desc">{props.t.perMonth}</div>
         </div>
         <div class="stat">
