@@ -159,17 +159,17 @@ export interface Formulas {
   /** Credits/Anfrage eines Modells (Basis-Faktor 1.0 = peak); null wenn Muster fehlt. */
   creditsPerRequest(model: Model): number | null;
   /**
-   * USD/Anfrage über Plan-Parität: Credits/Anfrage × ($/Credit), phasenabhängig.
-   * $/Credit = Monatspreis (Listenpreis) ÷ Monats-Credits — echte $, ohne
-   * externe API-Listenpreise.
+   * USD/Anfrage über Plan-Parität: Credits/Anfrage × ($/Credit), phasen- und
+   * zyklusabhängig. $/Credit = Monatspreis des gewählten Zyklus ÷ Monats-Credits
+   * — echte $, ohne externe API-Listenpreise.
    */
-  requestCostUsd(model: Model, plan: Plan): number | null;
+  requestCostUsd(model: Model, plan: Plan, cycle: Cycle): number | null;
   /** Requests/Monat (4 Wochen bei Wochen-Pool) — berücksichtigt Phase. */
   requestsPerMonth(model: Model, plan: Plan): number | null;
   /** „Wert" eines Plans = API-Äquivalenz des Pools ÷ tatsächlicher Monatspreis. */
   planValue(plan: Plan, cycle: Cycle): number | null;
-  /** USD/1M eines Feldes über Plan-Parität: Credits/1M × ($/Credit), phasenabhängig. */
-  fieldPriceUsd(model: Model, field: CreditField, plan: Plan): number | null;
+  /** USD/1M eines Feldes über Plan-Parität (phasen- und zyklusabhängig). */
+  fieldPriceUsd(model: Model, field: CreditField, plan: Plan, cycle: Cycle): number | null;
 }
 
 export interface FieldLens {

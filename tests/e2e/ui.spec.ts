@@ -81,13 +81,22 @@ test.describe("Billing-Cycle oben + Wert ändert sich", () => {
     // Lite monatlich → $18 (4-Nachkomma-Format, getrimmt)
     expect((await priceStat.textContent())!.trim()).toBe("$18");
 
+    // USD-Zellen der Tabelle hängen am Zyklus (Rabatt) → ändern sich mit.
+    const firstField = () => page.locator("table").first().locator("tbody tr").first().locator("td").nth(1);
+    const usdMonthly = (await firstField().textContent())!.trim();
+    expect(usdMonthly).toBe("$0.3105");
+
     await page.getByRole("button", { name: "Quartal (−20%)" }).click();
     expect((await priceStat.textContent())!.trim()).toBe("$14.4");
     await expect(page.getByTestId("cycle-badge")).toContainText("Quartal");
+    const usdQuarterly = (await firstField().textContent())!.trim();
+    expect(usdQuarterly).not.toBe(usdMonthly);
 
     await page.getByRole("button", { name: "Jährlich (−30%)" }).click();
     expect((await priceStat.textContent())!.trim()).toBe("$12.6");
     await expect(page.getByTestId("cycle-badge")).toContainText("Jährlich");
+    const usdYearly = (await firstField().textContent())!.trim();
+    expect(usdYearly).not.toBe(usdQuarterly);
   });
 
   test("/mimo: Jahres-Zyklus ändert Preis (Lite $6 → $5.28)", async ({ page }) => {

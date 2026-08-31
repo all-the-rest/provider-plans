@@ -1,0 +1,104 @@
+// Generische manifest-getriebene Screenshot-Spec (ui-review-Skill).
+// Pro Route × State × Viewport: Full-Page-PNG + Viewport-hohe Section-Captures
+// (80 %-Schritt, 20 % Überlappung), damit auch lange Seiten unten lesbar bleiben.
+// Nur Capture, keine Funktions-Asserts — separat von der E2E-Suite.
+import { expect, test } from "@playwright/test";
+import type { Page } from "@playwright/test";
+import path from "node:path";
+import process from "node:process";
+import { routes, uiReviewConfig } from "./ui-review.config";
+import type { UiReviewNavStep, UiReviewRoute, UiReviewState, UiReviewViewport } from "./ui-review.config";
+
+const SCREENSHOT_OUTPUT_DIR = uiReviewConfig.outputDir;
+
+const out = (state: UiReviewState, viewport: UiReviewViewport, file: string) =>
+  path.resolve(process.cwd(), SCREENSHOT_OUTPUT_DIR, state, viewport, file);
+
+function viewportForProject(projectName: string): UiReviewViewport {
+  return projectName === "Mobile Chrome" ? "mobile" : "desktop";
+}
+
+function resolvePath(pattern: string): string {
+  return pattern.replace(/:([A-Za-z]+)/g, (_m, key) => {
+    throw new Error(`Route param "${key}" wurde nicht aufgelöst (keine Seeds in dieser App)`);
+  });
+}
+
+async function waitForAppSettled(page: Page, expectedTitle?: string): Promise<void> {
+  await page.waitForLoadState("networkidle");
+  if (expectedTitle) {
+    await expect(page).toHaveTitle(expectedTitle);
+  }
+  await page.waitForTimeout(300);
+}
+
+/** Erkennt den echten Scroll-Container (Window oder inneres <main>). */
+async function captureSections(
+  page: Page,
+  state: UiReviewState,
+  viewport: UiReviewViewport,
+  name: string
+): Promise<void> {
+  const scroller = await page.evaluate(() => {
+    const doc = document.scrollingElement;
+    const winH = window.innerHeight;
+    if (doc && doc.scrollHeight > winH + 4) {
+      return { kind: "window", max: doc.scrollHeight - winH, step: Math.round(winH * 0.8) };
+    }
+    const main = document.querySelector("main");
+    if (main && main.scrollHeight > main.clientHeight + 4) {
+      return { kind: "main", max: main.scrollHeight - main.clientHeight, step: Math.round(main.clientHeight * 0.8) };
+    }
+    return { kind: "window", max: 0, step: Math.round(winH * 0.8) };
+  });
+  const scroll = (y: number) =>
+    page.evaluate(
+      ({ kind, y }) => {
+        if (kind === "main") {
+          const el = document.querySelector("main");
+          if (el) el.scrollTop = y;
+        } else {
+          window.scrollTo(0, y);
+        }
+      },
+      { kind: scroller.kind, y }
+    );
+  let y = 0;
+  let i = 0;
+  for (;;) {
+    await scroll(y);
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: out(state, viewport, `${name}-sec${i}.png`), fullPage: false });
+    if (y >= scroller.max) break;
+    i += 1;
+    y = Math.min(scroller.max, y + scroller.step);
+  }
+  await scroll(0);
+}
+
+async function applyNavStep(page: Page, step: UiReviewNavStep): Promise<void> {
+  await page.goto(resolvePath(step.path));
+  await waitForAppSettled(page);
+}
+
+for (const route of routes) {
+  for (const state of route.states) {
+    for (const viewport of route.viewports ?? ["desktop", "mobile"]) {
+      test(`screenshot ${route.name} (${state}, ${viewport})`, { tag: ["@screenshot"] }, async ({ page }, testInfo) => {
+        test.skip(
+          viewportForProject(testInfo.project.name) !== viewport,
+          `project ${testInfo.project.name} rendert den ${viewportForProject(testInfo.project.name)}-Viewport`
+        );
+
+        for (const step of route.nav ?? []) {
+          await applyNavStep(page, step);
+        }
+        await waitForAppSettled(page, route.expectedTitle);
+        await expect(page.getByRole("main")).toBeVisible();
+
+        await page.screenshot({ path: out(state, viewport, `${route.name}.png`), fullPage: true });
+        await captureSections(page, state, viewport, route.name);
+      });
+    }
+  }
+}

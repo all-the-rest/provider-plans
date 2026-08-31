@@ -75,7 +75,7 @@ export default function PriceTable(props: PriceTableProps) {
   /** Feldzelle: $/1M (list) bzw. Credits/1M (full, phasenabhängig). */
   const fieldCell = (model: Model, field: (typeof module.fields)[number]): string => {
     if (props.basis === "list") {
-      return fmt(module.formulas.fieldPriceUsd(model, field.key, props.plan));
+      return fmt(module.formulas.fieldPriceUsd(model, field.key, props.plan, props.cycle));
     }
     const cred = model.creditPerM[field.key];
     if (cred === undefined) return "–";
@@ -85,7 +85,7 @@ export default function PriceTable(props: PriceTableProps) {
   /** Kosten/Anfrage: $ (list) bzw. Credits (full, phasenabhängig). */
   const costCell = (model: Model): string => {
     if (props.basis === "list") {
-      return fmt(module.formulas.requestCostUsd(model, props.plan));
+      return fmt(module.formulas.requestCostUsd(model, props.plan, props.cycle));
     }
     const cpr = module.formulas.creditsPerRequest(model);
     if (cpr === null) return "–";
