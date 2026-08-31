@@ -1,6 +1,6 @@
 {
   "vendorId": "mimo",
-  "fetchedAt": "2026-08-31T23:20:26.176Z",
+  "fetchedAt": "2026-08-31T23:25:58.377Z",
   "sourceUrls": [
     "https://mimo.mi.com/docs/en-US/price/token-plan",
     "https://mimo.mi.com/docs/en-US/price/pay-as-you-go"
@@ -63,6 +63,7 @@
     {
       "id": "mimo-v2.5-pro",
       "name": "mimo-v2.5-pro",
+      "provider": "Xiaomi",
       "tier": "peak",
       "contextWindow": 1048576,
       "creditPerM": {
@@ -80,12 +81,12 @@
         "cached": 86000,
         "output": 305
       },
-      "note": null,
-      "provider": "Xiaomi"
+      "note": null
     },
     {
       "id": "mimo-v2.5-pro",
       "name": "mimo-v2.5-pro",
+      "provider": "Xiaomi",
       "tier": "off-peak",
       "contextWindow": 1048576,
       "creditPerM": {
@@ -103,12 +104,12 @@
         "cached": 86000,
         "output": 305
       },
-      "note": null,
-      "provider": "Xiaomi"
+      "note": null
     },
     {
       "id": "mimo-v2.5",
       "name": "mimo-v2.5",
+      "provider": "Xiaomi",
       "tier": "peak",
       "contextWindow": 1048576,
       "creditPerM": {
@@ -126,12 +127,12 @@
         "cached": 71500,
         "output": 295
       },
-      "note": null,
-      "provider": "Xiaomi"
+      "note": null
     },
     {
       "id": "mimo-v2.5",
       "name": "mimo-v2.5",
+      "provider": "Xiaomi",
       "tier": "off-peak",
       "contextWindow": 1048576,
       "creditPerM": {
@@ -149,8 +150,7 @@
         "cached": 71500,
         "output": 295
       },
-      "note": null,
-      "provider": "Xiaomi"
+      "note": null
     }
   ],
   "peak": {

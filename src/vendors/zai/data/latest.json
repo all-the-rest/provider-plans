@@ -1,6 +1,6 @@
 {
   "vendorId": "zai",
-  "fetchedAt": "2026-08-31T23:18:00.782Z",
+  "fetchedAt": "2026-08-31T23:25:57.234Z",
   "sourceUrls": [
     "https://docs.z.ai/devpack/overview.md",
     "https://docs.z.ai/guides/overview/pricing.md",
@@ -51,6 +51,7 @@
     {
       "id": "glm-5.3",
       "name": "GLM-5.3",
+      "provider": "Z.ai",
       "tier": "peak",
       "contextWindow": 1000000,
       "creditPerM": {
@@ -68,12 +69,12 @@
         "cached": 52000,
         "output": 150
       },
-      "note": null,
-      "provider": "Z.ai"
+      "note": null
     },
     {
       "id": "glm-5.3",
       "name": "GLM-5.3",
+      "provider": "Z.ai",
       "tier": "off-peak",
       "contextWindow": 1000000,
       "creditPerM": {
@@ -91,12 +92,12 @@
         "cached": 52000,
         "output": 150
       },
-      "note": null,
-      "provider": "Z.ai"
+      "note": null
     },
     {
       "id": "glm-5.3-flash",
       "name": "GLM-5.3-Flash",
+      "provider": "Z.ai",
       "tier": "peak",
       "contextWindow": 1000000,
       "creditPerM": {
@@ -114,12 +115,12 @@
         "cached": 55000,
         "output": 200
       },
-      "note": null,
-      "provider": "Z.ai"
+      "note": null
     },
     {
       "id": "glm-5.3-flash",
       "name": "GLM-5.3-Flash",
+      "provider": "Z.ai",
       "tier": "off-peak",
       "contextWindow": 1000000,
       "creditPerM": {
@@ -137,8 +138,7 @@
         "cached": 55000,
         "output": 200
       },
-      "note": null,
-      "provider": "Z.ai"
+      "note": null
     }
   ],
   "peak": {
