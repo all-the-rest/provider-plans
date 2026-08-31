@@ -276,6 +276,20 @@ test.describe("Header-Navigation", () => {
     expect(labels.join(" | ")).not.toContain("Start");
     expect(labels.length).toBe(2);
   });
+
+  test("Mobile: Hamburger-Menü navigiert zu /mimo", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto("/z-ai", { waitUntil: "networkidle" });
+    await page.getByTitle("Deutsch").click();
+    const burger = page.getByRole("button", { name: "Weitere Links" });
+    await expect(burger).toBeVisible();
+    await burger.click();
+    const menuLink = page.locator(".dropdown").getByRole("link", { name: "MiMo", exact: true });
+    await expect(menuLink).toBeVisible();
+    await menuLink.click();
+    await page.waitForURL("**/mimo");
+    expect(new URL(page.url()).pathname).toBe("/mimo");
+  });
 });
 
 function alphaOf(rgba: string): number {
