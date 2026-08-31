@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-31T22:46:53.117Z",
+  "generatedAt": "2026-08-31T23:00:31.799Z",
   "patterns": {
     "grok4.6": {
       "input": 390,
@@ -36,15 +36,85 @@
       "cached": 76500,
       "output": 300
     },
+    "kimik2.7": {
+      "input": 870,
+      "cached": 55000,
+      "output": 200
+    },
+    "k2.6": {
+      "input": 870,
+      "cached": 55000,
+      "output": 200
+    },
     "longcat2.0": {
       "input": 920,
       "cached": 88900,
       "output": 200
     },
+    "deepseekv4pro": {
+      "input": 750,
+      "cached": 82000,
+      "output": 290
+    },
+    "deepseekv4flash": {
+      "input": 410,
+      "cached": 71300,
+      "output": 310
+    },
+    "deepseekv4flashvisionexp": {
+      "input": 410,
+      "cached": 71300,
+      "output": 310
+    },
     "minimaxm3": {
       "input": 510,
       "cached": 56000,
       "output": 190
+    },
+    "minimaxm2.7": {
+      "input": 300,
+      "cached": 55000,
+      "output": 125
+    },
+    "musespark1.2contributor": {
+      "input": 620,
+      "cached": 71400,
+      "output": 300
+    },
+    "qwen3.8max": {
+      "input": 420,
+      "cached": 66000,
+      "output": 200
+    },
+    "qwen3.8flash": {
+      "input": 600,
+      "cached": 58000,
+      "output": 200
+    },
+    "qwen3.7max": {
+      "input": 420,
+      "cached": 66000,
+      "output": 200
+    },
+    "qwen3.7plus": {
+      "input": 500,
+      "cached": 57000,
+      "output": 190
+    },
+    "qwen3.6plus": {
+      "input": 500,
+      "cached": 57000,
+      "output": 190
+    },
+    "hy4preview": {
+      "input": 830,
+      "cached": 71500,
+      "output": 295
+    },
+    "hy3": {
+      "input": 830,
+      "cached": 71500,
+      "output": 295
     },
     "mimov2.5": {
       "input": 830,
@@ -55,16 +125,6 @@
       "input": 790,
       "cached": 86000,
       "output": 305
-    },
-    "qwen3.8flash": {
-      "input": 600,
-      "cached": 58000,
-      "output": 200
-    },
-    "deepseekv4flash": {
-      "input": 410,
-      "cached": 71300,
-      "output": 310
     }
   }
 }
