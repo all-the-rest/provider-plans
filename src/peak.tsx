@@ -112,7 +112,7 @@ export function PeakIndicator(props: PeakIndicatorProps) {
       .replace("{countdown}", countdown());
 
   return (
-    <Tooltip tip={tooltip()} class="inline-flex items-center gap-1 leading-none">
+    <Tooltip tip={tooltip()} class="inline-flex items-center gap-1 whitespace-nowrap leading-none">
       <span class="icon-[material-symbols--schedule] h-4 w-4 shrink-0 self-center -translate-y-px" aria-hidden="true" />
       <span class="leading-none">{props.config.phaseLabel[props.tier]}</span>
       <span class="tabular-nums leading-none text-base-content/70">· {countdown()}</span>

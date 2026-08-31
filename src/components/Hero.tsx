@@ -36,6 +36,14 @@ export default function Hero(props: HeroProps) {
 
   const modelLabel = () => (props.lang === "de" ? "Modelle" : "Models");
 
+  const hostOf = (u: string) => {
+    try {
+      return new URL(u).hostname.replace(/^www\./, "");
+    } catch {
+      return props.t.sourceLink;
+    }
+  };
+
   const cycles = createMemo<{ value: Cycle; label: string }[]>(() => {
     const labels: Record<Cycle, string> = {
       monthly: props.t.cycleMonthly,
@@ -108,7 +116,7 @@ export default function Hero(props: HeroProps) {
         </a>
         {module.data.sourceUrls.map((url) => (
           <a class="link link-hover" href={url} target="_blank" rel="noreferrer">
-            {props.t.sourceLink}
+            {hostOf(url)}
           </a>
         ))}
       </div>

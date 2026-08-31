@@ -81,10 +81,10 @@ export default function StartPage(props: StartPageProps) {
       </main>
       <footer class="footer sm:footer-horizontal border-t border-base-300 bg-base-200 px-8 py-6">
         <span class="text-sm text-base-content/70">{t().footerNote}</span>
-        <span class="text-sm text-base-content/70">
-          <a class="link" href="/impressum">{t().impressum}</a> ·{" "}
+        <div class="flex flex-wrap items-center gap-x-3 text-sm text-base-content/70">
+          <a class="link" href="/impressum">{t().impressum}</a>
           <a class="link" href="/datenschutz">{t().datenschutz}</a>
-        </span>
+        </div>
       </footer>
     </div>
   );

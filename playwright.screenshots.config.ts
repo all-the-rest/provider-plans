@@ -12,6 +12,7 @@ export default defineConfig({
   reporter: [["html", { open: "never", outputFolder: "playwright-report/ui-screenshots" }]],
   use: {
     baseURL: "http://localhost:5174",
+    locale: "de-DE",
     trace: "off",
     video: "off",
   },
