@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {
+      "id": "2026-09-01T00-00-00Z",
+      "date": "2026-09-01T06:00:00.000Z",
+      "changes": [
+        {
+          "de": "Initiale Version: z.ai GLM Coding Plan (Lite/Pro/Max) mit Credits, API-Preisen, Peak/Off-Peak und Anfragemustern.",
+          "en": "Initial version: z.ai GLM Coding Plan (Lite/Pro/Max) with credits, API prices, peak/off-peak and request patterns."
+        }
+      ]
+    }
+  ]
+}

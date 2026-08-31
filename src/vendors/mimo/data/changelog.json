@@ -1,0 +1,14 @@
+{
+  "entries": [
+    {
+      "id": "2026-09-01T00-00-00Z",
+      "date": "2026-09-01T06:00:00.000Z",
+      "changes": [
+        {
+          "de": "Initiale Version: Xiaomi MiMo Token Plan (Lite/Standard/Pro/Max) mit Credits, API-Preisen, Nacht-Rabatt und Anfragemustern.",
+          "en": "Initial version: Xiaomi MiMo Token Plan (Lite/Standard/Pro/Max) with credits, API prices, night discount and request patterns."
+        }
+      ]
+    }
+  ]
+}

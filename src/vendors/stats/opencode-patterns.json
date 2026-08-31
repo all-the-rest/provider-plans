@@ -1,0 +1,70 @@
+{
+  "generatedAt": "2026-08-31T22:46:53.117Z",
+  "patterns": {
+    "grok4.6": {
+      "input": 390,
+      "cached": 32500,
+      "output": 120
+    },
+    "glm5.3flash": {
+      "input": 1000,
+      "cached": 55000,
+      "output": 200
+    },
+    "glm5.3": {
+      "input": 700,
+      "cached": 52000,
+      "output": 150
+    },
+    "glm5.2": {
+      "input": 700,
+      "cached": 52000,
+      "output": 150
+    },
+    "glm5.1": {
+      "input": 700,
+      "cached": 52000,
+      "output": 150
+    },
+    "gpt5.6luna": {
+      "input": 1000,
+      "cached": 50000,
+      "output": 220
+    },
+    "kimik3": {
+      "input": 1050,
+      "cached": 76500,
+      "output": 300
+    },
+    "longcat2.0": {
+      "input": 920,
+      "cached": 88900,
+      "output": 200
+    },
+    "minimaxm3": {
+      "input": 510,
+      "cached": 56000,
+      "output": 190
+    },
+    "mimov2.5": {
+      "input": 830,
+      "cached": 71500,
+      "output": 295
+    },
+    "mimov2.5pro": {
+      "input": 790,
+      "cached": 86000,
+      "output": 305
+    },
+    "qwen3.8flash": {
+      "input": 600,
+      "cached": 58000,
+      "output": 200
+    },
+    "deepseekv4flash": {
+      "input": 410,
+      "cached": 71300,
+      "output": 310
+    }
+  }
+}
