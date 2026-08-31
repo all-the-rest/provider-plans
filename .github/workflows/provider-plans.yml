@@ -1,0 +1,87 @@
+name: Provider Plans
+
+on:
+  schedule:
+    # Safety-net: ein täglicher Lauf (~20:28 UTC). Der Haupt-Scrape kann zusätzlich
+    # per Server-Cron über workflow_dispatch getriggert werden.
+    - cron: "28 20 * * *"
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test scrapers & formulas
+        run: pnpm test
+
+      - name: Install Playwright browser (for z.ai subscribe prices)
+        run: pnpm exec playwright install chromium
+
+      - name: Scrape prices
+        run: pnpm scrape
+
+      - name: Build
+        run: pnpm build
+
+      - name: Commit data changes
+        id: commit
+        run: |
+          if git diff --quiet data src/vendors; then
+            echo "no data changes, skipping commit"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add data src/vendors
+            git commit -m "chore: update prices $(date -u +%Y-%m-%d)"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

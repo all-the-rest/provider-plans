@@ -1,0 +1,15 @@
+@import "tailwindcss";
+@plugin "daisyui";
+@plugin "@iconify/tailwind4" {
+  prefixes: material-symbols;
+}
+
+html,
+body {
+  width: 100%;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}

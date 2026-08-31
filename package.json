@@ -1,0 +1,39 @@
+{
+  "name": "provider-plans",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@11.23.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "scrape": "node scripts/scrape.mjs",
+    "scrape:stub": "node scripts/scrape-stub.mjs",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\"",
+    "test:e2e": "playwright test -c playwright.config.ts",
+    "test:screenshots": "playwright test -c playwright.screenshots.config.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.15"
+  },
+  "devDependencies": {
+    "@iconify-json/material-symbols": "^1.2.89",
+    "@iconify/tailwind4": "^1.2.3",
+    "@playwright/test": "1.62.1",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^26.3.0",
+    "cheerio": "^1.0.0",
+    "daisyui": "^5.7.22",
+    "tailwindcss": "^4.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^7.0.2",
+    "vite": "^8.2.2",
+    "vite-plugin-solid": "^2.11.0",
+    "zod": "^4.4.3"
+  }
+}
