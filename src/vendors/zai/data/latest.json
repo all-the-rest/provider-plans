@@ -112,7 +112,7 @@
         "cached": 55000,
         "output": 200
       },
-      "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+      "note": null
     },
     {
       "id": "glm-5.3-flash",
@@ -134,7 +134,7 @@
         "cached": 55000,
         "output": 200
       },
-      "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+      "note": null
     }
   ],
   "peak": {

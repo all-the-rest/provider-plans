@@ -140,7 +140,7 @@ export default function PriceTable(props: PriceTableProps) {
         </div>
       </div>
 
-      <p class="mt-1 text-xs text-base-content/60" data-testid="basis-desc">
+      <p class="mt-1 max-w-3xl text-xs text-base-content/60" data-testid="basis-desc">
         {basisDesc()}
       </p>
 
@@ -186,8 +186,8 @@ export default function PriceTable(props: PriceTableProps) {
                         )}
                       </div>
                       {model.note !== null && (
-                        <div class="mt-0.5">
-                          <span class="badge badge-outline badge-sm">{model.note}</span>
+                        <div class="mt-1 max-w-full">
+                          <span class="badge badge-outline badge-sm whitespace-normal break-words text-left">{model.note}</span>
                         </div>
                       )}
                       {model.tier !== null && (
