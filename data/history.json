@@ -159,12 +159,344 @@
         },
         "effectiveFromMs": 1785340800000
       }
+    },
+    {
+      "vendorId": "zai",
+      "fetchedAt": "2026-08-31T23:15:20.156Z",
+      "sourceUrls": [
+        "https://docs.z.ai/devpack/overview.md",
+        "https://docs.z.ai/guides/overview/pricing.md",
+        "https://z.ai/subscribe"
+      ],
+      "plans": [
+        {
+          "id": "lite",
+          "name": "Lite",
+          "kind": "weekly",
+          "priceMonthly": 18,
+          "priceQuarterlyMonthly": 14.4,
+          "priceYearlyMonthly": 12.6,
+          "credits5h": 2000,
+          "creditsWeekly": 10000,
+          "creditsMonthly": null,
+          "notes": "Jahr −30 % · Quartal −20 %",
+          "sourceUrl": "https://z.ai/subscribe"
+        },
+        {
+          "id": "pro",
+          "name": "Pro",
+          "kind": "weekly",
+          "priceMonthly": 80,
+          "priceQuarterlyMonthly": 64,
+          "priceYearlyMonthly": 56,
+          "credits5h": 12000,
+          "creditsWeekly": 60000,
+          "creditsMonthly": null,
+          "notes": "6× Lite usage",
+          "sourceUrl": "https://z.ai/subscribe"
+        },
+        {
+          "id": "max",
+          "name": "Max",
+          "kind": "weekly",
+          "priceMonthly": 168,
+          "priceQuarterlyMonthly": 134.4,
+          "priceYearlyMonthly": 117.6,
+          "credits5h": 28000,
+          "creditsWeekly": 140000,
+          "creditsMonthly": null,
+          "notes": "14× Lite usage",
+          "sourceUrl": "https://z.ai/subscribe"
+        }
+      ],
+      "models": [
+        {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "tier": "peak",
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 690,
+            "cached": 170,
+            "output": 2400
+          },
+          "apiPrice": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "pattern": {
+            "input": 700,
+            "cached": 52000,
+            "output": 150
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.3",
+          "name": "GLM-5.3",
+          "tier": "off-peak",
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 690,
+            "cached": 170,
+            "output": 2400
+          },
+          "apiPrice": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "pattern": {
+            "input": 700,
+            "cached": 52000,
+            "output": 150
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "tier": "peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 230,
+            "cached": 56,
+            "output": 800
+          },
+          "apiPrice": {
+            "input": 0.075,
+            "cached": 0.015,
+            "output": 0.25
+          },
+          "pattern": {
+            "input": 1000,
+            "cached": 55000,
+            "output": 200
+          },
+          "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+        },
+        {
+          "id": "glm-5.3-flash",
+          "name": "GLM-5.3-Flash",
+          "tier": "off-peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 230,
+            "cached": 56,
+            "output": 800
+          },
+          "apiPrice": {
+            "input": 0.075,
+            "cached": 0.015,
+            "output": 0.25
+          },
+          "pattern": {
+            "input": 1000,
+            "cached": 55000,
+            "output": 200
+          },
+          "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+        }
+      ],
+      "peak": {
+        "windows": [
+          [
+            6,
+            10
+          ]
+        ],
+        "phaseFactor": {
+          "peak": 1,
+          "off-peak": 0.5
+        },
+        "weekendOffPeak": true,
+        "tzOffsetMin": 480,
+        "timezoneLabel": "SGT (UTC+8)",
+        "phaseLabel": {
+          "peak": "Peak",
+          "off-peak": "Off-Peak"
+        },
+        "effectiveFromMs": 1785340800000
+      }
     }
   ],
   "mimo": [
     {
       "vendorId": "mimo",
       "fetchedAt": "2026-08-31T23:00:33.633Z",
+      "sourceUrls": [
+        "https://mimo.mi.com/docs/en-US/price/token-plan",
+        "https://mimo.mi.com/docs/en-US/price/pay-as-you-go"
+      ],
+      "plans": [
+        {
+          "id": "lite",
+          "name": "Lite",
+          "kind": "monthly",
+          "priceMonthly": 6,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 5.28,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 4100000000,
+          "notes": "Erstkauf −12 % (einmalig)",
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "standard",
+          "name": "Standard",
+          "kind": "monthly",
+          "priceMonthly": 16,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 14.08,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 11000000000,
+          "notes": "Erstkauf −12 % (einmalig)",
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "pro",
+          "name": "Pro",
+          "kind": "monthly",
+          "priceMonthly": 50,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 44,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 38000000000,
+          "notes": "Erstkauf −12 % (einmalig)",
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "max",
+          "name": "Max",
+          "kind": "monthly",
+          "priceMonthly": 100,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 88,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 82000000000,
+          "notes": "Erstkauf −12 % (einmalig)",
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        }
+      ],
+      "models": [
+        {
+          "id": "mimo-v2.5-pro",
+          "name": "mimo-v2.5-pro",
+          "tier": "peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 2500000,
+            "output": 600000000,
+            "inputMiss": 300000000
+          },
+          "apiPrice": {
+            "input": 0.0036,
+            "output": 0.87,
+            "inputMiss": 0.435
+          },
+          "pattern": {
+            "input": 790,
+            "cached": 86000,
+            "output": 305
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5-pro",
+          "name": "mimo-v2.5-pro",
+          "tier": "off-peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 2500000,
+            "output": 600000000,
+            "inputMiss": 300000000
+          },
+          "apiPrice": {
+            "input": 0.0036,
+            "output": 0.87,
+            "inputMiss": 0.435
+          },
+          "pattern": {
+            "input": 790,
+            "cached": 86000,
+            "output": 305
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5",
+          "name": "mimo-v2.5",
+          "tier": "peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 2000000,
+            "output": 200000000,
+            "inputMiss": 100000000
+          },
+          "apiPrice": {
+            "input": 0.0028,
+            "output": 0.28,
+            "inputMiss": 0.14
+          },
+          "pattern": {
+            "input": 830,
+            "cached": 71500,
+            "output": 295
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5",
+          "name": "mimo-v2.5",
+          "tier": "off-peak",
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 2000000,
+            "output": 200000000,
+            "inputMiss": 100000000
+          },
+          "apiPrice": {
+            "input": 0.0028,
+            "output": 0.28,
+            "inputMiss": 0.14
+          },
+          "pattern": {
+            "input": 830,
+            "cached": 71500,
+            "output": 295
+          },
+          "note": null
+        }
+      ],
+      "peak": {
+        "windows": [
+          [
+            16,
+            24
+          ]
+        ],
+        "phaseFactor": {
+          "peak": 1,
+          "off-peak": 0.8
+        },
+        "weekendOffPeak": false,
+        "tzOffsetMin": 480,
+        "timezoneLabel": "Peking (UTC+8)",
+        "phaseLabel": {
+          "peak": "Tag",
+          "off-peak": "Nacht −20 %"
+        },
+        "effectiveFromMs": null
+      }
+    },
+    {
+      "vendorId": "mimo",
+      "fetchedAt": "2026-08-31T23:15:21.341Z",
       "sourceUrls": [
         "https://mimo.mi.com/docs/en-US/price/token-plan",
         "https://mimo.mi.com/docs/en-US/price/pay-as-you-go"
