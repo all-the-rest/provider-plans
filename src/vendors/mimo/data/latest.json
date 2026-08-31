@@ -64,7 +64,7 @@
       "id": "mimo-v2.5-pro",
       "name": "mimo-v2.5-pro",
       "tier": "peak",
-      "contextWindow": null,
+      "contextWindow": 1048576,
       "creditPerM": {
         "input": 2500000,
         "output": 600000000,
@@ -80,13 +80,14 @@
         "cached": 86000,
         "output": 305
       },
-      "note": null
+      "note": null,
+      "provider": "Xiaomi"
     },
     {
       "id": "mimo-v2.5-pro",
       "name": "mimo-v2.5-pro",
       "tier": "off-peak",
-      "contextWindow": null,
+      "contextWindow": 1048576,
       "creditPerM": {
         "input": 2500000,
         "output": 600000000,
@@ -102,13 +103,14 @@
         "cached": 86000,
         "output": 305
       },
-      "note": null
+      "note": null,
+      "provider": "Xiaomi"
     },
     {
       "id": "mimo-v2.5",
       "name": "mimo-v2.5",
       "tier": "peak",
-      "contextWindow": null,
+      "contextWindow": 1048576,
       "creditPerM": {
         "input": 2000000,
         "output": 200000000,
@@ -124,13 +126,14 @@
         "cached": 71500,
         "output": 295
       },
-      "note": null
+      "note": null,
+      "provider": "Xiaomi"
     },
     {
       "id": "mimo-v2.5",
       "name": "mimo-v2.5",
       "tier": "off-peak",
-      "contextWindow": null,
+      "contextWindow": 1048576,
       "creditPerM": {
         "input": 2000000,
         "output": 200000000,
@@ -146,7 +149,8 @@
         "cached": 71500,
         "output": 295
       },
-      "note": null
+      "note": null,
+      "provider": "Xiaomi"
     }
   ],
   "peak": {

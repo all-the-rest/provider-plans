@@ -1,6 +1,6 @@
 {
   "vendorId": "zai",
-  "fetchedAt": "2026-08-31T23:20:24.849Z",
+  "fetchedAt": "2026-08-31T23:18:00.782Z",
   "sourceUrls": [
     "https://docs.z.ai/devpack/overview.md",
     "https://docs.z.ai/guides/overview/pricing.md",
@@ -68,7 +68,8 @@
         "cached": 52000,
         "output": 150
       },
-      "note": null
+      "note": null,
+      "provider": "Z.ai"
     },
     {
       "id": "glm-5.3",
@@ -90,13 +91,14 @@
         "cached": 52000,
         "output": 150
       },
-      "note": null
+      "note": null,
+      "provider": "Z.ai"
     },
     {
       "id": "glm-5.3-flash",
       "name": "GLM-5.3-Flash",
       "tier": "peak",
-      "contextWindow": null,
+      "contextWindow": 1000000,
       "creditPerM": {
         "input": 230,
         "cached": 56,
@@ -112,13 +114,14 @@
         "cached": 55000,
         "output": 200
       },
-      "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+      "note": null,
+      "provider": "Z.ai"
     },
     {
       "id": "glm-5.3-flash",
       "name": "GLM-5.3-Flash",
       "tier": "off-peak",
-      "contextWindow": null,
+      "contextWindow": 1000000,
       "creditPerM": {
         "input": 230,
         "cached": 56,
@@ -134,7 +137,8 @@
         "cached": 55000,
         "output": 200
       },
-      "note": "GLM-5.3-Flash: −50 % API-Preis (Aktion) bis 2026-09-09 24:00 SGT."
+      "note": null,
+      "provider": "Z.ai"
     }
   ],
   "peak": {

@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 import { isTierActive, PeakIndicator, usePeakClock } from "../peak";
-import { fmt, fmtBig, fmtCredits, fmtInt, fmtTokens } from "../util";
+import { fmt, fmtBig, fmtContextWindow, fmtCredits, fmtInt, fmtTokens } from "../util";
 import Heading from "./Heading";
 import { Tooltip } from "./Tooltip";
 import type { Basis, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
@@ -179,9 +179,16 @@ export default function PriceTable(props: PriceTableProps) {
                         ) : (
                           <span class="font-medium">{model.name}</span>
                         )}
-                        {model.contextWindow !== null && (
+                        {(model.provider !== null || model.contextWindow !== null) && (
                           <span class="text-xs tabular-nums text-base-content/50">
-                            {fmtInt(model.contextWindow, props.lang)} {props.t.contextTokens}
+                            {[
+                              model.provider,
+                              model.contextWindow !== null
+                                ? `${fmtContextWindow(model.contextWindow)} ${props.t.contextTokens}`
+                                : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" · ")}
                           </span>
                         )}
                       </div>

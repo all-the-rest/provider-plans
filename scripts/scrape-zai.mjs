@@ -5,8 +5,10 @@ import { chromium } from "@playwright/test";
 import * as cheerio from "cheerio";
 import {
   assertPatternConsistency,
+  enrichModelMeta,
   extractTableRows,
   fetchText,
+  loadModelsDev,
   normalizeName,
   parseFloatOrNull,
   parseIntOrNull,
@@ -337,7 +339,7 @@ function buildZaiModels(multipliers, apiPrices, patterns, promotion) {
         creditPerM,
         apiPrice: api,
         pattern,
-        note: key === "glm-5.3-flash" ? promotion : null,
+        note: null,
       });
     }
   }
@@ -396,6 +398,15 @@ export async function scrapeZai(opts = {}) {
 
   const modelRows = buildZaiModels(overview.multipliers, pricing, patterns, promotionNote(pricingText));
   assertPatternConsistency(modelRows);
+
+  // Kontextfenster + Hersteller aus models.dev (Provider-Zuordnung, Overwrite gewinnt).
+  // Im Stub-Modus (write === false) keine Netzwerk-Abhängigkeit: nur Overrides.
+  const providers =
+    opts.write === false ? {} : (await loadModelsDev()).providers;
+  enrichModelMeta(modelRows, providers, {
+    "glm-5.3": { provider: "Z.ai" },
+    "glm-5.3-flash": { provider: "Z.ai", contextWindow: 1000000 },
+  });
 
   const peak = overview.peak;
   const data = {
