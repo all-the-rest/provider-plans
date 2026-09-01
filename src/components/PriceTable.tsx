@@ -1,9 +1,12 @@
-import { For } from "solid-js";
+import { For, createMemo, createSignal } from "solid-js";
 import { isTierActive, PeakIndicator, usePeakClock } from "../peak";
 import { fmt, fmtBig, fmtContextWindow, fmtCredits, fmtInt, fmtTokens } from "../util";
 import Heading from "./Heading";
 import { Tooltip } from "./Tooltip";
-import type { Basis, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
+import type { Basis, CreditField, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
+
+type SortKey = "name" | "cost" | "requests" | CreditField;
+type SortDir = "asc" | "desc";
 
 export interface PriceTableProps {
   module: VendorModule;
@@ -18,6 +21,54 @@ export interface PriceTableProps {
 export default function PriceTable(props: PriceTableProps) {
   const now = usePeakClock();
   const { module } = props;
+
+  const [sortKey, setSortKey] = createSignal<SortKey>("requests");
+  const [sortDir, setSortDir] = createSignal<SortDir>("desc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey() === key) {
+      setSortDir(sortDir() === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir(key === "name" ? "asc" : "desc");
+    }
+  };
+
+  const sortedModels = createMemo(() => {
+    const models = [...module.data.models];
+    const key = sortKey();
+    const dir = sortDir() === "asc" ? 1 : -1;
+
+    const getValue = (m: Model): number | null => {
+      switch (key) {
+        case "name":
+          return null;
+        case "cost":
+          return props.basis === "list"
+            ? module.formulas.requestCostUsd(m, props.plan, props.cycle)
+            : module.formulas.creditsPerRequest(m);
+        case "requests":
+          return module.formulas.requestsPerMonth(m, props.plan);
+        default:
+          return m.creditPerM[key] ?? null;
+      }
+    };
+
+    models.sort((a, b) => {
+      if (key === "name") {
+        return dir * a.name.localeCompare(b.name);
+      }
+      const va = getValue(a);
+      const vb = getValue(b);
+      // nulls always last
+      if (va === null && vb === null) return 0;
+      if (va === null) return 1;
+      if (vb === null) return -1;
+      return dir * (va - vb);
+    });
+
+    return models;
+  });
 
   const basisLabel = () => (props.basis === "list" ? props.t.basisList : props.t.basisFull);
 
@@ -62,6 +113,48 @@ export default function PriceTable(props: PriceTableProps) {
     props.t.requestsTooltip
       .replace("{poolDesc}", poolDesc())
       .replace("{phaseDesc}", phaseNote(model));
+
+  const SortHeader = (props2: {
+    sortKey: SortKey;
+    label: string;
+    align?: string;
+    sub?: string;
+  }) => {
+    const active = () => sortKey() === props2.sortKey;
+    return (
+      <th
+        class="cursor-pointer select-none"
+        classList={{ "text-right": props2.align !== "left" }}
+        onClick={() => toggleSort(props2.sortKey)}
+        aria-sort={active() ? (sortDir() === "asc" ? "ascending" : "descending") : "none"}
+      >
+        <div class="inline-flex items-center gap-0.5">
+          <span>{props2.label}</span>
+          <svg
+            class="h-3 w-3 transition-opacity"
+            classList={{ "opacity-100": active(), "opacity-30": !active() }}
+            viewBox="0 0 12 12"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            {active() && sortDir() === "desc" ? (
+              <path d="M6 2l4 6H2z" />
+            ) : active() && sortDir() === "asc" ? (
+              <path d="M6 10L2 4h8z" />
+            ) : (
+              <>
+                <path d="M6 2l3 4H3z" class="opacity-30" />
+                <path d="M6 10l-3-4h6z" class="opacity-30" />
+              </>
+            )}
+          </svg>
+        </div>
+        {props2.sub && (
+          <div class="text-xs font-normal text-base-content/60">{props2.sub}</div>
+        )}
+      </th>
+    );
+  };
 
   const patternTooltip = (model: Model) => {
     const p = model.pattern;
@@ -148,23 +241,22 @@ export default function PriceTable(props: PriceTableProps) {
         <table class="table table-zebra table-sm table-pin-rows">
           <thead>
             <tr>
-              <th>{props.t.colModel}</th>
+              <SortHeader sortKey="name" label={props.t.colModel} align="left" />
               <For each={module.fields}>
                 {(field) => (
-                  <th class="text-right">
-                    <div>{props.t[field.labelKey]}</div>
-                    <div class="text-xs font-normal text-base-content/60">
-                      {props.basis === "list" ? props.t.per1m : props.t.per1mCredits}
-                    </div>
-                  </th>
+                  <SortHeader
+                    sortKey={field.key}
+                    label={props.t[field.labelKey]}
+                    sub={props.basis === "list" ? props.t.per1m : props.t.per1mCredits}
+                  />
                 )}
               </For>
-              <th class="text-right">{props.basis === "list" ? props.t.colCost : props.t.colCostCredits}</th>
-              <th class="text-right">{props.t.colRequests}</th>
+              <SortHeader sortKey="cost" label={props.basis === "list" ? props.t.colCost : props.t.colCostCredits} />
+              <SortHeader sortKey="requests" label={props.t.colRequests} />
             </tr>
           </thead>
           <tbody>
-            <For each={module.data.models}>
+            <For each={sortedModels()}>
               {(model) => {
                 const inactive = model.tier !== null && !isTierActive(model.tier, now(), module.peak.windows, module.peak);
                 const hasPattern = model.pattern !== null;
