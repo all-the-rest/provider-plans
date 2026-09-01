@@ -1,6 +1,6 @@
 export type Lang = "de" | "en";
 
-export type VendorId = "zai" | "mimo";
+export type VendorId = "zai" | "mimo" | "ollama";
 
 export type Phase = "peak" | "off-peak";
 

@@ -79,7 +79,7 @@ export default function Hero(props: HeroProps) {
         </div>
       </div>
 
-      <div class="stats stats-vertical mt-4 w-full border border-base-300 bg-base-100 sm:stats-horizontal">
+      <div class="stats stats-vertical mt-6 w-full border border-base-300 bg-base-100 sm:stats-horizontal">
         <div class="stat">
           <div class="stat-title">{props.t.cmpPrice}</div>
           <div class="stat-value text-primary tabular-nums" data-testid="hero-price">
@@ -104,7 +104,7 @@ export default function Hero(props: HeroProps) {
         </div>
       </div>
 
-      <div class="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/70">
+      <div class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/70">
         <span>
           {props.t.fetchedAt}: <time class="font-medium text-base-content">{fmtDate(module.data.fetchedAt, props.lang)}</time>
         </span>

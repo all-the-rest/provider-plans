@@ -55,6 +55,14 @@ export const uiReviewConfig: UiReviewConfig = {
       nav: [{ kind: "goto", path: "/mimo", reason: "SPA-Deep-Link (Header-Nav auf Mobile versteckt)" }],
     },
     {
+      name: "ollama",
+      path: "/ollama",
+      states: ["filled"],
+      expectedTitle: TITLE,
+      note: "Ollama Pro & Max — Daten gebündelt; kein separater Empty-State.",
+      nav: [{ kind: "goto", path: "/ollama", reason: "SPA-Deep-Link (Header-Nav auf Mobile versteckt)" }],
+    },
+    {
       name: "impressum",
       path: "/impressum",
       states: ["filled"],

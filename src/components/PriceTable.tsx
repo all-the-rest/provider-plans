@@ -186,7 +186,7 @@ export default function PriceTable(props: PriceTableProps) {
   };
 
   return (
-    <section>
+    <section class="mt-10">
       <Heading anchor="prices">{props.t.headingPrices}</Heading>
 
       <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">

@@ -84,7 +84,7 @@ export default function PlanComparison(props: PlanComparisonProps) {
       : "≈ Requests/mo: flagship model on the credit pool at monthly billing.";
 
   return (
-    <section>
+    <section class="mt-10">
       <Heading anchor="comparison">{props.t.headingComparison}</Heading>
 
       <div class="card mt-4 overflow-x-auto border border-base-300 bg-base-100">

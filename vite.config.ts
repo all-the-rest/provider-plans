@@ -24,7 +24,7 @@ export default defineConfig({
       closeBundle() {
         const dist = resolve(root, "dist");
         mkdirSync(resolve(dist, "data"), { recursive: true });
-        for (const vendor of ["zai", "mimo"]) {
+        for (const vendor of ["zai", "mimo", "ollama"]) {
           const src = resolve(root, `src/vendors/${vendor}/data/latest.json`);
           writeFileSync(
             resolve(dist, `data/latest.${vendor}.json`),
