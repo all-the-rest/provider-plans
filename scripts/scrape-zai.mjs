@@ -159,28 +159,59 @@ function detectPriceDiscounts(billingText) {
  */
 export function parseZaiSubscribe(html, { sourceUrl = ZAI_SUBSCRIBE_URL } = {}) {
   const $ = cheerio.load(html);
-  const billingText = $(".billing, [class*='billing']").first().text();
+  const billingText =
+    $(".billing, [class*='billing']").first().text() || $.text();
   const billing = detectPriceDiscounts(billingText);
 
   const raw = [];
-  $("section, [class*='plan-card']").each((_, el) => {
-    const card = $(el);
-    const title = card.find("h2, h3").first().text().trim();
-    const id = { lite: "lite", pro: "pro", max: "max" }[title.trim().toLowerCase()];
-    if (!id) return;
-    const priceText = card.find("[class*='price']").first().text() || card.text();
-    const prices = [...priceText.matchAll(/\$(\d+(?:\.\d+)?)\s*\/\s*month/gi)].map((m) =>
-      parseFloat(m[1])
-    );
+  const seen = new Set();
+  $("h2, h3").each((_, el) => {
+    const rawTitle = $(el).text().trim();
+    const lower = rawTitle.toLowerCase();
+    let id = null;
+    let title = rawTitle;
+    if (lower.includes("lite")) {
+      id = "lite";
+      title = "Lite";
+    } else if (lower.includes("pro")) {
+      id = "pro";
+      title = "Pro";
+    } else if (lower.includes("max")) {
+      id = "max";
+      title = "Max";
+    }
+    if (!id || seen.has(id)) return;
+    // Finde die Karten-Box: nächster Vorfahr, dessen Text $ und Credits/Lite usage enthält (spezifische Karte, nicht Outer)
+    let card = null;
+    $(el)
+      .parents()
+      .each((_, p) => {
+        const txt = $(p).text();
+        if (/\$\s*\d/.test(txt) && /Credits|Lite usage/i.test(txt)) {
+          card = $(p);
+          return false;
+        }
+      });
+    // Fallback: section/plan-card (Fixture) oder direkter Parent
+    if (!card || !card.length) {
+      const fallback = $(el).closest("section, [class*='plan-card']");
+      if (fallback.length) card = fallback;
+      else card = $(el).parent();
+    }
     const body = card.text();
+    const prices = [...body.matchAll(/\$(\d+(?:\.\d+)?)\s*\/\s*month/gi)].map((m) => parseFloat(m[1]));
+    if (prices.length === 0) return;
     const weeklyMatch = body.match(/([\d,]+)\s*Credits?\s*\/\s*week/i);
     const multMatch = body.match(/(\d+)\s*×\s*Lite usage/i);
+    const weekly = weeklyMatch ? parseIntOrNull(weeklyMatch[1]) : null;
+    const mult = multMatch ? Number(multMatch[1]) : null;
+    seen.add(id);
     raw.push({
       id,
       title,
       prices,
-      weekly: weeklyMatch ? parseIntOrNull(weeklyMatch[1]) : null,
-      mult: multMatch ? Number(multMatch[1]) : null,
+      weekly,
+      mult,
     });
   });
 
@@ -239,10 +270,10 @@ function isSubscribeHtml(html) {
 }
 
 /** Lädt z.ai/subscribe via Playwright; null wenn Browser fehlt oder Rendering scheitert. */
-async function playwrightZaiSubscribe(url) {
+export async function playwrightZaiSubscribe(url) {
   let browser;
   try {
-    browser = await chromium.launch({ headless: true });
+    browser = await chromium.launch({ headless: true, args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"] });
   } catch (err) {
     console.error(`[zai] Playwright-Browser nicht verfügbar: ${err.message}`);
     return null;
@@ -291,13 +322,16 @@ async function resolveZaiPlans(allowance, opts = {}) {
     try {
       const raw = await fetchText(ZAI_SUBSCRIBE_URL, { timeoutMs: 20000 });
       if (isSubscribeHtml(raw)) {
-        return mergeAllowance(parseZaiSubscribe(raw), allowance);
+        try {
+          const plans = parseZaiSubscribe(raw);
+          if (plans.length) return mergeAllowance(plans, allowance);
+        } catch {}
       }
     } catch {
       // weiter zu Playwright
     }
     const pw = await playwrightZaiSubscribe(ZAI_SUBSCRIBE_URL);
-    if (pw) return mergeAllowance(pw, allowance);
+    if (pw && pw.length) return mergeAllowance(pw, allowance);
   }
 
   committed = committed ?? (await readJsonSafe("src/vendors/zai/data/latest.json"));
