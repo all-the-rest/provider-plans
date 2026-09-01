@@ -51,6 +51,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Set safe git directory for container
+        run: git config --global --add safe.directory /github/workspace
+
       - name: Commit data changes
         id: commit
         run: |
