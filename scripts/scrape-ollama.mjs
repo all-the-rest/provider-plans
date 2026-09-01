@@ -1,4 +1,5 @@
 // scripts/scrape-ollama.mjs — Ollama Cloud (ollama.com/pricing): Pro/Max Pläne + Modell-API-Preise.
+import * as cheerio from "cheerio";
 import { assertPatternConsistency, enrichModelMeta, extractTableRows, fetchText, loadModelsDev, normalizeName, parsePrice, readFixture, readJsonSafe, validateVendorData, writeSnapshot } from "./lib.mjs";
 
 export const OLLAMA_PRICING_URL = "https://ollama.com/pricing";
@@ -11,7 +12,15 @@ export const OLLAMA_PRICING_URL = "https://ollama.com/pricing";
  * @returns {{plans: Array, modelPrices: Record<string,{input:number,cached:number,output:number}>}}
  */
 export function parseOllamaPricing(html) {
-  const text = String(html ?? "").replace(/\s+/g, " ");
+  let rawText = String(html ?? "");
+  if (/<[a-z][\s\S]*>/i.test(rawText)) {
+    try {
+      rawText = cheerio.load(rawText).text();
+    } catch {
+      rawText = rawText.replace(/<[^>]+>/g, " ");
+    }
+  }
+  const text = rawText.replace(/\s+/g, " ");
 
   // Pläne: Pro $20/mo or $200/yr + $60 credits, Max $100/mo + $300 credits
   const plans = [];
@@ -98,13 +107,31 @@ export async function scrapeOllama(opts = {}) {
   const stub = opts.stub ?? false;
   const html = opts.html ?? (stub ? await readFixture("ollama/pricing.html") : await fetchText(OLLAMA_PRICING_URL));
 
-  const parsed = parseOllamaPricing(html);
+  let parsed = parseOllamaPricing(html);
 
-  if (!parsed.plans.length) {
-    throw new Error("parseOllamaPricing: keine Pläne gefunden");
-  }
-  if (!Object.keys(parsed.modelPrices).length) {
-    throw new Error("parseOllamaPricing: keine Modellpreise gefunden");
+  // Live-Fallback: wenn Pläne/Modelle nicht parsebar, kommittierte Daten nutzen (wie z.ai)
+  if ((!parsed.plans.length || !Object.keys(parsed.modelPrices).length) && !stub) {
+    const committed = await readJsonSafe("src/vendors/ollama/data/latest.json");
+    if (committed && Array.isArray(committed.plans) && committed.plans.length && Array.isArray(committed.models) && committed.models.length) {
+      console.error("[ollama] Warnung: live pricing nicht vollständig parsebar – nutze kommittierte Daten aus src/vendors/ollama/data/latest.json");
+      parsed = {
+        plans: committed.plans,
+        modelPrices: Object.fromEntries(
+          committed.models.map((m) => [m.id, { input: m.apiPrice.input ?? m.creditPerM.input, cached: m.apiPrice.cached ?? m.creditPerM.cached, output: m.apiPrice.output ?? m.creditPerM.output }])
+        ),
+      };
+    } else if (!parsed.plans.length) {
+      throw new Error("parseOllamaPricing: keine Pläne gefunden");
+    } else if (!Object.keys(parsed.modelPrices).length) {
+      throw new Error("parseOllamaPricing: keine Modellpreise gefunden");
+    }
+  } else {
+    if (!parsed.plans.length) {
+      throw new Error("parseOllamaPricing: keine Pläne gefunden");
+    }
+    if (!Object.keys(parsed.modelPrices).length) {
+      throw new Error("parseOllamaPricing: keine Modellpreise gefunden");
+    }
   }
 
   // Patterns: per-Modell aus opencode + Fallback aus commandcode
