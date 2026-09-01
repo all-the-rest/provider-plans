@@ -49,8 +49,15 @@ function main() {
   let releases = [];
   try {
     releases = JSON.parse(gh(["release", "list", "--json", "tagName", "--limit", "1000"]));
-  } catch {
+  } catch (e) {
+    const msg = String(e?.message ?? e);
+    if (!entries.length) {
+      console.warn(`could not list releases (gh missing/auth?) — skipping check (no changelog entries): ${msg.split("\n")[0]}`);
+      console.log(`changelog/release sync OK (${entries.length} entries checked, releases skipped)`);
+      return;
+    }
     console.error("could not list releases (gh auth?)");
+    console.error(msg);
     process.exit(1);
   }
   for (const r of releases) {
