@@ -22,6 +22,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-jammy
     outputs:
       changed: ${{ steps.commit.outputs.changed }}
     steps:
@@ -42,9 +44,6 @@ jobs:
 
       - name: Test scrapers & formulas
         run: pnpm test
-
-      - name: Install Playwright browser (for z.ai subscribe prices)
-        run: pnpm exec playwright install chromium
 
       - name: Scrape prices
         run: pnpm scrape
