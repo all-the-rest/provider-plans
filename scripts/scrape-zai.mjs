@@ -287,7 +287,7 @@ async function resolveZaiPlans(allowance, opts = {}) {
     }
   }
 
-  if (!html && !process.env.CI) {
+  if (!html) {
     try {
       const raw = await fetchText(ZAI_SUBSCRIBE_URL, { timeoutMs: 20000 });
       if (isSubscribeHtml(raw)) {
