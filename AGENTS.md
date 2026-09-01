@@ -7,7 +7,7 @@ Provider** — z. B. `/` (Übersicht), `/z-ai` (GLM Coding Plan), `/mimo` (MiMo 
 Komponenten für alle Vendors, aber **eigene Umrechnungsformeln je Vendor** (Credit-Pools, Peak-/
 Off-Peak-Abzüge, Bindungs-Boni).
 
-- Repo (geplant): `all-the-rest/provider-plans` · GitHub Pages Custom Domain:
+- Repo: `all-the-rest/provider-plans` · GitHub Pages Custom Domain:
   **`ai-vendor-price-tracking.all-the-rest`** (CNAME in `public/`, gesetzt).
 - Referenz-Vorlagen: `~/dev/cc-price-tracker` (Komponenten/Formel-Layer), `~/dev/ocgo-price-tracker`
   (Peak-/Lokalzeit-Logik, Pattern-Parser). Übernahme erfolgt bewusst **manuell** (Muster, kein Copy-Paste-Fork).
@@ -95,7 +95,7 @@ pnpm typecheck        # nur tsc --noEmit
   `pnpm typecheck`, `pnpm test`, `pnpm scrape:stub`, `pnpm build`, `pnpm preview`-200 plus
   `/z-ai`/`/mimo` Deep-Links und `dist/404.html`-Vorhandensein; Stub-Output vs. committete Daten abgleichen.
 
-## CI/CD (geplant: `.github/workflows/provider-plans.yml`)
+## CI/CD (`.github/workflows/provider-plans.yml`)
 
 - Trigger: täglicher Cron + `workflow_dispatch` + `push` auf `main`.
 - Pipeline: install (`--frozen-lockfile`, esbuild-approve via pnpm-workspace.yaml) → `pnpm test` →

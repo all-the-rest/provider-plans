@@ -30,6 +30,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Set safe git directory for container
+        run: git config --global --add safe.directory '*'
+
       - name: Install pnpm
         uses: pnpm/action-setup@v6
 
@@ -51,12 +54,15 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Set safe git directory for container
-        run: git config --global --add safe.directory /github/workspace
-
       - name: Commit data changes
         id: commit
         run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE" || true
+          git config --global --add safe.directory /github/workspace || true
+          echo "pwd=$(pwd) GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          ls -la
+          ls -la .git 2>&1 | head -20
+          git status --porcelain 2>&1 | head -20
           if git diff --quiet data src/vendors; then
             echo "no data changes, skipping commit"
             echo "changed=false" >> "$GITHUB_OUTPUT"
