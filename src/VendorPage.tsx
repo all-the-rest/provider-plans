@@ -69,7 +69,7 @@ export default function VendorPage(props: VendorPageProps) {
   });
 
   return (
-    <div class="min-h-screen w-full bg-base-100 text-base-content">
+    <div class="flex min-h-screen w-full flex-col bg-base-100 text-base-content">
       <Header
         lang={props.lang}
         setLang={props.setLang}
@@ -79,7 +79,7 @@ export default function VendorPage(props: VendorPageProps) {
         vendors={props.navVendors}
         t={t()}
       />
-      <main class="mx-auto max-w-6xl px-4 py-8">
+      <main class="mx-auto flex w-full max-w-6xl flex-1 flex-col px-4 py-8">
         <Hero
           module={module}
           plan={plan()}
@@ -89,7 +89,9 @@ export default function VendorPage(props: VendorPageProps) {
           lang={props.lang}
           modelCount={planModels().length}
         />
-        <PlanTabs plans={module.data.plans} active={plan().id} onSelect={setPlanId} t={t()} />
+        <div class="mt-8">
+          <PlanTabs plans={module.data.plans} active={plan().id} onSelect={setPlanId} t={t()} />
+        </div>
         <PriceTable
           module={module}
           plan={plan()}

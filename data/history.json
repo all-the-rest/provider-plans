@@ -2350,5 +2350,496 @@
         "effectiveFromMs": null
       }
     }
+  ],
+  "ollama": [
+    {
+      "vendorId": "ollama",
+      "fetchedAt": "2026-09-01T09:42:08.585Z",
+      "sourceUrls": [
+        "https://ollama.com/pricing"
+      ],
+      "plans": [
+        {
+          "id": "pro",
+          "name": "Pro",
+          "kind": "monthly",
+          "priceMonthly": 20,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 16.67,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 60,
+          "notes": "Jahr $200 (16.67/mo)",
+          "sourceUrl": "https://ollama.com/pricing"
+        },
+        {
+          "id": "max",
+          "name": "Max",
+          "kind": "monthly",
+          "priceMonthly": 100,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": null,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": 300,
+          "notes": null,
+          "sourceUrl": "https://ollama.com/pricing"
+        }
+      ],
+      "models": [
+        {
+          "id": "deepseek-v4-flash",
+          "name": "deepseek-v4-flash",
+          "provider": "DeepSeek",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 0.44,
+            "cached": 0.014,
+            "output": 1.32
+          },
+          "apiPrice": {
+            "input": 0.44,
+            "cached": 0.014,
+            "output": 1.32
+          },
+          "pattern": {
+            "input": 410,
+            "cached": 71300,
+            "output": 310
+          },
+          "note": null
+        },
+        {
+          "id": "deepseek-v4-pro",
+          "name": "deepseek-v4-pro",
+          "provider": "DeepSeek",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 1.32,
+            "cached": 0.044,
+            "output": 3.96
+          },
+          "apiPrice": {
+            "input": 1.32,
+            "cached": 0.044,
+            "output": 3.96
+          },
+          "pattern": {
+            "input": 750,
+            "cached": 82000,
+            "output": 290
+          },
+          "note": null
+        },
+        {
+          "id": "gemma4",
+          "name": "gemma4",
+          "provider": "Google",
+          "tier": null,
+          "contextWindow": 262144,
+          "creditPerM": {
+            "input": 0.14,
+            "cached": 0.05,
+            "output": 0.4
+          },
+          "apiPrice": {
+            "input": 0.14,
+            "cached": 0.05,
+            "output": 0.4
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.3",
+          "name": "glm-5.3",
+          "provider": "Z.ai",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "apiPrice": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "pattern": {
+            "input": 700,
+            "cached": 52000,
+            "output": 150
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.3-flash",
+          "name": "glm-5.3-flash",
+          "provider": "Z.ai",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 0.15,
+            "cached": 0.03,
+            "output": 0.5
+          },
+          "apiPrice": {
+            "input": 0.15,
+            "cached": 0.03,
+            "output": 0.5
+          },
+          "pattern": {
+            "input": 1000,
+            "cached": 55000,
+            "output": 200
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.2",
+          "name": "glm-5.2",
+          "provider": "Z.ai",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "apiPrice": {
+            "input": 1.4,
+            "cached": 0.26,
+            "output": 4.4
+          },
+          "pattern": {
+            "input": 700,
+            "cached": 52000,
+            "output": 150
+          },
+          "note": null
+        },
+        {
+          "id": "glm-5.1",
+          "name": "glm-5.1",
+          "provider": "Z.ai",
+          "tier": null,
+          "contextWindow": 200000,
+          "creditPerM": {
+            "input": 1,
+            "cached": 0.2,
+            "output": 3.2
+          },
+          "apiPrice": {
+            "input": 1,
+            "cached": 0.2,
+            "output": 3.2
+          },
+          "pattern": {
+            "input": 700,
+            "cached": 52000,
+            "output": 150
+          },
+          "note": null
+        },
+        {
+          "id": "gpt-oss:120b",
+          "name": "gpt-oss:120b",
+          "provider": "OpenAI",
+          "tier": null,
+          "contextWindow": 131072,
+          "creditPerM": {
+            "input": 0.15,
+            "cached": 0.014,
+            "output": 0.6
+          },
+          "apiPrice": {
+            "input": 0.15,
+            "cached": 0.014,
+            "output": 0.6
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "gpt-oss:20b",
+          "name": "gpt-oss:20b",
+          "provider": "OpenAI",
+          "tier": null,
+          "contextWindow": 131072,
+          "creditPerM": {
+            "input": 0.07,
+            "cached": 0.035,
+            "output": 0.3
+          },
+          "apiPrice": {
+            "input": 0.07,
+            "cached": 0.035,
+            "output": 0.3
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "kimi-k3",
+          "name": "kimi-k3",
+          "provider": "Moonshot AI",
+          "tier": null,
+          "contextWindow": 1048576,
+          "creditPerM": {
+            "input": 3,
+            "cached": 0.3,
+            "output": 15
+          },
+          "apiPrice": {
+            "input": 3,
+            "cached": 0.3,
+            "output": 15
+          },
+          "pattern": {
+            "input": 1050,
+            "cached": 76500,
+            "output": 300
+          },
+          "note": null
+        },
+        {
+          "id": "kimi-k2.7-code",
+          "name": "kimi-k2.7-code",
+          "provider": "Moonshot AI",
+          "tier": null,
+          "contextWindow": 262144,
+          "creditPerM": {
+            "input": 0.95,
+            "cached": 0.19,
+            "output": 4
+          },
+          "apiPrice": {
+            "input": 0.95,
+            "cached": 0.19,
+            "output": 4
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "kimi-k2.6",
+          "name": "kimi-k2.6",
+          "provider": "Moonshot AI",
+          "tier": null,
+          "contextWindow": 262144,
+          "creditPerM": {
+            "input": 0.95,
+            "cached": 0.16,
+            "output": 4
+          },
+          "apiPrice": {
+            "input": 0.95,
+            "cached": 0.16,
+            "output": 4
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "minimax-m3",
+          "name": "minimax-m3",
+          "provider": "MiniMax",
+          "tier": null,
+          "contextWindow": 1000000,
+          "creditPerM": {
+            "input": 0.6,
+            "cached": 0.12,
+            "output": 2.4
+          },
+          "apiPrice": {
+            "input": 0.6,
+            "cached": 0.12,
+            "output": 2.4
+          },
+          "pattern": {
+            "input": 510,
+            "cached": 56000,
+            "output": 190
+          },
+          "note": null
+        },
+        {
+          "id": "minimax-m2.7",
+          "name": "minimax-m2.7",
+          "provider": "MiniMax",
+          "tier": null,
+          "contextWindow": 204800,
+          "creditPerM": {
+            "input": 0.3,
+            "cached": 0.06,
+            "output": 1.2
+          },
+          "apiPrice": {
+            "input": 0.3,
+            "cached": 0.06,
+            "output": 1.2
+          },
+          "pattern": {
+            "input": 300,
+            "cached": 55000,
+            "output": 125
+          },
+          "note": null
+        },
+        {
+          "id": "mistral-large-3",
+          "name": "mistral-large-3",
+          "provider": "Mistral",
+          "tier": null,
+          "contextWindow": 256000,
+          "creditPerM": {
+            "input": 0.5,
+            "cached": 0.5,
+            "output": 1.5
+          },
+          "apiPrice": {
+            "input": 0.5,
+            "cached": 0.5,
+            "output": 1.5
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "nemotron-3-nano",
+          "name": "nemotron-3-nano",
+          "provider": "NVIDIA",
+          "tier": null,
+          "contextWindow": null,
+          "creditPerM": {
+            "input": 0.06,
+            "cached": 0.06,
+            "output": 0.24
+          },
+          "apiPrice": {
+            "input": 0.06,
+            "cached": 0.06,
+            "output": 0.24
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "nemotron-3-super",
+          "name": "nemotron-3-super",
+          "provider": "NVIDIA",
+          "tier": null,
+          "contextWindow": 262144,
+          "creditPerM": {
+            "input": 0.015,
+            "cached": 0.015,
+            "output": 0.6
+          },
+          "apiPrice": {
+            "input": 0.015,
+            "cached": 0.015,
+            "output": 0.6
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "nemotron-3-ultra",
+          "name": "nemotron-3-ultra",
+          "provider": "NVIDIA",
+          "tier": null,
+          "contextWindow": 131072,
+          "creditPerM": {
+            "input": 0.1,
+            "cached": 0.1,
+            "output": 3
+          },
+          "apiPrice": {
+            "input": 0.1,
+            "cached": 0.1,
+            "output": 3
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        },
+        {
+          "id": "qwen3.5:397b",
+          "name": "qwen3.5:397b",
+          "provider": "Alibaba",
+          "tier": null,
+          "contextWindow": 262144,
+          "creditPerM": {
+            "input": 0.6,
+            "cached": 0.6,
+            "output": 3.6
+          },
+          "apiPrice": {
+            "input": 0.6,
+            "cached": 0.6,
+            "output": 3.6
+          },
+          "pattern": {
+            "input": 850,
+            "cached": 49000,
+            "output": 163
+          },
+          "note": null
+        }
+      ],
+      "peak": {
+        "windows": [],
+        "phaseFactor": {
+          "peak": 1,
+          "off-peak": 1
+        },
+        "weekendOffPeak": false,
+        "tzOffsetMin": 0,
+        "timezoneLabel": "UTC",
+        "phaseLabel": {
+          "peak": "Peak",
+          "off-peak": "Off-Peak"
+        },
+        "effectiveFromMs": null
+      }
+    }
   ]
 }

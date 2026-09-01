@@ -159,6 +159,11 @@ function parsePatternNum(raw) {
 const PATTERN_LINE_RE =
   /^(.+?)\s*[—–-]\s*([\d.,]+)\s*Input[-,]{0,2}\s*([\d.,]+)\s*Cached[-,]{0,2}\s*([\d.,]+)\s*Output[-,]{0,2}\s*Tokens?\s*pro\s*Anfrage\s*$/i;
 
+/** Fallback-Anfragemuster aus Command-Code „A typical request: …" (kein Hardcode). */
+export const FALLBACK_URL = "https://commandcode.ai/docs/resources/pricing-limits";
+export const FALLBACK_FIXTURE = "tests/fixtures/commandcode/pricing-limits.html";
+export const FALLBACK_JSON_PATH = "src/vendors/stats/fallback-pattern.json";
+
 /**
  * Parst die dokumentierten Anfragemuster (Input/Cached/Output Tokens pro Anfrage)
  * aus Markdown-Zeilen oder einem HTML-Baum (li-Elemente). Kurzschreibweisen
@@ -202,6 +207,56 @@ export function parsePatternItems(input) {
     }
   }
   return patterns;
+}
+
+/**
+ * Parst das Fallback-Anfragemuster aus der Command-Code-Doku
+ * („A typical request: ~700–1K input tokens, ~125–200 output tokens, plus ~42K-56K cache reads").
+ * Kein Hardcode — Mittelwerte der Spannen werden live berechnet.
+ * @param {string} html Roh-HTML/RSC der pricing-limits Seite
+ * @returns {{input:number,cached:number,output:number}|null}
+ */
+export function parseFallbackPattern(html) {
+  let raw = String(html ?? "");
+  // Falls HTML (mit Tags) → Text extrahieren, sonst direkt
+  if (/<[a-z][\s\S]*>/i.test(raw)) {
+    try {
+      raw = cheerio.load(raw).text();
+    } catch {
+      // fallback: Tags grob entfernen
+      raw = raw.replace(/<[^>]+>/g, " ");
+    }
+  }
+  const text = raw.replace(/\s+/g, " ");
+  // Zuerst die kanonische Prosa-Zeile
+  const m = text.match(
+    /A typical request:\s*~?\s*(\d+)\s*[–—-]\s*(\d+K?)\s*input tokens.*?~?\s*(\d+)\s*[–—-]\s*(\d+)\s*output tokens.*?~?\s*(\d+K?)\s*[–—-]\s*(\d+K?)\s*cache reads/i
+  );
+  if (m) {
+    const toNum = (s) => {
+      const raw = String(s).trim().toUpperCase();
+      const isK = raw.endsWith("K");
+      const n = parseFloat(raw.replace(/K$/, "").replace(/,/g, ""));
+      if (!Number.isFinite(n)) return null;
+      return isK ? Math.round(n * 1000) : Math.round(n);
+    };
+    const inA = toNum(m[1]);
+    const inB = toNum(m[2]);
+    const outA = toNum(m[3]);
+    const outB = toNum(m[4]);
+    const cacheA = toNum(m[5]);
+    const cacheB = toNum(m[6]);
+    if (inA !== null && inB !== null && outA !== null && outB !== null && cacheA !== null && cacheB !== null) {
+      return {
+        input: Math.round((inA + inB) / 2),
+        cached: Math.round((cacheA + cacheB) / 2),
+        output: Math.round((outA + outB) / 2),
+      };
+    }
+  }
+  // Sekundär: Calculator-Defaults (falls Prosa-Zeile fehlt) — suche Slider-Defaults
+  // Bisher kein stabiler Selektor; bei Fehlschlag null zurück (Caller bricht).
+  return null;
 }
 
 // ---- models.dev-Anreicherung (Kontextfenster + Hersteller) ------------------
@@ -376,7 +431,7 @@ const peakSchema = z.object({
 });
 
 const vendorDataSchema = z.object({
-  vendorId: z.enum(["zai", "mimo"]),
+  vendorId: z.enum(["zai", "mimo", "ollama"]),
   fetchedAt: z.string(),
   sourceUrls: z.array(z.string()),
   plans: z.array(planSchema),

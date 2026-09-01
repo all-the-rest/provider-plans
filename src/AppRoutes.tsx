@@ -1,10 +1,32 @@
-import { createEffect, createMemo, createSignal, Match, Switch } from "solid-js";
+import { createEffect, createMemo, createSignal, lazy, Match, Suspense, Switch } from "solid-js";
 import { useRouter } from "./router";
-import { NAV_VENDORS, VENDOR_MAP } from "./vendors/registry";
+import { NAV_VENDORS } from "./vendors/registry";
 import type { Lang } from "./types";
-import VendorPage from "./VendorPage";
 import StartPage from "./StartPage";
-import LegalPage from "./pages/LegalPage";
+
+const LazyZai = lazy(() =>
+  Promise.all([import("./VendorPage"), import("./vendors/zai")]).then(([vp, m]) => ({
+    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
+      <vp.default module={m.vendorModule} {...props} />
+    ),
+  }))
+);
+const LazyMimo = lazy(() =>
+  Promise.all([import("./VendorPage"), import("./vendors/mimo")]).then(([vp, m]) => ({
+    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
+      <vp.default module={m.vendorModule} {...props} />
+    ),
+  }))
+);
+const LazyOllama = lazy(() =>
+  Promise.all([import("./VendorPage"), import("./vendors/ollama")]).then(([vp, m]) => ({
+    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
+      <vp.default module={m.vendorModule} {...props} />
+    ),
+  }))
+);
+const LazyImpressum = lazy(() => import("./pages/LegalPage").then((m) => ({ default: (p: any) => <m.default kind="impressum" {...p} /> })));
+const LazyDatenschutz = lazy(() => import("./pages/LegalPage").then((m) => ({ default: (p: any) => <m.default kind="datenschutz" {...p} /> })));
 
 const storedLang = typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null;
 const storedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null;
@@ -21,7 +43,7 @@ function readGlobalParams(): { lang: Lang | null; theme: "dark" | null } {
   return { lang, theme };
 }
 
-type Route = "home" | "zai" | "mimo" | "impressum" | "datenschutz";
+type Route = "home" | "zai" | "mimo" | "ollama" | "impressum" | "datenschutz";
 
 export default function AppRoutes() {
   const { path } = useRouter();
@@ -29,6 +51,7 @@ export default function AppRoutes() {
     const p = path();
     if (p === "/z-ai") return "zai";
     if (p === "/mimo") return "mimo";
+    if (p === "/ollama") return "ollama";
     if (p === "/impressum") return "impressum";
     if (p === "/datenschutz") return "datenschutz";
     return "home";
@@ -56,16 +79,29 @@ export default function AppRoutes() {
   return (
     <Switch fallback={<StartPage lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />}>
       <Match when={route() === "zai"}>
-        <VendorPage module={VENDOR_MAP.zai} navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
+          <LazyZai navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        </Suspense>
       </Match>
       <Match when={route() === "mimo"}>
-        <VendorPage module={VENDOR_MAP.mimo} navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
+          <LazyMimo navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        </Suspense>
+      </Match>
+      <Match when={route() === "ollama"}>
+        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
+          <LazyOllama navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        </Suspense>
       </Match>
       <Match when={route() === "impressum"}>
-        <LegalPage kind="impressum" lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
+          <LazyImpressum lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        </Suspense>
       </Match>
       <Match when={route() === "datenschutz"}>
-        <LegalPage kind="datenschutz" lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
+          <LazyDatenschutz lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
+        </Suspense>
       </Match>
     </Switch>
   );

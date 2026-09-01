@@ -215,6 +215,21 @@ export async function scrapeMimo(opts = {}) {
     patterns = file?.patterns ?? {};
   }
 
+  let fallbackPattern = opts.fallbackPattern ?? null;
+  if (!fallbackPattern && opts.fallbackPatternPath) {
+    const file = await readJsonSafe(opts.fallbackPatternPath);
+    fallbackPattern = file?.pattern ?? null;
+  }
+  if (!fallbackPattern) {
+    const file = await readJsonSafe("src/vendors/stats/fallback-pattern.json");
+    fallbackPattern = file?.pattern ?? null;
+  }
+  if (!fallbackPattern && stub) {
+    const { parseFallbackPattern } = await import("./lib.mjs");
+    const fixture = await readFixture("commandcode/pricing-limits.html");
+    fallbackPattern = parseFallbackPattern(fixture);
+  }
+
   const plans = parsed.plans.map((p) => ({ ...p, sourceUrl: MIMO_TOKEN_PLAN_URL }));
 
   const models = [];
@@ -226,7 +241,7 @@ export async function scrapeMimo(opts = {}) {
       inputMiss: ratio.inputMiss * 1e6,
       output: ratio.output * 1e6,
     };
-    const pattern = patterns[normalizeName(key)] ?? null;
+    const pattern = patterns[normalizeName(key)] ?? fallbackPattern ?? null;
     // Wie z.ai: je Modell peak+off-peak-ROWs (identische Werte) – Vendor-Formeln
     // suchen das Flaggschiff über `id` + `tier === "peak"`.
     for (const tier of ["peak", "off-peak"]) {

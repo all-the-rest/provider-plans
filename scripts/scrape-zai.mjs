@@ -316,7 +316,7 @@ async function resolveZaiPlans(allowance, opts = {}) {
 const GLM53_CONTEXT_WINDOW = 1000000;
 
 /** Gleiche Modell-Daten, zwei Tier-Zeilen (peak/off-peak mit identischen Werten). */
-function buildZaiModels(multipliers, apiPrices, patterns, promotion) {
+function buildZaiModels(multipliers, apiPrices, patterns, fallbackPattern, promotion) {
   const models = [];
   for (const key of ["glm-5.3", "glm-5.3-flash"]) {
     const mult = multipliers[key];
@@ -327,7 +327,7 @@ function buildZaiModels(multipliers, apiPrices, patterns, promotion) {
       cached: (mult.cached * 1e6) / 1e4,
       output: (mult.output * 1e6) / 1e4,
     };
-    const pattern = patterns[normalizeName(key)] ?? null;
+    const pattern = patterns[normalizeName(key)] ?? fallbackPattern ?? null;
     const name = key === "glm-5.3-flash" ? "GLM-5.3-Flash" : "GLM-5.3";
     const contextWindow = key === "glm-5.3" ? GLM53_CONTEXT_WINDOW : null;
     for (const tier of ["peak", "off-peak"]) {
@@ -396,7 +396,22 @@ export async function scrapeZai(opts = {}) {
     patterns = file?.patterns ?? {};
   }
 
-  const modelRows = buildZaiModels(overview.multipliers, pricing, patterns, promotionNote(pricingText));
+  let fallbackPattern = opts.fallbackPattern ?? null;
+  if (!fallbackPattern && opts.fallbackPatternPath) {
+    const file = await readJsonSafe(opts.fallbackPatternPath);
+    fallbackPattern = file?.pattern ?? null;
+  }
+  if (!fallbackPattern) {
+    const file = await readJsonSafe("src/vendors/stats/fallback-pattern.json");
+    fallbackPattern = file?.pattern ?? null;
+  }
+  if (!fallbackPattern && stub) {
+    const { parseFallbackPattern } = await import("./lib.mjs");
+    const fixture = await readFixture("commandcode/pricing-limits.html");
+    fallbackPattern = parseFallbackPattern(fixture);
+  }
+
+  const modelRows = buildZaiModels(overview.multipliers, pricing, patterns, fallbackPattern, promotionNote(pricingText));
   assertPatternConsistency(modelRows);
 
   // Kontextfenster + Hersteller aus models.dev (Provider-Zuordnung, Overwrite gewinnt).

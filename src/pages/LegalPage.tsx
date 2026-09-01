@@ -57,7 +57,7 @@ export default function LegalPage(props: LegalPageProps) {
   const content = createMemo(() => buildLegal(t()));
 
   return (
-    <div class="min-h-screen w-full bg-base-100 text-base-content">
+    <div class="flex min-h-screen w-full flex-col bg-base-100 text-base-content">
       <Header
         lang={props.lang}
         setLang={props.setLang}
@@ -68,7 +68,7 @@ export default function LegalPage(props: LegalPageProps) {
         t={t()}
       />
 
-      <main class="mx-auto max-w-3xl px-4 py-12">
+      <main class="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-12">
         {props.kind === "impressum" ? (
           <section class="grid gap-3">
             <h1 class="text-3xl font-bold">{t().impressum}</h1>
