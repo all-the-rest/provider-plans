@@ -1,6 +1,6 @@
 {
   "vendorId": "ollama",
-  "fetchedAt": "2026-09-02T22:45:55.135Z",
+  "fetchedAt": "2026-09-03T22:46:24.962Z",
   "sourceUrls": [
     "https://ollama.com/pricing"
   ],
@@ -40,14 +40,14 @@
       "tier": null,
       "contextWindow": 1000000,
       "creditPerM": {
-        "input": 0.44,
-        "cached": 0.014,
-        "output": 1.32
+        "input": 0.22,
+        "cached": 0.007,
+        "output": 0.66
       },
       "apiPrice": {
-        "input": 0.44,
-        "cached": 0.014,
-        "output": 1.32
+        "input": 0.22,
+        "cached": 0.007,
+        "output": 0.66
       },
       "pattern": {
         "input": 410,
@@ -63,14 +63,14 @@
       "tier": null,
       "contextWindow": 1000000,
       "creditPerM": {
-        "input": 1.32,
-        "cached": 0.044,
-        "output": 3.96
+        "input": 0.66,
+        "cached": 0.022,
+        "output": 1.98
       },
       "apiPrice": {
-        "input": 1.32,
-        "cached": 0.044,
-        "output": 3.96
+        "input": 0.66,
+        "cached": 0.022,
+        "output": 1.98
       },
       "pattern": {
         "input": 750,
@@ -356,52 +356,6 @@
       "note": null
     },
     {
-      "id": "mistral-large-3",
-      "name": "mistral-large-3",
-      "provider": "Mistral",
-      "tier": null,
-      "contextWindow": 256000,
-      "creditPerM": {
-        "input": 0.5,
-        "cached": 0.5,
-        "output": 1.5
-      },
-      "apiPrice": {
-        "input": 0.5,
-        "cached": 0.5,
-        "output": 1.5
-      },
-      "pattern": {
-        "input": 850,
-        "cached": 49000,
-        "output": 163
-      },
-      "note": null
-    },
-    {
-      "id": "nemotron-3-nano",
-      "name": "nemotron-3-nano",
-      "provider": "NVIDIA",
-      "tier": null,
-      "contextWindow": null,
-      "creditPerM": {
-        "input": 0.06,
-        "cached": 0.06,
-        "output": 0.24
-      },
-      "apiPrice": {
-        "input": 0.06,
-        "cached": 0.06,
-        "output": 0.24
-      },
-      "pattern": {
-        "input": 850,
-        "cached": 49000,
-        "output": 163
-      },
-      "note": null
-    },
-    {
       "id": "nemotron-3-super",
       "name": "nemotron-3-super",
       "provider": "NVIDIA",
@@ -439,29 +393,6 @@
         "input": 0.1,
         "cached": 0.1,
         "output": 3
-      },
-      "pattern": {
-        "input": 850,
-        "cached": 49000,
-        "output": 163
-      },
-      "note": null
-    },
-    {
-      "id": "qwen3.5:397b",
-      "name": "qwen3.5:397b",
-      "provider": "Alibaba",
-      "tier": null,
-      "contextWindow": 262144,
-      "creditPerM": {
-        "input": 0.6,
-        "cached": 0.6,
-        "output": 3.6
-      },
-      "apiPrice": {
-        "input": 0.6,
-        "cached": 0.6,
-        "output": 3.6
       },
       "pattern": {
         "input": 850,

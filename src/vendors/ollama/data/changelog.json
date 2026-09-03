@@ -1,3 +1,14 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "id": "ollama-2026-09-03",
+      "date": "2026-09-03",
+      "changes": [
+        {
+          "de": "deepseek-v4-flash: input-Credits 0 → 0; deepseek-v4-flash: cached-Credits 0 → 0; deepseek-v4-flash: output-Credits 1 → 1; deepseek-v4-pro: input-Credits 1 → 1; deepseek-v4-pro: cached-Credits 0 → 0; deepseek-v4-pro: output-Credits 4 → 2",
+          "en": "deepseek-v4-flash: input credits 0 → 0; deepseek-v4-flash: cached credits 0 → 0; deepseek-v4-flash: output credits 1 → 1; deepseek-v4-pro: input credits 1 → 1; deepseek-v4-pro: cached credits 0 → 0; deepseek-v4-pro: output credits 4 → 2"
+        }
+      ]
+    }
+  ]
 }
