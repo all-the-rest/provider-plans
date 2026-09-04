@@ -1,6 +1,6 @@
 {
   "vendorId": "ollama",
-  "fetchedAt": "2026-09-03T22:46:24.962Z",
+  "fetchedAt": "2026-09-04T22:27:09.075Z",
   "sourceUrls": [
     "https://ollama.com/pricing"
   ],
@@ -383,7 +383,7 @@
       "name": "nemotron-3-ultra",
       "provider": "NVIDIA",
       "tier": null,
-      "contextWindow": 131072,
+      "contextWindow": 262144,
       "creditPerM": {
         "input": 0.1,
         "cached": 0.1,
