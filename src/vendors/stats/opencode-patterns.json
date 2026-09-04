@@ -129,6 +129,11 @@
       "input": 790,
       "cached": 86000,
       "output": 305
+    },
+    "omenalpha": {
+      "input": 300,
+      "cached": 40000,
+      "output": 100
     }
   }
 }

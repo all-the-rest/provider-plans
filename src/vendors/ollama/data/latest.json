@@ -382,7 +382,7 @@
       "name": "nemotron-3-ultra",
       "provider": "NVIDIA",
       "tier": null,
-      "contextWindow": 131072,
+      "contextWindow": 262144,
       "creditPerM": {
         "input": 0.1,
         "cached": 0.1,
