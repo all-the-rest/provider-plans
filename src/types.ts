@@ -78,7 +78,6 @@ export interface PeakConfig {
 
 export interface VendorPriceData {
   vendorId: VendorId;
-  fetchedAt: string;
   sourceUrls: string[];
   plans: Plan[];
   models: Model[];

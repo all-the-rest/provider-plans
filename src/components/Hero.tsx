@@ -2,6 +2,7 @@ import { createMemo, For } from "solid-js";
 import type { Cycle, Lang, Plan, Translation, VendorModule } from "../types";
 import { availableCycles } from "../vendors/shared";
 import { fmt, fmtBig, fmtDate, fmtInt } from "../util";
+import { BUILD_TIME_ISO } from "../buildInfo";
 
 export interface HeroProps {
   module: VendorModule;
@@ -106,7 +107,7 @@ export default function Hero(props: HeroProps) {
 
       <div class="mt-6 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-base-content/70">
         <span>
-          {props.t.fetchedAt}: <time class="font-medium text-base-content">{fmtDate(module.data.fetchedAt, props.lang)}</time>
+          {props.t.fetchedAt}: <time class="font-medium text-base-content">{fmtDate(BUILD_TIME_ISO, props.lang)}</time>
         </span>
         <span class="text-base-content/35" aria-hidden="true">
           ·

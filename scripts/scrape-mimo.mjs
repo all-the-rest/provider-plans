@@ -271,7 +271,6 @@ export async function scrapeMimo(opts = {}) {
   const night = parsed.night;
   const data = {
     vendorId: "mimo",
-    fetchedAt: new Date().toISOString(),
     sourceUrls: [MIMO_TOKEN_PLAN_URL, MIMO_API_PRICING_URL],
     plans,
     models,

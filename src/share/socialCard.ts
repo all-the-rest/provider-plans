@@ -1,5 +1,6 @@
 import type { Cycle, Lang, Phase, Plan, VendorModule } from "../types";
 import { fmt } from "../util";
+import { BUILD_TIME_ISO } from "../buildInfo";
 
 export interface SocialRow {
   name: string;
@@ -15,7 +16,8 @@ export interface SocialCardInput {
   cycleLabel: string;
   rows: SocialRow[];
   lang: Lang;
-  fetchedAt: string;
+  /** Grobe CI-Build-Zeit (ISO) — ersetzt das alte fetchedAt aus den Daten. */
+  builtAt: string;
   peakNote?: string;
   tierLabels?: Record<Phase, string>;
 }
@@ -89,10 +91,24 @@ export function buildSocialCardInput(
           : module.i18n[lang].cycleMonthly,
     rows,
     lang,
-    fetchedAt: module.data.fetchedAt,
+    builtAt: BUILD_TIME_ISO,
     peakNote,
     tierLabels: { ...module.peak.phaseLabel },
   };
+}
+
+function fmtCardDate(iso: string, lang: Lang): string {
+  const d = new Date(iso);
+  const locale = lang === "de" ? "de-DE" : "en-US";
+  // Date-only input (YYYY-MM-DD): keine Uhrzeit vorhanden → nur Datum.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso.trim())) {
+    return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "UTC" }).format(d);
+  }
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  }).format(d);
 }
 
 function esc(s: string): string {
@@ -237,7 +253,8 @@ export function renderSocialSvg(
     `<rect x="0" y="0" width="${w}" height="8" fill="${pal.accent}"/>` +
     headerSvg +
     rowSvg +
-    `<text x="${mx}" y="${footerY}" font-size="18" fill="${pal.footer}" ${font}>${esc(input.fetchedAt)} · https://ai-vendor-price-tracking.all-the-rest</text>` +
+    `<text x="${mx}" y="${footerY}" font-size="18" fill="${pal.footer}" ${font}>${esc("ai-vendor-price-tracking.all-the-rest")} · ${esc(input.planName)}</text>` +
+    `<text x="${rightX}" y="${footerY}" font-size="18" text-anchor="end" fill="${pal.footer}" ${font}>${esc(fmtCardDate(input.builtAt, input.lang))}</text>` +
     `</svg>`
   );
 }

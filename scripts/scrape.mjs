@@ -20,9 +20,9 @@ async function main() {
   const mimo = await scrapeMimo({ stub, patterns: patterns.patterns, fallbackPattern: fallback.pattern });
   const ollama = await scrapeOllama({ stub, patterns: patterns.patterns, fallbackPattern: fallback.pattern });
 
-  console.log(`✓ zai:  ${zai.plans.length} Pläne · ${zai.models.length} Modell-Zeilen · fetchedAt ${zai.fetchedAt}`);
-  console.log(`✓ mimo: ${mimo.plans.length} Pläne · ${mimo.models.length} Modell-Zeilen · fetchedAt ${mimo.fetchedAt}`);
-  console.log(`✓ ollama: ${ollama.plans.length} Pläne · ${ollama.models.length} Modell-Zeilen · fetchedAt ${ollama.fetchedAt}`);
+  console.log(`✓ zai:  ${zai.plans.length} Pläne · ${zai.models.length} Modell-Zeilen`);
+  console.log(`✓ mimo: ${mimo.plans.length} Pläne · ${mimo.models.length} Modell-Zeilen`);
+  console.log(`✓ ollama: ${ollama.plans.length} Pläne · ${ollama.models.length} Modell-Zeilen`);
 }
 
 main().catch((err) => {

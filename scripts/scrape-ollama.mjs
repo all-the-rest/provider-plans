@@ -309,7 +309,6 @@ export async function scrapeOllama(opts = {}) {
 
   const data = {
     vendorId: "ollama",
-    fetchedAt: new Date().toISOString(),
     sourceUrls: [OLLAMA_PRICING_URL],
     plans: parsed.plans,
     models,

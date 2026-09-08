@@ -460,7 +460,6 @@ export async function scrapeZai(opts = {}) {
   const peak = overview.peak;
   const data = {
     vendorId: "zai",
-    fetchedAt: new Date().toISOString(),
     sourceUrls: [ZAI_OVERVIEW_URL, ZAI_PRICING_URL, ZAI_SUBSCRIBE_URL],
     plans,
     models: modelRows,

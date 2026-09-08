@@ -432,7 +432,6 @@ const peakSchema = z.object({
 
 const vendorDataSchema = z.object({
   vendorId: z.enum(["zai", "mimo", "ollama"]),
-  fetchedAt: z.string(),
   sourceUrls: z.array(z.string()),
   plans: z.array(planSchema),
   models: z.array(modelSchema),
@@ -559,7 +558,7 @@ export function buildChangelogEntries(prev, next, vendorId) {
     }
   }
   if (!de.length) return [];
-  const date = new Date(next.fetchedAt ?? Date.now()).toISOString().slice(0, 10);
+  const date = new Date().toISOString().slice(0, 10);
   return [
     {
       id: `${vendorId}-${date}`,

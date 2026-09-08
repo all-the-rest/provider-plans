@@ -68,7 +68,6 @@ pnpm preview           # build testen (Deep-Links wie /z-ai liefern 200)
 ```jsonc
 {
   "vendorId": "zai" | "mimo",
-  "fetchedAt": "…",
   "sourceUrls": [ "…" ],
   "plans": [{
     "id": "lite", "name": "Lite", "kind": "weekly" | "monthly",
