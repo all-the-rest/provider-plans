@@ -70,7 +70,7 @@ export interface PeakConfig {
   tzOffsetMin: number;
   /** Anzeige-Label der Zeitzone (z. B. „SGT (UTC+8)"). */
   timezoneLabel: string;
-  /** Anzeige-Namen je Phase (z. B. MiMo: „Tag" / „Nacht −20 %"). */
+  /** Anzeige-Namen je Phase („Peak" / „Off-Peak", einheitlich für alle Vendors). */
   phaseLabel: Record<Phase, string>;
   /** Ab diesem Zeitpunkt gelten die Regeln (ms); davor alles wie peak. */
   effectiveFromMs: number | null;

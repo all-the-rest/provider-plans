@@ -1,5 +1,5 @@
 // scripts/scrape-mimo.mjs — MiMo Token Plan (mimo.mi.com): Pläne + Credits +
-// Nacht-Rabatt aus dem Token-Plan-Doc, Overseas-API-Preise aus pay-as-you-go.
+// Off-Peak-Rabatt aus dem Token-Plan-Doc, Overseas-API-Preise aus pay-as-you-go.
 import {
   assertPatternConsistency,
   enrichModelMeta,
@@ -28,7 +28,7 @@ const BEIJING_OFFSET_MIN = 480; // Beijing = UTC+8
 /**
  * Parst das Token-Plan-Dokument:
  * - Monats-/Jahres-Preise (Pläne) + Monats-Credits
- * - Nacht-Rabatt (Faktor 0.8x, Peking 00–08 = UTC 16–24, kein Wochenend-Sonderfall)
+ * - Off-Peak-Rabatt (Faktor 0.8x, Peking 00–08 = UTC 16–24, kein Wochenend-Sonderfall)
  * - Modell-Credit-Quoten (Cache-Hit / Cache-Miss / Output, „Credits")
  */
 export function parseMimoTokenPlan(md) {
@@ -282,8 +282,8 @@ export async function scrapeMimo(opts = {}) {
       tzOffsetMin: night.tz,
       timezoneLabel: "Peking (UTC+8)",
       phaseLabel: {
-        peak: "Tag",
-        "off-peak": `Nacht −${Math.round((1 - night.factor) * 100)} %`,
+        peak: "Peak",
+        "off-peak": "Off-Peak",
       },
       effectiveFromMs: null,
     },

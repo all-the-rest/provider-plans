@@ -36,7 +36,7 @@ test("mimo: parseMimoTokenPlan liefert Monats-Preise", async () => {
   }
 });
 
-test("mimo: parseMimoTokenPlan liefert Nacht-Rabatt-Konfiguration", async () => {
+test("mimo: parseMimoTokenPlan liefert Off-Peak-Konfiguration", async () => {
   const { night } = parseMimoTokenPlan(await readFixture("mimo/token-plan.md"));
   assert.equal(night.factor, 0.8);
   assert.deepEqual(night.windows, [[16, 24]]);

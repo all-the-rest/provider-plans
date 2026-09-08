@@ -5,14 +5,14 @@ const ollamaDe = {
   colInput: "Input",
   colCached: "Cached",
   colOutput: "Output",
-  peakWeekendNote: "",
+  peakWeekendNote: "Mo–Fr 12–18 UTC Peak · sonst Off-Peak (50 %) · Sa/So durchgehend Off-Peak",
 };
 
 const ollamaEn = {
   colInput: "Input",
   colCached: "Cached",
   colOutput: "Output",
-  peakWeekendNote: "",
+  peakWeekendNote: "Mon–Fri 12–18 UTC Peak · otherwise Off-Peak (50 %) · Sat/Sun Off-Peak all day",
 };
 
 export const i18n: Record<Lang, Translation> = {

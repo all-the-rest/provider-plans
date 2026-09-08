@@ -94,6 +94,10 @@ pnpm typecheck        # nur tsc --noEmit
   Kontext, keine Annahmen) in `~/dev/provider-plans`:
   `pnpm typecheck`, `pnpm test`, `pnpm scrape:stub`, `pnpm build`, `pnpm preview`-200 plus
   `/z-ai`/`/mimo` Deep-Links und `dist/404.html`-Vorhandensein; Stub-Output vs. committete Daten abgleichen.
+- **Screenshot-Pflicht:** Jede UI-Änderung mit visueller Wirkung muss permanente Captures in
+  `tests/screenshots/` mitliefern (Manifest-Eintrag oder eigene Capture-only-Spec wie
+  `share-dialog.spec.ts`); ein-/tmp-Skripte sind kein Ersatz. Vor Abschluss
+  `pnpm test:screenshots` für die betroffenen Routen laufen lassen.
 
 ## CI/CD (`.github/workflows/provider-plans.yml`)
 

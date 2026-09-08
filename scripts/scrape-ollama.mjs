@@ -7,9 +7,12 @@ export const OLLAMA_PRICING_URL = "https://ollama.com/pricing";
 /**
  * Parst die Ollama-Pricing-Seite:
  * - Pläne Pro ($20/mo, $200/yr → $16.67/mo, $60 Credits) und Max ($100/mo, $300 Credits)
- * - Modellpreise USD/1M (Input / Cached / Output) aus der „Model pricing" Tabelle.
+ * - Modellpreise USD/1M (Input / Cached / Output) aus der „Model pricing" Tabelle (Basis).
+ * - Peak-Preise aus der zweiten Tabelle nach „Peak pricing" (nur DeepSeek-Modelle, 2× Basis).
+ * - Peak-Fenster aus dem Satz „Peak pricing applies between 12:00 and 18:00 UTC, Monday to Friday."
+ * - Cached „-" (mistral-large-3, nemotron-3-nano, qwen) → null (Key wird weggelassen).
  * @param {string} html
- * @returns {{plans: Array, modelPrices: Record<string,{input:number,cached:number,output:number}>}}
+ * @returns {{plans: Array, modelPrices: Record<string,{input:number,cached:number|null,output:number}>, peakPrices: Record<string,{input:number,cached:number|null,output:number}>|null, peak: {windows: Array, weekendOffPeak: boolean}}}
  */
 export function parseOllamaPricing(html) {
   let rawText = String(html ?? "");
@@ -74,29 +77,86 @@ export function parseOllamaPricing(html) {
     });
   }
 
-  // Modellpreise aus Tabelle
-  const rows = extractTableRows(html);
-  const modelPrices = {};
-  for (const cells of rows) {
-    if (cells.length < 4) continue;
+  // Modellpreise: erste Tabelle = Basis, Tabelle nach „Peak pricing" = Peak (DeepSeek).
+  const parseCells = (cells) => {
+    if (cells.length < 4) return null;
     const first = String(cells[0] ?? "").trim().replace(/`/g, "");
     // Header-Zeile überspringen
-    if (/^model$/i.test(first)) continue;
+    if (/^model$/i.test(first)) return null;
     // Prüfe ob Zeile wie Modell aussieht (enthält Buchstaben/Zahlen, Preise in restlichen Zellen)
-    const hasUsd = cells.slice(1).some((c) => String(c).includes("$"));
-    if (!hasUsd) continue;
+    const hasUsd = cells.slice(1).some((c) => String(c).includes("$") || /^-$/.test(String(c).trim()));
+    if (!hasUsd) return null;
     // Normalisiere Modell-ID wie in API: lowercase, behalte ":" und "-" und "."
     const id = first.toLowerCase();
     // Nur bekannte Ollama-Modelle (erlaube alle mit $ Preisen)
     const input = parsePrice(cells[1]);
     const cached = parsePrice(cells[2]);
     const output = parsePrice(cells[3]);
-    if (input === null || cached === null || output === null) continue;
-    if (modelPrices[id]) continue;
-    modelPrices[id] = { input, cached, output };
+    // „-" bei Cached (mistral-large-3, nemotron-3-nano, qwen) → null, Zeile behalten
+    if (input === null || output === null) return null;
+    return [id, { input, cached, output }];
+  };
+
+  const modelPrices = {};
+  let peakPrices = null;
+  if (/<table[\s>]/i.test(String(html ?? ""))) {
+    const $ = cheerio.load(String(html));
+    const baseRows = [];
+    const peakRows = [];
+    let seenPeak = false;
+    for (const el of $("body").find("h1, h2, h3, h4, h5, p, table").toArray()) {
+      const tag = el.tagName?.toLowerCase();
+      if (tag === "table") {
+        const target = seenPeak ? peakRows : baseRows;
+        $(el)
+          .find("tr")
+          .each((_, tr) => {
+            target.push(
+              $(tr)
+                .find("td, th")
+                .map((_, c) => $(c).text().replace(/\s+/g, " ").trim())
+                .get()
+            );
+          });
+      } else if (/peak pricing/i.test($(el).text())) {
+        seenPeak = true;
+      }
+    }
+    // Fallback falls kein <body> (Fragment): alle Tabellen als Basis
+    const rows = baseRows.length || peakRows.length ? baseRows : extractTableRows(html);
+    for (const cells of rows) {
+      const r = parseCells(cells);
+      if (r && !modelPrices[r[0]]) modelPrices[r[0]] = r[1];
+    }
+    if (seenPeak && peakRows.length) {
+      const peak = {};
+      for (const cells of peakRows) {
+        const r = parseCells(cells);
+        if (r && !peak[r[0]]) peak[r[0]] = r[1];
+      }
+      if (Object.keys(peak).length) peakPrices = peak;
+    }
+  } else {
+    for (const cells of extractTableRows(html)) {
+      const r = parseCells(cells);
+      if (r && !modelPrices[r[0]]) modelPrices[r[0]] = r[1];
+    }
   }
 
-  return { plans, modelPrices };
+  // Peak-Fenster aus „Peak pricing applies between 12:00 and 18:00 UTC, Monday to Friday."
+  let windows = [];
+  let weekendOffPeak = false;
+  const windowMatch = text.match(
+    /Peak pricing applies between\s+(\d{1,2})(?::\d{2})?\s*(?:-|–|—|and|to|until)\s*(\d{1,2})(?::\d{2})?\s*UTC/i
+  );
+  if (windowMatch) {
+    const startH = Number(windowMatch[1]);
+    const endH = Number(windowMatch[2]);
+    if (Number.isFinite(startH) && Number.isFinite(endH)) windows = [[startH, endH]];
+    weekendOffPeak = /Monday to Friday/i.test(text);
+  }
+
+  return { plans, modelPrices, peakPrices, peak: { windows, weekendOffPeak } };
 }
 
 /**
@@ -114,11 +174,33 @@ export async function scrapeOllama(opts = {}) {
     const committed = await readJsonSafe("src/vendors/ollama/data/latest.json");
     if (committed && Array.isArray(committed.plans) && committed.plans.length && Array.isArray(committed.models) && committed.models.length) {
       console.error("[ollama] Warnung: live pricing nicht vollständig parsebar – nutze kommittierte Daten aus src/vendors/ollama/data/latest.json");
+      const base = {};
+      const peakP = {};
+      for (const m of committed.models) {
+        const api = {
+          input: m.apiPrice?.input ?? m.creditPerM?.input,
+          cached: m.apiPrice?.cached ?? m.creditPerM?.cached ?? null,
+          output: m.apiPrice?.output ?? m.creditPerM?.output,
+        };
+        if (m.tier === "peak") {
+          peakP[m.id] = {
+            input: m.creditPerM?.input ?? api.input,
+            cached: m.creditPerM?.cached ?? null,
+            output: m.creditPerM?.output ?? api.output,
+          };
+          if (!(m.id in base)) base[m.id] = api;
+        } else {
+          base[m.id] = api;
+        }
+      }
       parsed = {
         plans: committed.plans,
-        modelPrices: Object.fromEntries(
-          committed.models.map((m) => [m.id, { input: m.apiPrice.input ?? m.creditPerM.input, cached: m.apiPrice.cached ?? m.creditPerM.cached, output: m.apiPrice.output ?? m.creditPerM.output }])
-        ),
+        modelPrices: base,
+        peakPrices: Object.keys(peakP).length ? peakP : null,
+        peak: {
+          windows: committed.peak?.windows ?? [],
+          weekendOffPeak: committed.peak?.weekendOffPeak ?? false,
+        },
       };
     } else if (!parsed.plans.length) {
       throw new Error("parseOllamaPricing: keine Pläne gefunden");
@@ -164,6 +246,14 @@ export async function scrapeOllama(opts = {}) {
     fallbackPattern = parseFallbackPattern(fixture);
   }
 
+  // DeepSeek-Modelle mit Peak/Off-Peak: zwei Zeilen (z.ai-Konvention — beide creditPerM = PEAK,
+  // Off-Peak-Rabatt via phaseFactor 0.5; apiPrice = Basis für die Wert-Rechnung).
+  const PEAK_IDS = new Set(["deepseek-v4-flash", "deepseek-v4-pro"]);
+  const priceObj = (p) => {
+    const o = { input: p.input, output: p.output };
+    if (p.cached !== null && p.cached !== undefined) o.cached = p.cached;
+    return o;
+  };
   const models = [];
   for (const [rawId, api] of Object.entries(parsed.modelPrices)) {
     const id = rawId;
@@ -171,17 +261,23 @@ export async function scrapeOllama(opts = {}) {
     const pattern = patterns[norm] ?? fallbackPattern ?? null;
     // Manche IDs enthalten ":" (gpt-oss:120b, qwen3.5:397b) — normalize entfernt ":", daher fallback greift
     const name = rawId;
-    const creditPerM = { input: api.input, cached: api.cached, output: api.output };
-    models.push({
+    const peakApi = parsed.peakPrices?.[id] ?? null;
+    const mkRow = (tier, credit) => ({
       id,
       name,
-      tier: null,
+      tier,
       contextWindow: null,
-      creditPerM,
-      apiPrice: { input: api.input, cached: api.cached, output: api.output },
+      creditPerM: priceObj(credit),
+      apiPrice: priceObj(api),
       pattern,
       note: null,
     });
+    if (PEAK_IDS.has(id) && peakApi) {
+      models.push(mkRow("peak", peakApi));
+      models.push(mkRow("off-peak", peakApi));
+    } else {
+      models.push(mkRow(null, api));
+    }
   }
 
   assertPatternConsistency(models);
@@ -218,9 +314,9 @@ export async function scrapeOllama(opts = {}) {
     plans: parsed.plans,
     models,
     peak: {
-      windows: [],
-      phaseFactor: { peak: 1, "off-peak": 1 },
-      weekendOffPeak: false,
+      windows: parsed.peak?.windows?.length ? parsed.peak.windows : [[12, 18]],
+      phaseFactor: { peak: 1, "off-peak": 0.5 },
+      weekendOffPeak: parsed.peak?.weekendOffPeak ?? true,
       tzOffsetMin: 0,
       timezoneLabel: "UTC",
       phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },

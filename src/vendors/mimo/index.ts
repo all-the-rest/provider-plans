@@ -13,7 +13,7 @@ export const vendorModule: VendorModule = {
     name: "Xiaomi MiMo — Token Plan",
     shortName: "MiMo",
     tagline:
-      "Credit-basierter Token Plan für mimo-v2.5 & mimo-v2.5-pro — monatliche Credits, Nacht-Rabatt −20 %.",
+      "Credit-basierter Token Plan für mimo-v2.5 & mimo-v2.5-pro — monatliche Credits, Off-Peak-Rabatt −20 %.",
     siteUrl: "https://mimo.mi.com",
     priceSourceUrl: "https://mimo.mi.com/docs/en-US/price/token-plan",
     flagshipId: "mimo-v2.5-pro",

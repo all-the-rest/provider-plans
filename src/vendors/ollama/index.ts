@@ -12,7 +12,7 @@ export const vendorModule: VendorModule = {
     path: "/ollama",
     name: "Ollama — Pro & Max",
     shortName: "Ollama",
-    tagline: "USD-basierter Usage-Credit-Plan — Pro $60 / Max $300 Credits pro Monat, keine Peak-Zeiten.",
+    tagline: "USD-basierter Usage-Credit-Plan — Pro $60 / Max $300 Credits pro Monat. DeepSeek Peak 12–18 UTC (Mo–Fr) = 2×, sonst Off-Peak.",
     siteUrl: "https://ollama.com",
     priceSourceUrl: "https://ollama.com/pricing",
     flagshipId: "glm-5.3",

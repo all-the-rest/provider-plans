@@ -167,8 +167,8 @@
     "tzOffsetMin": 480,
     "timezoneLabel": "Peking (UTC+8)",
     "phaseLabel": {
-      "peak": "Tag",
-      "off-peak": "Nacht −20 %"
+      "peak": "Peak",
+      "off-peak": "Off-Peak"
     },
     "effectiveFromMs": null
   }

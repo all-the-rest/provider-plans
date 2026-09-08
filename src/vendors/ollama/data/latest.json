@@ -36,12 +36,35 @@
       "id": "deepseek-v4-flash",
       "name": "deepseek-v4-flash",
       "provider": "DeepSeek",
-      "tier": null,
+      "tier": "peak",
       "contextWindow": 1000000,
       "creditPerM": {
+        "input": 0.44,
+        "cached": 0.014,
+        "output": 1.32
+      },
+      "apiPrice": {
         "input": 0.22,
         "cached": 0.007,
         "output": 0.66
+      },
+      "pattern": {
+        "input": 410,
+        "cached": 71300,
+        "output": 310
+      },
+      "note": null
+    },
+    {
+      "id": "deepseek-v4-flash",
+      "name": "deepseek-v4-flash",
+      "provider": "DeepSeek",
+      "tier": "off-peak",
+      "contextWindow": 1000000,
+      "creditPerM": {
+        "input": 0.44,
+        "cached": 0.014,
+        "output": 1.32
       },
       "apiPrice": {
         "input": 0.22,
@@ -59,12 +82,35 @@
       "id": "deepseek-v4-pro",
       "name": "deepseek-v4-pro",
       "provider": "DeepSeek",
-      "tier": null,
+      "tier": "peak",
       "contextWindow": 1000000,
       "creditPerM": {
+        "input": 1.32,
+        "cached": 0.044,
+        "output": 3.96
+      },
+      "apiPrice": {
         "input": 0.66,
         "cached": 0.022,
         "output": 1.98
+      },
+      "pattern": {
+        "input": 750,
+        "cached": 82000,
+        "output": 290
+      },
+      "note": null
+    },
+    {
+      "id": "deepseek-v4-pro",
+      "name": "deepseek-v4-pro",
+      "provider": "DeepSeek",
+      "tier": "off-peak",
+      "contextWindow": 1000000,
+      "creditPerM": {
+        "input": 1.32,
+        "cached": 0.044,
+        "output": 3.96
       },
       "apiPrice": {
         "input": 0.66,
@@ -355,6 +401,48 @@
       "note": null
     },
     {
+      "id": "mistral-large-3",
+      "name": "mistral-large-3",
+      "provider": "Mistral",
+      "tier": null,
+      "contextWindow": 256000,
+      "creditPerM": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "apiPrice": {
+        "input": 0.5,
+        "output": 1.5
+      },
+      "pattern": {
+        "input": 850,
+        "cached": 49000,
+        "output": 163
+      },
+      "note": null
+    },
+    {
+      "id": "nemotron-3-nano",
+      "name": "nemotron-3-nano",
+      "provider": "NVIDIA",
+      "tier": null,
+      "contextWindow": null,
+      "creditPerM": {
+        "input": 0.06,
+        "output": 0.24
+      },
+      "apiPrice": {
+        "input": 0.06,
+        "output": 0.24
+      },
+      "pattern": {
+        "input": 850,
+        "cached": 49000,
+        "output": 163
+      },
+      "note": null
+    },
+    {
       "id": "nemotron-3-super",
       "name": "nemotron-3-super",
       "provider": "NVIDIA",
@@ -399,15 +487,41 @@
         "output": 163
       },
       "note": null
+    },
+    {
+      "id": "qwen3.5:397b",
+      "name": "qwen3.5:397b",
+      "provider": "Alibaba",
+      "tier": null,
+      "contextWindow": 262144,
+      "creditPerM": {
+        "input": 0.6,
+        "output": 3.6
+      },
+      "apiPrice": {
+        "input": 0.6,
+        "output": 3.6
+      },
+      "pattern": {
+        "input": 850,
+        "cached": 49000,
+        "output": 163
+      },
+      "note": null
     }
   ],
   "peak": {
-    "windows": [],
+    "windows": [
+      [
+        12,
+        18
+      ]
+    ],
     "phaseFactor": {
       "peak": 1,
-      "off-peak": 1
+      "off-peak": 0.5
     },
-    "weekendOffPeak": false,
+    "weekendOffPeak": true,
     "tzOffsetMin": 0,
     "timezoneLabel": "UTC",
     "phaseLabel": {

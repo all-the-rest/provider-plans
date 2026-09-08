@@ -2,6 +2,7 @@ import { For, createMemo, createSignal } from "solid-js";
 import { isTierActive, PeakIndicator, usePeakClock } from "../peak";
 import { fmt, fmtBig, fmtContextWindow, fmtCredits, fmtInt, fmtTokens } from "../util";
 import Heading from "./Heading";
+import ShareDialog from "./ShareDialog";
 import { Tooltip } from "./Tooltip";
 import type { Basis, CreditField, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
 
@@ -187,7 +188,10 @@ export default function PriceTable(props: PriceTableProps) {
 
   return (
     <section class="mt-10">
-      <Heading anchor="prices">{props.t.headingPrices}</Heading>
+      <div class="flex flex-wrap items-center justify-between gap-2" data-testid="share-section">
+        <Heading anchor="prices">{props.t.headingPrices}</Heading>
+        <ShareDialog module={module} plan={props.plan} cycle={props.cycle} lang={props.lang} />
+      </div>
 
       <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
         <div class="flex flex-wrap items-center gap-2">

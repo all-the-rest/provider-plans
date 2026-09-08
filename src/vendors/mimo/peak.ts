@@ -6,6 +6,6 @@ export const peak: PeakConfig = {
   weekendOffPeak: false,
   tzOffsetMin: 480,
   timezoneLabel: "Peking (UTC+8)",
-  phaseLabel: { peak: "Tag", "off-peak": "Nacht −20 %" },
+  phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },
   effectiveFromMs: null,
 };
