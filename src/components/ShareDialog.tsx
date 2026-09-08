@@ -29,6 +29,11 @@ export default function ShareDialog(props: ShareDialogProps) {
   const [cardSize, setCardSize] = createSignal<CardSize>("og");
   const [topN, setTopN] = createSignal(defaultTopN());
   const [topNManual, setTopNManual] = createSignal(false);
+  // Kartentheme folgt per Default dem Site-Theme (data-theme); manueller Switch gewinnt danach.
+  const readSiteDark = () =>
+    typeof document !== "undefined"
+      ? document.documentElement.getAttribute("data-theme") === "dark"
+      : true;
   const [dark, setDark] = createSignal(true);
   const [copied, setCopied] = createSignal(false);
   const [shareLang, setShareLang] = createSignal<Lang>(props.lang);
@@ -43,6 +48,7 @@ export default function ShareDialog(props: ShareDialogProps) {
   const openDialog = () => {
     setShareLang(props.lang);
     setShareCycle(props.cycle);
+    setDark(readSiteDark());
     dlg?.showModal();
   };
 

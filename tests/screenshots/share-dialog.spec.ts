@@ -46,6 +46,11 @@ for (const vendor of VENDORS) {
         await page.goto(vendor.path);
         await waitForAppSettled(page);
 
+        // Site-Theme dunkel setzen, damit die Default-Vorschau (folgt dem Site-Theme) dunkel bleibt.
+        await page.evaluate(() => localStorage.setItem("theme", "dark"));
+        await page.reload();
+        await waitForAppSettled(page);
+
         const dialog = page.getByTestId("share-dialog");
         await page.getByTestId("share-open").click();
         await expect(dialog).toBeVisible();
