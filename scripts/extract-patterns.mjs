@@ -31,13 +31,13 @@ async function loadPatternText({ stub }) {
 /**
  * Extrahiert die Anfragemuster.
  * @param {{stub?: boolean, write?: boolean}} [opts]
- * @returns {Promise<{generatedAt: string, patterns: Record<string, {input:number,cached:number,output:number}>}>}
+ * @returns {Promise<{patterns: Record<string, {input:number,cached:number,output:number}>}>}
  */
 export async function extractPatterns(opts = {}) {
   const stub = opts.stub ?? process.argv.includes("--stub");
   const text = await loadPatternText({ stub });
   const patterns = Object.fromEntries(parsePatternItems(text));
-  const result = { generatedAt: new Date().toISOString(), patterns };
+  const result = { patterns };
 
   const write = opts.write ?? !stub;
   if (write) {

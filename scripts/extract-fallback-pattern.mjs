@@ -23,7 +23,7 @@ async function loadFallbackText({ stub }) {
 /**
  * Extrahiert das Fallback-Muster.
  * @param {{stub?: boolean, write?: boolean}} [opts]
- * @returns {Promise<{generatedAt:string, sourceUrl:string, pattern:{input:number,cached:number,output:number}}>}
+ * @returns {Promise<{sourceUrl:string, pattern:{input:number,cached:number,output:number}}>}
  */
 export async function extractFallbackPattern(opts = {}) {
   const stub = opts.stub ?? process.argv.includes("--stub");
@@ -32,7 +32,7 @@ export async function extractFallbackPattern(opts = {}) {
   if (!pattern) {
     throw new Error("extractFallbackPattern: kein Muster aus Fallback-Quelle parsebar");
   }
-  const result = { generatedAt: new Date().toISOString(), sourceUrl: FALLBACK_URL, pattern };
+  const result = { sourceUrl: FALLBACK_URL, pattern };
   const write = opts.write ?? !stub;
   if (write) {
     const file = resolve(repoRoot, FALLBACK_JSON_PATH);
