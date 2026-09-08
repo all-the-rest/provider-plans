@@ -505,8 +505,15 @@ export async function appendHistory(vendorId, data, opts = {}) {
   await mkdir(dirname(file), { recursive: true });
   const history = (await readJsonSafe(file)) ?? {};
   if (!Array.isArray(history[vendorId])) history[vendorId] = [];
-  history[vendorId].push(JSON.parse(JSON.stringify(data)));
+  const snap = JSON.parse(JSON.stringify(data));
+  const last = history[vendorId][history[vendorId].length - 1];
+  // Kein Duplikat anhängen: ohne echte Änderung bleibt die History (und damit der CI-Diff) leer.
+  if (last !== undefined && JSON.stringify(last) === JSON.stringify(snap)) {
+    return false;
+  }
+  history[vendorId].push(snap);
   await writeFile(file, JSON.stringify(history, null, 2) + "\n");
+  return true;
 }
 
 const CHANGE_LABELS = {
