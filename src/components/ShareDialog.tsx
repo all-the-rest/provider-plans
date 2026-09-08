@@ -122,6 +122,16 @@ export default function ShareDialog(props: ShareDialogProps) {
       </button>
       <dialog ref={(el) => (dlg = el)} class="modal" data-testid="share-dialog">
         <div class="modal-box max-w-3xl">
+          <form method="dialog">
+            <button
+              type="submit"
+              class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+              aria-label={s().close}
+              data-testid="share-close"
+            >
+              ✕
+            </button>
+          </form>
           <h3 class="text-lg font-bold">{s().title}</h3>
           <div class="mt-4 flex flex-wrap items-center gap-4">
             <label class="flex items-center gap-2 whitespace-nowrap text-sm">
