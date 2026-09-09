@@ -105,9 +105,9 @@
         "output": 800
       },
       "apiPrice": {
-        "input": 0.075,
-        "cached": 0.015,
-        "output": 0.25
+        "input": 0.15,
+        "cached": 0.03,
+        "output": 0.5
       },
       "pattern": {
         "input": 1000,
@@ -128,9 +128,9 @@
         "output": 800
       },
       "apiPrice": {
-        "input": 0.075,
-        "cached": 0.015,
-        "output": 0.25
+        "input": 0.15,
+        "cached": 0.03,
+        "output": 0.5
       },
       "pattern": {
         "input": 1000,
