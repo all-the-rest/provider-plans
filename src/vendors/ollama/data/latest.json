@@ -33,6 +33,29 @@
   ],
   "models": [
     {
+      "id": "deepseek-v4.1-flash",
+      "name": "deepseek-v4.1-flash",
+      "provider": "OpenCode Go",
+      "tier": null,
+      "contextWindow": 1000000,
+      "creditPerM": {
+        "input": 0.15,
+        "cached": 0.003,
+        "output": 0.6
+      },
+      "apiPrice": {
+        "input": 0.15,
+        "cached": 0.003,
+        "output": 0.6
+      },
+      "pattern": {
+        "input": 410,
+        "cached": 71300,
+        "output": 310
+      },
+      "note": null
+    },
+    {
       "id": "deepseek-v4-flash",
       "name": "deepseek-v4-flash",
       "provider": "DeepSeek",
