@@ -50,6 +50,11 @@
       "cached": 88900,
       "output": 200
     },
+    "deepseekv4.1flash": {
+      "input": 410,
+      "cached": 71300,
+      "output": 310
+    },
     "deepseekv4pro": {
       "input": 750,
       "cached": 82000,
@@ -129,11 +134,6 @@
       "input": 790,
       "cached": 86000,
       "output": 305
-    },
-    "omenalpha": {
-      "input": 300,
-      "cached": 40000,
-      "output": 100
     }
   }
 }
