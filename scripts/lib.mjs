@@ -576,7 +576,42 @@ export function buildChangelogEntries(prev, next, vendorId) {
 }
 
 /**
- * changelog.json mergen: neue Einträge oben, dedupe per id.
+ * Kalendertag (YYYY-MM-DD) aus einem Datumsstring; null bei fehlendem/unparsebarem Datum.
+ * Zeitzone wie im Repo üblich: UTC (`toISOString().slice(0, 10)` in buildChangelogEntries).
+ */
+export function changelogDay(dateStr) {
+  const m = typeof dateStr === "string" ? dateStr.match(/^(\d{4}-\d{2}-\d{2})/) : null;
+  return m ? m[1] : null;
+}
+
+/** Dedup-Schlüssel eines Change-Objekts: gleicher Schlüssel → neueste Version gewinnt. */
+function changeKey(c) {
+  if (c && typeof c.de === "string") return `de:${c.de}`;
+  return `json:${JSON.stringify(c)}`;
+}
+
+/**
+ * Mergt eingehende Changes in bestehende (Dedup per changeKey, neueste Version gewinnt,
+ * Reihenfolge: bestehende zuerst, neue hinten; idempotent bei Wiederholung).
+ */
+export function mergeChangeLists(existing, incoming) {
+  const result = [...(existing ?? [])];
+  for (const inc of incoming ?? []) {
+    const key = changeKey(inc);
+    const idx = result.findIndex((c) => changeKey(c) === key);
+    if (idx === -1) result.push(inc);
+    else result[idx] = inc;
+  }
+  return result;
+}
+
+/**
+ * changelog.json mergen: maximal 1 Eintrag pro Tag und Vendor (Changelog-Bremse).
+ * Erzeugt ein Lauf Änderungen für einen Tag, für den der neueste vorhandene,
+ * nicht-leere Eintrag dasselbe Kalenderdatum hat, werden die Changes in diesen
+ * Eintrag gemergt (statt einen neuen anzulegen). Bei fehlendem/unparsebarem
+ * Datum des bestehenden Eintrags wird ein neuer Eintrag angelegt.
+ * Idempotenz per id bleibt erhalten; leere Einträge werden entfernt.
  * Vorhandene Einträge (z. B. vom Vendor-Modul gepflegt) bleiben erhalten.
  */
 export async function mergeChangelog(vendorId, next, prev, opts = {}) {
@@ -584,8 +619,19 @@ export async function mergeChangelog(vendorId, next, prev, opts = {}) {
   let changelog = (await readJsonSafe(file)) ?? { entries: [] };
   if (Array.isArray(changelog)) changelog = { entries: changelog };
   if (!Array.isArray(changelog?.entries)) changelog = { entries: [] };
+  // Leere Einträge entfernen (keine Änderungen → kein Eintrag).
+  changelog.entries = changelog.entries.filter((e) => e && Array.isArray(e.changes) && e.changes.length > 0);
   const fresh = buildChangelogEntries(prev, next, vendorId);
   for (const entry of fresh) {
+    if (!entry || !Array.isArray(entry.changes) || entry.changes.length === 0) continue;
+    const newest = changelog.entries.find((e) => e && Array.isArray(e.changes) && e.changes.length > 0);
+    const newestDay = newest ? changelogDay(newest.date) : null;
+    const freshDay = changelogDay(entry.date);
+    if (newest && newestDay !== null && freshDay !== null && newestDay === freshDay) {
+      // Gleicher Tag → in den neuesten Eintrag mergen (Bremse: kein neuer Eintrag).
+      newest.changes = mergeChangeLists(newest.changes, entry.changes);
+      continue;
+    }
     if (!changelog.entries.some((x) => x && x.id === entry.id)) {
       changelog.entries.unshift(entry);
     }
@@ -594,6 +640,7 @@ export async function mergeChangelog(vendorId, next, prev, opts = {}) {
   changelog.entries = changelog.entries.filter((e) => {
     if (!e || typeof e.id !== "string" || seen.has(e.id)) return false;
     seen.add(e.id);
+    if (!Array.isArray(e.changes) || e.changes.length === 0) return false;
     return true;
   });
   await writeJson(file, changelog);

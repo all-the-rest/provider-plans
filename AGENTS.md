@@ -35,6 +35,8 @@ pnpm typecheck        # nur tsc --noEmit
 
 > **Daten-Commits:** `src/vendors/<vendor>/data/latest.json` + `data/history.json` +
 > `src/vendors/<vendor>/data/changelog.json` werden bei Änderungen vom CI committet.
+> **Changelog-Bremse:** max. 1 Eintrag pro Tag und Vendor — Same-Day-Changes werden in den
+> neuesten Eintrag gemergt (`mergeChangelog`/`mergeChangeLists` in `scripts/lib.mjs`).
 
 ## Architektur
 

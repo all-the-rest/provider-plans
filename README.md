@@ -38,7 +38,8 @@ Umrechnungsformeln je Vendor** (Credit-Pools, Peak/Off-Peak-Abzüge, Bindungs-Bo
   steht in den Tooltips.
 - **Bindungs-Boni:** Jahr/Quartal-Rabatte (z.ai −30 %/−20 %), MiMo Jahr −12 % + Erstkauf
   −12 %, im Plan-Vergleich sichtbar.
-- **Changelog** je Vendor mit Pagination, **GitHub-Releases + RSS** automatisiert aus den
+- **Changelog** je Vendor mit Pagination (max. 1 Eintrag pro Tag und Vendor —
+  Same-Day-Änderungen werden in den Tageseintrag gemergt), **GitHub-Releases + RSS** automatisiert aus den
   Changelog-Einträgen (Release-Tag = Run-id).
 
 ## Stack
