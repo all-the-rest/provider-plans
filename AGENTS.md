@@ -117,6 +117,25 @@ pnpm typecheck        # nur tsc --noEmit
   Lite peak ≈ 4.131 Requests/Monat; MiMo-v2.5-pro credits/request 635.000, planValue ≈ 0,99).
 - Fixtures sind fixiert — Tests müssen deterministisch laufen.
 
+## Schwester-Projekte (Git-Remotes)
+
+Tracker-Familie (alle unter `all-the-rest/`): `ocgo-price-tracker`, `ai-10-usd`,
+`cc-price-tracker`, `provider-plans` (dieses Repo, `origin`). Lokale Checkouts als
+Referenz-Vorlagen: `~/dev/cc-price-tracker`, `~/dev/ocgo-price-tracker` (siehe oben).
+
+```bash
+git remote add ocgo-price-tracker https://github.com/all-the-rest/ocgo-price-tracker.git
+git remote add ai-10-usd https://github.com/all-the-rest/ai-10-usd.git
+git remote add cc-price-tracker https://github.com/all-the-rest/cc-price-tracker.git
+```
+
+Vergleichen (read-only, `origin` bleibt unberührt):
+
+```bash
+git ls-remote ocgo-price-tracker HEAD
+git log --oneline origin/main..ocgo-price-tracker/main --no-decorate | head
+```
+
 ## Verifikation
 
 Nach jeder Umsetzung prüft ein unabhängiger Agent: `pnpm test` grün, `pnpm typecheck` grün,

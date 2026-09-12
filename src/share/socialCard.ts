@@ -133,7 +133,7 @@ export function renderSocialSvg(
   const rightX = w - mx;
   const nameX = mx + 50;
   let rows = input.rows.slice(0, topN);
-  const title = input.lang === "de" ? "Anfragen pro Monat" : "Requests per month";
+  const metric = input.lang === "de" ? "Anfragen pro Monat" : "Requests per month";
   const pal =
     theme === "light"
       ? { bg: "#ffffff", text: "#0f172a", muted: "#475569", accent: "#0284c7", footer: "#94a3b8" }
@@ -206,6 +206,10 @@ export function renderSocialSvg(
   priceY += shift;
   tableTitleY += shift;
   const tableTop = tableTopBase + shift;
+  const title =
+    input.lang === "de"
+      ? `Top-${rows.length}-Modelle · ${metric}`
+      : `Top ${rows.length} models · ${metric}`;
   if (portrait) {
     headerSvg =
       `<text x="${mx}" y="${titleY}" font-size="${titleFs}" font-weight="700" fill="${pal.text}" ${font}>${esc(input.vendorName)} · ${esc(input.planName)}</text>` +
@@ -214,13 +218,13 @@ export function renderSocialSvg(
         ? `<text x="${mx}" y="${peakY}" font-size="${peakFs}" fill="${pal.muted}" ${font}>${esc(input.peakNote ?? "")}</text>`
         : ``) +
       `<text x="${mx}" y="${priceY}" font-size="${priceFs}" font-weight="700" fill="${pal.accent}" ${font}>${esc(input.priceLabel)} /mo</text>` +
-      `<text x="${mx}" y="${tableTitleY}" font-size="${tableTitleFs}" fill="${pal.muted}" ${font}>${esc(title)} (TOP-${rows.length})</text>`;
+      `<text x="${mx}" y="${tableTitleY}" font-size="${tableTitleFs}" fill="${pal.muted}" ${font}>${esc(title)}</text>`;
   } else {
     headerSvg =
       `<text x="${mx}" y="${titleY}" font-size="${titleFs}" font-weight="700" fill="${pal.text}" ${font}>${esc(input.vendorName)} · ${esc(input.planName)}</text>` +
       `<text x="${mx}" y="${cycleY}" font-size="${cycleFs}" fill="${pal.muted}" ${font}>${esc(input.cycleLabel)}${input.peakNote ? " · " + esc(input.peakNote) : ""}</text>` +
       `<text x="${mx}" y="${priceY}" font-size="${priceFs}" font-weight="700" fill="${pal.accent}" ${font}>${esc(input.priceLabel)} /mo</text>` +
-      `<text x="${mx}" y="${tableTitleY}" font-size="${tableTitleFs}" fill="${pal.muted}" ${font}>${esc(title)} (TOP-${rows.length})</text>`;
+      `<text x="${mx}" y="${tableTitleY}" font-size="${tableTitleFs}" fill="${pal.muted}" ${font}>${esc(title)}</text>`;
   }
   const rowSvg = rows
     .map((r, i) => {
