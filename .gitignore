@@ -1,5 +1,6 @@
 node_modules/
 dist/
+public/share/og.png
 data/stub/
 data/*.log
 test-results/
