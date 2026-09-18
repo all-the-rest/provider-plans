@@ -11,7 +11,9 @@ const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(SCRIPT_DIR, "..");
 const DIST = join(ROOT, "dist");
 const PORT = Number(process.env.SMOKE_PORT ?? 4173);
-const BASE = `http://localhost:${PORT}`;
+// 127.0.0.1 statt localhost: in Containern (CI) löst localhost teils nur nach
+// ::1 auf, während der Preview-Server auf IPv4 lauscht (oder umgekehrt).
+const BASE = `http://127.0.0.1:${PORT}`;
 
 // Vendor-Routen (src/vendors/registry.ts) ↔ Daten-Artefakte (vite.config.ts).
 const VENDORS = [
@@ -28,6 +30,7 @@ const fail = (msg) => {
 const ok = (msg) => console.log(`[smoke] ok: ${msg}`);
 
 async function main() {
+  console.log(`[smoke] node ${process.version} ${process.platform}/${process.arch}`);
   // 1. Build-Artefakte vorhanden?
   const expected = ["index.html", "404.html", "CNAME", ...VENDORS.map((v) => join("data", v.file))];
   for (const f of expected) {
@@ -48,7 +51,10 @@ async function main() {
   // 3. Preview-Server starten und per HTTP prüfen. stdout/stderr werden
   // mitgeschnitten, damit ein Startfehler in CI diagnostizierbar ist
   // (statt 30 s blind zu pollen).
-  const server = spawn(join(ROOT, "node_modules", ".bin", "vite"), ["preview", "--port", String(PORT), "--strictPort"], {
+  // Host explizit auf IPv4-Loopback pinnen: `localhost` löst je nach Umgebung
+  // nach ::1 oder 127.0.0.1 auf — Server und Client müssen dieselbe Familie
+  // treffen (in Playwright-Containern lauscht vite sonst nur auf ::1).
+  const server = spawn(join(ROOT, "node_modules", ".bin", "vite"), ["preview", "--host", "127.0.0.1", "--port", String(PORT), "--strictPort"], {
     cwd: ROOT,
     stdio: ["ignore", "pipe", "pipe"],
   });

@@ -21,3 +21,9 @@ Quelle: manuelle Übernahme-Muster aus `~/dev/cc-price-tracker` und `~/dev/ocgo-
 - [ ] **Feingranularer Changelog** — `ocgo` Events `price_changed` (fields), `usage_changed`, `capabilities_changed`, `privacy_changed`, `free_added/removed` (zod, `validateSnapshot`/`validateChangelog`). Provider-Plans Changelog nur generisch (`src/vendors/*/data/changelog.json`), kein Field-Diff.
 - [ ] **Bonus/Privacy-Diff & stille Updates** — `ocgo` `privacySilentUpdate`/`validUntil`-still, `monthlyPricingChanged` ohne Changelog, `recomputeUsageDerived` nach Bonus. Für provider-plans analog zu prüfen (Off-Peak-Wechsel vs. Bonus).
 
+
+## Browser-Konsolen-Test (Playwright, Follow-up zum Smoke-Test)
+- [ ] Playwright-Test, der die Seite im echten Browser lädt und Konsolen-Fehler/pageerrors
+  als Fehler wertet (fängt JS-Laufzeitfehler, die Build + `pnpm smoke` nicht sehen).
+  Eigene Suite/config (nicht in die Screenshot-Suite — die bleibt assertion-frei),
+  in CI nach dem Smoke-Step. Browser via Container-Image oder `playwright install`.
