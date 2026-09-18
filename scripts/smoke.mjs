@@ -45,10 +45,21 @@ async function main() {
   }
   if (refs.length > 0) ok(`${new Set(refs).size} referenzierte Assets vorhanden`);
 
-  // 3. Preview-Server starten und per HTTP prüfen.
+  // 3. Preview-Server starten und per HTTP prüfen. stdout/stderr werden
+  // mitgeschnitten, damit ein Startfehler in CI diagnostizierbar ist
+  // (statt 30 s blind zu pollen).
   const server = spawn(join(ROOT, "node_modules", ".bin", "vite"), ["preview", "--port", String(PORT), "--strictPort"], {
     cwd: ROOT,
-    stdio: "ignore",
+    stdio: ["ignore", "pipe", "pipe"],
+  });
+  let serverLog = "";
+  const keepLog = (chunk) => {
+    serverLog = (serverLog + chunk.toString()).slice(-4000);
+  };
+  server.stdout?.on("data", keepLog);
+  server.stderr?.on("data", keepLog);
+  server.on("error", (e) => {
+    serverLog += `\n[spawn-error] ${e.message}`;
   });
   const stop = () => {
     try {
@@ -59,31 +70,46 @@ async function main() {
   };
   process.on("exit", stop);
   try {
-    async function waitFor(path) {
-      for (let i = 0; i < 60; i++) {
-        try {
-          const res = await fetch(`${BASE}${path}`);
-          if (res.ok) return await res.text();
-        } catch {
-          // noch nicht bereit
-        }
-        await new Promise((r) => setTimeout(r, 500));
+    // Einmal auf Bereitschaft warten; alle weiteren Endpunkte danach genau
+    // einmal fetchen (schnelles Scheitern statt Minuten-Polling je Pfad).
+    let root = null;
+    let dead = false;
+    for (let i = 0; i < 60; i++) {
+      if (server.exitCode !== null) {
+        dead = true;
+        break;
       }
-      return null;
+      try {
+        const res = await fetch(`${BASE}/`);
+        if (res.ok) {
+          root = await res.text();
+          break;
+        }
+      } catch {
+        // noch nicht bereit
+      }
+      await new Promise((r) => setTimeout(r, 500));
     }
-
-    const root = await waitFor("/");
-    if (root === null) {
-      fail(`Preview-Server antwortet nicht auf ${BASE}/`);
+    if (dead || root === null) {
+      fail(`Preview-Server antwortet nicht auf ${BASE}/ (exit=${server.exitCode}) — Server-Log:\n${serverLog || "(leer)"}`);
     } else {
       ok("GET / → 200");
       if (!root.includes('id="root"')) fail('GET / enthält keinen App-Root (id="root") — kaputtes Bundle?');
       else ok("App-Root vorhanden");
     }
 
+    const getOnce = async (path) => {
+      try {
+        const res = await fetch(`${BASE}${path}`);
+        return res.ok ? await res.text() : null;
+      } catch {
+        return null;
+      }
+    };
+
     // Deep-Links (SPA-Fallback → index.html mit App-Root).
     for (const v of VENDORS) {
-      const body = await waitFor(v.route);
+      const body = await getOnce(v.route);
       if (body === null) fail(`GET ${v.route} → kein 200 (SPA-Fallback kaputt?)`);
       else if (!body.includes('id="root"')) fail(`GET ${v.route} enthält keinen App-Root`);
       else ok(`GET ${v.route} → 200 mit App-Root`);
