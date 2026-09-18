@@ -14,6 +14,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "smoke": "node scripts/smoke.mjs",
     "test": "node --import tsx --test \"tests/**/*.test.ts\"",
     "test:e2e": "playwright test -c playwright.config.ts",
     "test:screenshots": "playwright test -c playwright.screenshots.config.ts",

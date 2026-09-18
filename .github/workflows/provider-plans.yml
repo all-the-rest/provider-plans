@@ -54,6 +54,9 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Smoke test (dist + preview HTTP)
+        run: pnpm smoke
+
       - name: Commit data changes
         id: commit
         run: |

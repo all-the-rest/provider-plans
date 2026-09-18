@@ -30,6 +30,7 @@ pnpm test             # Tests: Parser gegen Stubs + Formeln (Vendor-Module)
 pnpm dev              # Dev-Server (SPA mit clientseitigem Router)
 pnpm build            # typecheck + vite build → dist/ (inkl. dist/404.html SPA-Fallback + dist/data/latest.<vendor>.json)
 pnpm preview          # dist/ lokal serven (deep-link /z-ai testen)
+pnpm smoke            # Smoke-Test auf dist/: Artefakte + Assets + Preview-HTTP (/ , Deep-Links, /data/latest.<vendor>.json) — ohne Browser
 pnpm typecheck        # nur tsc --noEmit
 ```
 
@@ -106,6 +107,7 @@ pnpm typecheck        # nur tsc --noEmit
 - Trigger: täglicher Cron + `workflow_dispatch` + `push` auf `main`.
 - Pipeline: install (`--frozen-lockfile`, esbuild-approve via pnpm-workspace.yaml) → `pnpm test` →
   `pnpm scrape` (z.ai-Plan-Preise per Playwright im Prebuilt-Browser-Image) → `pnpm build` →
+  `pnpm smoke` (bricht rot ab, bevor kaputte Bundles auf Pages landen) →
   Commit (nur bei Änderung) → Release/RSS → deploy-pages (CNAME).
 - `repository_dispatch` an `ai-10-usd` nur, wenn ein Vendor-Plan *unrabattiert* ≈ $10 erreicht
   (Flag in Config; aktuell kein Plan qualifiziert).
@@ -139,5 +141,5 @@ git log --oneline origin/main..ocgo-price-tracker/main --no-decorate | head
 ## Verifikation
 
 Nach jeder Umsetzung prüft ein unabhängiger Agent: `pnpm test` grün, `pnpm typecheck` grün,
-`pnpm build` grün, `dist/` enthält `data/latest.{zai,mimo}.json` + `404.html` + `CNAME`,
+`pnpm build` grün, `pnpm smoke` grün, `dist/` enthält `data/latest.{zai,mimo,ollama}.json` + `404.html` + `CNAME`,
 `pnpm preview` liefert 200 für `/`, `/z-ai`, `/mimo`. Node ≥ 22, pnpm aus `packageManager`.
