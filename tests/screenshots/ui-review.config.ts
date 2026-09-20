@@ -25,7 +25,16 @@ export interface UiReviewConfig {
   routes: UiReviewRoute[];
 }
 
-const TITLE = "Provider Plans – Preis-Tracking für Coding-Subscriptions";
+const TITLES: Record<string, string> = {
+  // Screenshot-Kontext nutzt locale "de-DE" → die präfixlose Startseite `/`
+  // wählt nach der Hydration automatisch `/de` (Browser-Sprache).
+  start: "Coding-Subscriptions im Vergleich — GLM, MiMo & Ollama Plans (2026)",
+  zai: "z.ai GLM Coding Plan — price, credits & is it worth it?",
+  mimo: "Xiaomi MiMo Token Plan — price, credits & is it worth it?",
+  ollama: "Ollama Cloud plans — price, credits & is it worth it?",
+  impressum: "Imprint — Provider Plans",
+  datenschutz: "Privacy — Provider Plans",
+};
 
 export const uiReviewConfig: UiReviewConfig = {
   outputDir: "test-results/ui-screenshots",
@@ -34,7 +43,7 @@ export const uiReviewConfig: UiReviewConfig = {
       name: "start",
       path: "/",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.start,
       note: "Statische Startseite ohne Datenabhängigkeit; kein separater Empty-State.",
       nav: [{ kind: "goto", path: "/", reason: "Start-Route als Deep-Link" }],
     },
@@ -42,7 +51,7 @@ export const uiReviewConfig: UiReviewConfig = {
       name: "zai",
       path: "/z-ai",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.zai,
       note: "z.ai GLM Coding Plan — Daten gebündelt; kein separater Empty-State.",
       nav: [{ kind: "goto", path: "/z-ai", reason: "SPA-Deep-Link (Header-Nav auf Mobile versteckt)" }],
     },
@@ -50,7 +59,7 @@ export const uiReviewConfig: UiReviewConfig = {
       name: "mimo",
       path: "/mimo",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.mimo,
       note: "MiMo Token Plan — Daten gebündelt; kein separater Empty-State.",
       nav: [{ kind: "goto", path: "/mimo", reason: "SPA-Deep-Link (Header-Nav auf Mobile versteckt)" }],
     },
@@ -58,7 +67,7 @@ export const uiReviewConfig: UiReviewConfig = {
       name: "ollama",
       path: "/ollama",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.ollama,
       note: "Ollama Pro & Max — Daten gebündelt; kein separater Empty-State.",
       nav: [{ kind: "goto", path: "/ollama", reason: "SPA-Deep-Link (Header-Nav auf Mobile versteckt)" }],
     },
@@ -66,14 +75,14 @@ export const uiReviewConfig: UiReviewConfig = {
       name: "impressum",
       path: "/impressum",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.impressum,
       nav: [{ kind: "goto", path: "/impressum", reason: "Rechtsseite — nur per Link erreichbar" }],
     },
     {
       name: "datenschutz",
       path: "/datenschutz",
       states: ["filled"],
-      expectedTitle: TITLE,
+      expectedTitle: TITLES.datenschutz,
       nav: [{ kind: "goto", path: "/datenschutz", reason: "Rechtsseite — nur per Link erreichbar" }],
     },
   ],

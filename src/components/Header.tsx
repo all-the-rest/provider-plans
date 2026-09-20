@@ -1,23 +1,22 @@
 import { For } from "solid-js";
 import type { Lang, Translation } from "../types";
+import { withLangPrefix } from "../routes";
 
 export interface HeaderProps {
   lang: Lang;
   setLang: (l: Lang) => void;
   dark: boolean;
   setDark: (d: boolean) => void;
-  /** Aktueller Pfad, z. B. "/z-ai" — für die aktive Navigation. */
+  /** Aktueller Pfad, z. B. "/de/z-ai" — für die aktive Navigation. */
   path: () => string;
-  /** Navigations-Links je Vendor. */
+  /** Navigations-Links je Vendor (sprachneutral, `/de`-Präfix wird hier ergänzt). */
   vendors: { path: string; name: string }[];
   t: Translation;
 }
 
 export default function Header(props: HeaderProps) {
-  const isActive = (href: string) => {
-    const p = props.path();
-    return href === "/" ? p === "/" : p === href;
-  };
+  const hrefFor = (p: string) => withLangPrefix(p, props.lang);
+  const isActive = (p: string) => props.path() === hrefFor(p);
 
   return (
     <header class="navbar sticky top-0 z-10 bg-base-200 px-3 shadow-sm md:px-6">
@@ -45,14 +44,14 @@ export default function Header(props: HeaderProps) {
           </div>
           <ul tabindex="0" class="menu dropdown-content z-20 mt-2 w-60 max-w-[90vw] rounded-box bg-base-100 p-2 shadow-lg">
             <li>
-              <a href="/" classList={{ "menu-active": isActive("/") }}>
+              <a href={hrefFor("/")} classList={{ "menu-active": isActive("/") }}>
                 {props.t.navHome}
               </a>
             </li>
             <For each={props.vendors}>
               {(v) => (
                 <li>
-                  <a href={v.path} classList={{ "menu-active": isActive(v.path) }}>
+                  <a href={hrefFor(v.path)} classList={{ "menu-active": isActive(v.path) }}>
                     {v.name}
                   </a>
                 </li>
@@ -60,12 +59,12 @@ export default function Header(props: HeaderProps) {
             </For>
             <li class="menu-title">{props.lang === "de" ? "Rechtliches" : "Legal"}</li>
             <li>
-              <a href="/impressum" classList={{ "menu-active": isActive("/impressum") }}>
+              <a href={hrefFor("/impressum")} classList={{ "menu-active": isActive("/impressum") }}>
                 {props.t.impressum}
               </a>
             </li>
             <li>
-              <a href="/datenschutz" classList={{ "menu-active": isActive("/datenschutz") }}>
+              <a href={hrefFor("/datenschutz")} classList={{ "menu-active": isActive("/datenschutz") }}>
                 {props.t.datenschutz}
               </a>
             </li>
@@ -73,7 +72,7 @@ export default function Header(props: HeaderProps) {
         </div>
 
         <a
-          href="/"
+          href={hrefFor("/")}
           class="btn btn-ghost px-2 text-lg font-bold"
           classList={{ "btn-active": isActive("/") }}
           aria-current={isActive("/") ? "page" : undefined}
@@ -87,7 +86,7 @@ export default function Header(props: HeaderProps) {
             {(v) => (
               <a
                 role="tab"
-                href={v.path}
+                href={hrefFor(v.path)}
                 class="tab"
                 classList={{ "tab-active": isActive(v.path) }}
                 aria-current={isActive(v.path) ? "page" : undefined}

@@ -28,9 +28,9 @@ pnpm scrape           # Live: alle Vendors + Anfragemuster holen (z.ai-Subscribe
 pnpm scrape:stub      # Offline: alle Parser gegen tests/fixtures → data/stub/ (Verifikation ohne Netz)
 pnpm test             # Tests: Parser gegen Stubs + Formeln (Vendor-Module)
 pnpm dev              # Dev-Server (SPA mit clientseitigem Router)
-pnpm build            # typecheck + vite build → dist/ (inkl. dist/404.html SPA-Fallback + dist/data/latest.<vendor>.json)
+pnpm build            # typecheck + Prerender (scripts/prerender.mjs) → dist/ (Routen-HTML, 404.html, robots.txt, sitemap.xml, data/latest.<vendor>.json)
 pnpm preview          # dist/ lokal serven (deep-link /z-ai testen)
-pnpm smoke            # Smoke-Test auf dist/: Artefakte + Assets + Preview-HTTP (/ , Deep-Links, /data/latest.<vendor>.json) — ohne Browser
+pnpm smoke            # Smoke-Test auf dist/: Artefakte + Assets + Preview-HTTP (/, /de/, /z-ai/, robots.txt, sitemap.xml, /data/latest.<vendor>.json) — ohne Browser
 pnpm typecheck        # nur tsc --noEmit
 ```
 
@@ -51,8 +51,10 @@ pnpm typecheck        # nur tsc --noEmit
   PlanComparison, Changelog, Legal, Footer, Tooltip, Heading, PeakIndicator (`src/peak.tsx`).
   Komponenten lesen **nie** vendor-spezifische Typen — nur `VendorModule`.
 - **Router** (`src/router.tsx`): Mini-Router über `location.pathname` + `popstate`; interne Links
-  per `<a href>` (Klicks werden abgefangen). Zustand (plan/basis/cycle/lang/theme) über URL-Query-Params
-  + `history.replaceState` (pro Vendor-Seite), lang/theme zusätzlich in `localStorage`.
+  per `<a href>` (Klicks werden abgefangen). Pfade werden normalisiert (`/z-ai/` → `/z-ai`, Query/Hash
+  getrennt), `RouterProvider` akzeptiert `initialPath` für den SSR-Lauf. Zustand
+  (plan/basis/cycle/lang/theme) über URL-Query-Params + `history.replaceState` (pro Vendor-Seite),
+  lang/theme zusätzlich in `localStorage`. Sprach-Subrouten: `/` = Englisch (Default), `/de/` = Deutsch.
 - **Anfragemuster** kommen gescrapt von `opencode.ai/docs/de/go/` →
   kommittierter Snapshot `src/vendors/stats/opencode-patterns.json` (Offline-Fallback für Builds).
 
@@ -84,7 +86,51 @@ pnpm typecheck        # nur tsc --noEmit
 
 - Nur daisyUI-/Tailwind-Klassen; semantische Farben (`base-*`, `primary`, `badge-*`), kein `dark:`.
 - Kein `tailwind.config.js` — Tailwind 4: `@import "tailwindcss";` + `@plugin "daisyui";` in `src/index.css`.
-- Sprache: localStorage `lang`, sonst Browser-Locale; Theme via `data-theme`.
+- Sprache: **Englisch ist Default** unter `/`, Deutsch als echte Subroute `/de/` (je eigenes
+  vorgerendertes HTML). Der Pfad ist die Quelle der Wahrheit; gespeicherte Sprache (`localStorage lang`),
+  `?lang=de|en` (Alias) und Browser-Sprache werden erst NACH der Hydration angewandt. Theme via `data-theme`.
+
+## SEO / Prerender + Routen (HTTP 200)
+
+- **Statisches Pre-Rendering:** `pnpm build` = `tsc --noEmit && node scripts/prerender.mjs`. Das Skript
+  baut zuerst den Client (Repo-Vite-Config), dann die App als SSR-Bundle (`.ssr-build/`, `src/ssr-entry.tsx`,
+  Solid `renderToString`) und ersetzt den leeren `<div id="root">` in den HTML-Dateien durch das
+  vorgerenderte Markup. Crawler ohne JS sehen damit Pläne, Preise, Modell-Übersicht, Ranking und FAQ.
+- **`base: "/"`** (Custom Domain am Root) → absolute Asset-Pfade, damit auch Unterrouten (`/de/`, `/z-ai/`)
+  korrekt laden. Vorher `base: "./"` brach die Assets unter `/de/`.
+- **Routen-Dateien (HTTP 200, echte Dateien statt SPA-Fallback):**
+  `dist/index.html` (en), `dist/z-ai/index.html`, `dist/mimo/index.html`, `dist/ollama/index.html`,
+  `dist/de/index.html` (de) sowie `dist/de/{z-ai,mimo,ollama}/index.html`; Legal-Seiten
+  `dist/{impressum,datenschutz}/index.html` + `/de/…` (bewusst als eigene Dateien mit HTTP 200, aber
+  `noindex,follow`). `dist/404.html` bleibt die leere SPA-Shell (Fallback für unbekannte Pfade).
+  GitHub Pages löst `/z-ai` → 301 auf `/z-ai/` (Verzeichnis-Index) auf; Canonical/Sitemap nutzen daher
+  die Trailing-Slash-Form.
+- **Hydration:** `src/index.tsx` ruft `hydrate()` (Fallback `render()` ohne Prerender). Der Client-Build
+  nutzt `solid({ ssr: true })` → `generate: "dom", hydratable: true` (nur so findet `hydrate()` die
+  Server-Marker); der SSR-Build nutzt `solid({ ssr: true })` im Server-Environment → `generate: "ssr"`.
+  `generateHydrationScript()` (re-exportiert aus `src/ssr-entry.tsx`) wird pro HTML-Datei in den `<head>`
+  injiziert — ohne `window._$HY` wirft `hydrate()` und die Seite bleibt nicht-interaktiv.
+- **Synchroner Client-Zustand:** Der beim Prerender als JSON eingebettete Vendor-Zustand
+  (`<script type="application/json" id="__VENDORS__">`) wird in `src/vendors/embed.ts` synchron
+  rekonstruiert (Formeln via statisch importierte Factories) — dadurch passt der Client-Erstrender exakt
+  zum Server-HTML. `loadAllVendors()` bleibt nur Fallback (Dev-Server ohne Prerender).
+- **Sprach-Routing:** Client-Erstrender = Pfad-Sprache (`/de…` → de, sonst en). Nach `onMount`:
+  `?lang=de|en` (Alias) → kanonische Pfadform via `replaceState`; auf der präfixlosen `/` gespeicherte
+  Sprache, sonst Browser-Sprache (`navigator.language` beginnt mit `de` → `/de/`), sonst Englisch.
+  `/de/` wird nie auf Englisch überschrieben. Der Sprachumschalter navigiert per `pushState` zwischen
+  `/` und `/de/` und behält **alle** Query-Params (außer `lang`) + Hash. SSR/Crawler sehen auf `/` immer Englisch.
+- **Head-SEO (build-generiert in `scripts/prerender.mjs`, Client-Update via `src/seo.ts:applyHead`):**
+  Title/Description je Route und Sprache, Canonical je Datei auf die eigene Sprach-URL, `hreflang`
+  `en`/`de`/`x-default`, `og:locale` (`en_US`/`de_DE`) + `og:locale:alternate`, RSS-Autodiscovery
+  (`releases.atom`), JSON-LD (`Product`/`Offer` + `ItemList` + `FAQPage`; Home zusätzlich `WebSite`).
+  Dazu `dist/robots.txt` und `dist/sitemap.xml` (beide Sprach-URLs).
+- **Inhalte (server- und clientseitig identisch):** „Was bringt dir der Plan?" (`src/components/PlanValue.tsx`),
+  „Modell-Übersicht" (`ModelOverview.tsx`), FAQ (`Faq.tsx` + `vendorFaq`/`homeFaq` aus `src/seo.ts`),
+  Startseiten-Ranking (`VendorRanking.tsx`). Keine `Date`/`window`-Abhängigkeit im Rendering.
+- **Build-Stempel:** `process.env.BUILD_STAMP` wird einmalig in `scripts/prerender.mjs` gesetzt;
+  `vite.config.ts` nutzt ihn für `__BUILD_TIME_ISO__` → Client und SSR zeigen denselben „Stand".
+- **Tests:** `tests/seo.test.ts` prüft `dist/` (skip ohne Build); `scripts/smoke.mjs` prüft nach dem Build
+  `/`, `/de/`, `/z-ai/` … (HTTP 200, `<h1>`, JSON-LD, `_$HY`) sowie `robots.txt`/`sitemap.xml`.
 
 ## Scrum/Arbeitsweise (Orchestrierung + Verifikation)
 

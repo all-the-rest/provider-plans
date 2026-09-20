@@ -22,6 +22,11 @@ const VENDORS = [
   { route: "/ollama", file: "latest.ollama.json", vendorId: "ollama" },
 ];
 
+// Vorgerenderte HTML-Dateien (scripts/prerender.mjs) — je Sprache eine echte Datei.
+// Trailing Slash, weil `vite preview` (wie GitHub Pages) `/z-ai/` auf das
+// Verzeichnis-Index auflöst; `/z-ai` ohne Slash ist die SPA-Fallback-Variante.
+const PAGES = ["/", "/z-ai/", "/mimo/", "/ollama/", "/de/", "/de/z-ai/", "/de/mimo/", "/de/ollama/"];
+
 let failures = 0;
 const fail = (msg) => {
   failures += 1;
@@ -32,7 +37,19 @@ const ok = (msg) => console.log(`[smoke] ok: ${msg}`);
 async function main() {
   console.log(`[smoke] node ${process.version} ${process.platform}/${process.arch}`);
   // 1. Build-Artefakte vorhanden?
-  const expected = ["index.html", "404.html", "CNAME", ...VENDORS.map((v) => join("data", v.file))];
+  const expected = [
+    "index.html",
+    "404.html",
+    "CNAME",
+    "robots.txt",
+    "sitemap.xml",
+    "z-ai/index.html",
+    "mimo/index.html",
+    "ollama/index.html",
+    "de/index.html",
+    "de/z-ai/index.html",
+    ...VENDORS.map((v) => join("data", v.file)),
+  ];
   for (const f of expected) {
     if (!existsSync(join(DIST, f))) fail(`dist/${f} fehlt (Build unvollständig?)`);
     else ok(`dist/${f} vorhanden`);
@@ -120,6 +137,29 @@ async function main() {
       else if (!body.includes('id="root"')) fail(`GET ${v.route} enthält keinen App-Root`);
       else ok(`GET ${v.route} → 200 mit App-Root`);
     }
+
+    // Vorgerenderte Seiten: echtes <h1>, JSON-LD und Hydration-Script.
+    for (const p of PAGES) {
+      const body = await getOnce(p);
+      if (body === null) {
+        fail(`GET ${p} → kein 200 (Prerender-Datei fehlt?)`);
+        continue;
+      }
+      if (!/<h1[\s>]/.test(body)) fail(`GET ${p} enthält kein <h1>`);
+      else if (!body.includes("application/ld+json")) fail(`GET ${p} ohne JSON-LD`);
+      else if (!body.includes("_$HY")) fail(`GET ${p} ohne Hydration-Script (window._$HY)`);
+      else if (!body.includes('id="root"')) fail(`GET ${p} ohne App-Root`);
+      else ok(`GET ${p} → 200 mit <h1>, JSON-LD, _$HY`);
+    }
+
+    // SEO-Fundament.
+    const robots = await getOnce("/robots.txt");
+    if (robots === null || !robots.includes("Sitemap:")) fail("GET /robots.txt → fehlt oder ohne Sitemap-Verweis");
+    else ok("GET /robots.txt → 200");
+    const sitemap = await getOnce("/sitemap.xml");
+    if (sitemap === null || !sitemap.includes("<urlset")) fail("GET /sitemap.xml → fehlt oder ungültig");
+    else if (!sitemap.includes("/de/")) fail("GET /sitemap.xml listet die deutsche URL nicht");
+    else ok("GET /sitemap.xml → 200");
 
     for (const v of VENDORS) {
       try {

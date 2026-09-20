@@ -1,4 +1,5 @@
 import type { Lang, Translation, VendorMeta } from "../types";
+import { withLangPrefix } from "../routes";
 
 export interface FooterProps {
   t: Translation;
@@ -31,8 +32,8 @@ export default function Footer(props: FooterProps) {
       </nav>
       <nav>
         <h6 class="footer-title">{legalTitle}</h6>
-        <a href="/impressum">{props.t.impressum}</a>
-        <a href="/datenschutz">{props.t.datenschutz}</a>
+        <a href={withLangPrefix("/impressum", props.lang)}>{props.t.impressum}</a>
+        <a href={withLangPrefix("/datenschutz", props.lang)}>{props.t.datenschutz}</a>
       </nav>
     </footer>
   );

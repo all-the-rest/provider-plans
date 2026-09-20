@@ -1,54 +1,29 @@
-import { createEffect, createMemo, createSignal, lazy, Match, Suspense, Switch } from "solid-js";
+import { createEffect, createMemo, createSignal, Match, onMount, Switch } from "solid-js";
 import { useRouter } from "./router";
 import { NAV_VENDORS } from "./vendors/registry";
-import type { Lang } from "./types";
+import type { Lang, VendorId, VendorModule } from "./types";
 import StartPage from "./StartPage";
-
-const LazyZai = lazy(() =>
-  Promise.all([import("./VendorPage"), import("./vendors/zai")]).then(([vp, m]) => ({
-    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
-      <vp.default module={m.vendorModule} {...props} />
-    ),
-  }))
-);
-const LazyMimo = lazy(() =>
-  Promise.all([import("./VendorPage"), import("./vendors/mimo")]).then(([vp, m]) => ({
-    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
-      <vp.default module={m.vendorModule} {...props} />
-    ),
-  }))
-);
-const LazyOllama = lazy(() =>
-  Promise.all([import("./VendorPage"), import("./vendors/ollama")]).then(([vp, m]) => ({
-    default: (props: { navVendors: any; lang: Lang; setLang: any; dark: boolean; setDark: any }) => (
-      <vp.default module={m.vendorModule} {...props} />
-    ),
-  }))
-);
-const LazyImpressum = lazy(() => import("./pages/LegalPage").then((m) => ({ default: (p: any) => <m.default kind="impressum" {...p} /> })));
-const LazyDatenschutz = lazy(() => import("./pages/LegalPage").then((m) => ({ default: (p: any) => <m.default kind="datenschutz" {...p} /> })));
-
-const storedLang = typeof localStorage !== "undefined" ? localStorage.getItem("lang") : null;
-const storedTheme = typeof localStorage !== "undefined" ? localStorage.getItem("theme") : null;
-const browserLang =
-  typeof navigator !== "undefined" ? (navigator.language || "").toLowerCase() : "";
-const defaultLang: Lang =
-  storedLang === "de" || storedLang === "en" ? storedLang : browserLang.startsWith("de") ? "de" : "en";
-
-function readGlobalParams(): { lang: Lang | null; theme: "dark" | null } {
-  const p = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const l = p.get("lang");
-  const lang: Lang | null = l === "de" || l === "en" ? l : null;
-  const theme: "dark" | null = p.get("theme") === "dark" ? "dark" : null;
-  return { lang, theme };
-}
+import VendorPage from "./VendorPage";
+import LegalPage from "./pages/LegalPage";
+import { canonicalPath, langFromPath, normalizePath, stripLangPrefix } from "./routes";
+import { applyHead } from "./seo";
 
 type Route = "home" | "zai" | "mimo" | "ollama" | "impressum" | "datenschutz";
 
-export default function AppRoutes() {
-  const { path } = useRouter();
+export interface AppRoutesProps {
+  /** Initiale Sprache (SSR). Ohne Angabe wird sie aus dem Pfadpräfix abgeleitet. */
+  lang?: Lang;
+  /** Synchron verfügbare Vendor-Module. */
+  vendors: VendorModule[];
+}
+
+export default function AppRoutes(props: AppRoutesProps) {
+  const { path, navigate, replace } = useRouter();
+  const fullPath = () => normalizePath(path());
+  const routePath = () => stripLangPrefix(fullPath());
+
   const route = createMemo<Route>(() => {
-    const p = path();
+    const p = routePath();
     if (p === "/z-ai") return "zai";
     if (p === "/mimo") return "mimo";
     if (p === "/ollama") return "ollama";
@@ -57,51 +32,106 @@ export default function AppRoutes() {
     return "home";
   });
 
-  const [lang, setLang] = createSignal<Lang>(readGlobalParams().lang ?? defaultLang);
-  const [dark, setDark] = createSignal(readGlobalParams().theme === "dark" || storedTheme === "dark");
+  // Default ist Englisch (bzw. das `lang`-Prop des SSR-Laufs). Der Pfadpräfix
+  // entscheidet beim Client synchron — dadurch passt die Hydration exakt zum
+  // vorgerenderten File (`/` = en, `/de` = de).
+  const [lang, setLang] = createSignal<Lang>(props.lang ?? langFromPath(fullPath()));
+  const [dark, setDark] = createSignal(false);
 
-  createEffect(() => {
-    document.documentElement.lang = lang();
-    localStorage.setItem("lang", lang());
-  });
+  const vendor = (id: VendorId): VendorModule =>
+    props.vendors.find((m) => m.meta.id === id) ?? props.vendors[0]!;
 
-  createEffect(() => {
-    const el = document.documentElement;
-    if (dark()) {
-      el.setAttribute("data-theme", "dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      el.removeAttribute("data-theme");
-      localStorage.setItem("theme", "light");
+  /** Sprachumschalter: navigiert zwischen `/…` und `/de/…` per pushState.
+   *  Query-Params (außer `lang`) und Hash bleiben erhalten. */
+  const setLangAndNavigate = (l: Lang) => {
+    if (l === lang()) return;
+    setLang(l);
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    sp.delete("lang");
+    const qs = sp.toString();
+    navigate(canonicalPath(routePath(), l) + (qs ? "?" + qs : "") + window.location.hash);
+  };
+
+  onMount(() => {
+    const url = new URL(window.location.href);
+    const qLang = url.searchParams.get("lang");
+    const stored = localStorage.getItem("lang");
+    const route = routePath();
+    const pathLang = langFromPath(fullPath());
+
+    // Ziel-URL in der kanonischen Pfadform, Query (ohne `lang`) + Hash bleiben erhalten.
+    const buildTarget = (target: Lang, dropLang: boolean) => {
+      const sp = new URLSearchParams(url.search);
+      if (dropLang) sp.delete("lang");
+      const qs = sp.toString();
+      return canonicalPath(route, target) + (qs ? "?" + qs : "") + url.hash;
+    };
+
+    if (qLang === "de" || qLang === "en") {
+      // `?lang=…` bleibt als Alias erhalten: Sprache anwenden und in die Pfadform überführen.
+      setLang(qLang);
+      replace(buildTarget(qLang, true));
+    } else if (fullPath() === "/") {
+      // Präfixlose Standardseite: gespeicherte Sprache, sonst Browser-Sprache.
+      // `/de/` wird NIE überschrieben (Pfad ist die Quelle der Wahrheit).
+      const storedLang: Lang | null = stored === "de" || stored === "en" ? stored : null;
+      const browserDe =
+        typeof navigator !== "undefined" && (navigator.language || "").toLowerCase().startsWith("de");
+      const desired: Lang = storedLang ?? (browserDe ? "de" : "en");
+      if (desired !== pathLang) {
+        setLang(desired);
+        replace(buildTarget(desired, false));
+      }
+    }
+
+    if (url.searchParams.get("theme") === "dark" || localStorage.getItem("theme") === "dark") {
+      setDark(true);
     }
   });
 
+  createEffect(() => {
+    const l = lang();
+    applyHead(fullPath(), l, props.vendors);
+    if (typeof localStorage !== "undefined") localStorage.setItem("lang", l);
+  });
+
+  createEffect(() => {
+    if (typeof document === "undefined") return;
+    const el = document.documentElement;
+    if (dark()) {
+      el.setAttribute("data-theme", "dark");
+      if (typeof localStorage !== "undefined") localStorage.setItem("theme", "dark");
+    } else {
+      el.removeAttribute("data-theme");
+      if (typeof localStorage !== "undefined") localStorage.setItem("theme", "light");
+    }
+  });
+
+  const shared = () => ({
+    lang: lang(),
+    setLang: setLangAndNavigate,
+    dark: dark(),
+    setDark,
+    navVendors: NAV_VENDORS,
+  });
+
   return (
-    <Switch fallback={<StartPage lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />}>
+    <Switch fallback={<StartPage {...shared()} vendors={props.vendors} />}>
       <Match when={route() === "zai"}>
-        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
-          <LazyZai navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
-        </Suspense>
+        <VendorPage {...shared()} module={vendor("zai")} />
       </Match>
       <Match when={route() === "mimo"}>
-        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
-          <LazyMimo navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
-        </Suspense>
+        <VendorPage {...shared()} module={vendor("mimo")} />
       </Match>
       <Match when={route() === "ollama"}>
-        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
-          <LazyOllama navVendors={NAV_VENDORS} lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
-        </Suspense>
+        <VendorPage {...shared()} module={vendor("ollama")} />
       </Match>
       <Match when={route() === "impressum"}>
-        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
-          <LazyImpressum lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
-        </Suspense>
+        <LegalPage {...shared()} kind="impressum" />
       </Match>
       <Match when={route() === "datenschutz"}>
-        <Suspense fallback={<div class="mx-auto max-w-6xl px-4 py-10 text-sm text-base-content/60">Lade…</div>}>
-          <LazyDatenschutz lang={lang()} setLang={setLang} dark={dark()} setDark={setDark} />
-        </Suspense>
+        <LegalPage {...shared()} kind="datenschutz" />
       </Match>
     </Switch>
   );

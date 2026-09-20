@@ -4,10 +4,14 @@ import { availableCycles } from "./vendors/shared";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import PlanTabs from "./components/PlanTabs";
+import PlanValue from "./components/PlanValue";
 import PriceTable from "./components/PriceTable";
+import ModelOverview from "./components/ModelOverview";
 import PlanComparison from "./components/PlanComparison";
+import Faq from "./components/Faq";
 import Changelog from "./components/Changelog";
 import Footer from "./components/Footer";
+import { vendorFaq } from "./seo";
 import { CHANGELOGS } from "./changelogs";
 import { useRouter } from "./router";
 
@@ -92,6 +96,7 @@ export default function VendorPage(props: VendorPageProps) {
         <div class="mt-8">
           <PlanTabs plans={module.data.plans} active={plan().id} onSelect={setPlanId} t={t()} />
         </div>
+        <PlanValue module={module} plan={plan()} cycle={cycle()} lang={props.lang} t={t()} />
         <PriceTable
           module={module}
           plan={plan()}
@@ -101,7 +106,12 @@ export default function VendorPage(props: VendorPageProps) {
           t={t()}
           lang={props.lang}
         />
+        <ModelOverview module={module} lang={props.lang} t={t()} />
         <PlanComparison module={module} t={t()} lang={props.lang} />
+        <Faq
+          heading={props.lang === "de" ? "Häufige Fragen" : "Frequently asked questions"}
+          items={vendorFaq(module, props.lang)}
+        />
         <Changelog entries={CHANGELOGS[module.meta.id]} t={t()} lang={props.lang} />
       </main>
       <Footer t={t()} lang={props.lang} meta={module.meta} />

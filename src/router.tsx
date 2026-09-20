@@ -1,24 +1,41 @@
 import { createContext, createSignal, onCleanup, onMount, useContext, type JSX } from "solid-js";
+import { normalizePath } from "./routes";
 
 interface RouterCtx {
+  /** Aktueller, normalisierter Pfad (ohne Query/Hash), z. B. "/de/z-ai". */
   path: () => string;
+  /** Navigation per pushState; akzeptiert Pfad + optionale Query. */
   navigate: (to: string) => void;
+  /** URL ersetzen (kein History-Eintrag); aktualisiert den Pfad-Signalwert. */
+  replace: (to: string) => void;
 }
 
 const Ctx = createContext<RouterCtx>();
 
-export function RouterProvider(props: { children: JSX.Element }) {
-  const [path, setPath] = createSignal(window.location.pathname);
+export function RouterProvider(props: { children: JSX.Element; initialPath?: string }) {
+  const initial =
+    props.initialPath ?? (typeof window !== "undefined" ? window.location.pathname : "/");
+  const [path, setPath] = createSignal(normalizePath(initial));
 
   const navigate = (to: string) => {
-    if (to === window.location.pathname) return;
-    window.history.pushState(null, "", to);
-    setPath(to);
+    const target = to || "/";
+    if (typeof window === "undefined") return;
+    const current = window.location.pathname + window.location.search;
+    if (target === current) return;
+    window.history.pushState(null, "", target);
+    setPath(normalizePath(target));
     window.scrollTo({ top: 0 });
   };
 
+  const replace = (to: string) => {
+    const target = to || "/";
+    if (typeof window === "undefined") return;
+    window.history.replaceState(null, "", target);
+    setPath(normalizePath(target));
+  };
+
   onMount(() => {
-    const onPop = () => setPath(window.location.pathname);
+    const onPop = () => setPath(normalizePath(window.location.pathname));
     const onClick = (e: MouseEvent) => {
       const el = e.target as HTMLElement | null;
       const a = el?.closest?.<HTMLAnchorElement>("a");
@@ -45,7 +62,7 @@ export function RouterProvider(props: { children: JSX.Element }) {
     });
   });
 
-  return <Ctx.Provider value={{ path, navigate }}>{props.children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ path, navigate, replace }}>{props.children}</Ctx.Provider>;
 }
 
 export function useRouter(): RouterCtx {

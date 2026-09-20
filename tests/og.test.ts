@@ -13,14 +13,16 @@ const BASE = "https://ai-vendor-price-tracking.all-the.rest";
 describe("og/seo", () => {
   it("index.html enthält og:image absolut + twitter:card + canonical", () => {
     const html = readFileSync(resolve(root, "index.html"), "utf8");
-    assert.match(html, /<html lang="de"/);
+    assert.match(html, /<html lang="en"/);
     assert.ok(html.includes(`<link rel="canonical" href="${BASE}/" />`));
     assert.ok(html.includes(`<meta property="og:image" content="${BASE}/share/og.png"`));
     assert.ok(html.includes(`<meta property="og:image:width" content="1200"`));
     assert.ok(html.includes(`<meta property="og:image:height" content="630"`));
-    assert.ok(html.includes(`<meta property="og:locale" content="de_DE"`));
+    assert.ok(html.includes(`<meta property="og:locale" content="en_US"`));
+    assert.ok(html.includes(`<meta property="og:locale:alternate" content="de_DE"`));
     assert.ok(html.includes(`<meta name="twitter:card" content="summary_large_image"`));
     assert.ok(html.includes(`<meta name="twitter:image" content="${BASE}/share/og.png"`));
+    assert.ok(html.includes(`<meta name="twitter:image:alt"`));
     // og:title/description identisch zu <title>/description.
     const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
     assert.ok(title);

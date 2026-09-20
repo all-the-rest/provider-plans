@@ -6,15 +6,21 @@ import { resolve } from "node:path";
 
 const root = import.meta.dirname;
 
-const buildTimeIso = new Date().toISOString();
+// Einmaliger Build-Stempel: `scripts/prerender.mjs` setzt BUILD_STAMP vor dem
+// Client- UND SSR-Build → beide sehen denselben "Stand" (hydration-stabil).
+const buildTimeIso = process.env.BUILD_STAMP ?? new Date().toISOString();
 
 export default defineConfig({
-  base: "./",
+  // Custom Domain am Root → absolute Asset-Pfade, damit auch Unterrouten
+  // (`/z-ai/`, `/de/`, `/de/z-ai/`) korrekt laden.
+  base: "/",
   define: {
     __BUILD_TIME_ISO__: JSON.stringify(buildTimeIso),
   },
   plugins: [
-    solid(),
+    // `ssr: true` schaltet im Client-Build auf `generate: "dom", hydratable: true`
+    // (Hydration-Marker) und im SSR-Environment auf `generate: "ssr"`.
+    solid({ ssr: true }),
     tailwindcss(),
     {
       name: "copy-provider-data",
@@ -28,7 +34,8 @@ export default defineConfig({
           // Die angezeigte "Stand"-Zeit ist die Build-Zeit (src/buildInfo.ts).
           copyFileSync(src, resolve(dist, `data/latest.${vendor}.json`));
         }
-        // SPA-Fallback für GitHub Pages: index.html zusätzlich als 404.html ausspielen.
+        // SPA-Fallback für GitHub Pages: der noch leere Shell-Index wird als
+        // 404.html gesichert (prerender.mjs ersetzt danach dist/index.html).
         copyFileSync(resolve(dist, "index.html"), resolve(dist, "404.html"));
       },
     },

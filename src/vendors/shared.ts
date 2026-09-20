@@ -1,4 +1,15 @@
-import type { CreditField, Cycle, Model, PeakConfig, Plan } from "../types";
+import type { CreditField, Cycle, Model, PeakConfig, Plan, VendorModule } from "../types";
+
+/** Flaggschiff-Modell eines Vendors (für Wert-/Request-Kennzahlen). */
+export function flagshipModel(module: VendorModule): Model | null {
+  return (
+    module.data.models.find((m) => m.id === module.meta.flagshipId && m.tier === "peak") ??
+    module.data.models.find((m) => m.id === module.meta.flagshipId) ??
+    module.data.models[0] ??
+    null
+  );
+}
+
 
 /** Verfügbare Abrechnungszyklen eines Plans (nur wenn der Plan sie führt). */
 export function availableCycles(plan: Plan): Cycle[] {

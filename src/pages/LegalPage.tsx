@@ -4,6 +4,7 @@ import { shell } from "../i18n";
 import { useRouter } from "../router";
 import Header from "../components/Header";
 import { NAV_VENDORS } from "../vendors/registry";
+import { withLangPrefix } from "../routes";
 
 export interface LegalPageProps {
   kind: "impressum" | "datenschutz";
@@ -98,7 +99,7 @@ export default function LegalPage(props: LegalPageProps) {
         )}
 
         <p class="mt-12">
-          <a href="/" class="link link-hover">
+          <a href={withLangPrefix("/", props.lang)} class="link link-hover">
             ← {t().navHome}
           </a>
         </p>
@@ -107,8 +108,8 @@ export default function LegalPage(props: LegalPageProps) {
       <footer class="footer sm:footer-horizontal border-t border-base-300 bg-base-200 px-8 py-6">
         <span class="text-sm text-base-content/70">{t().footerNote}</span>
         <div class="flex flex-wrap items-center gap-x-3 text-sm text-base-content/70">
-          <a class="link" href="/impressum">{t().impressum}</a>
-          <a class="link" href="/datenschutz">{t().datenschutz}</a>
+          <a class="link" href={withLangPrefix("/impressum", props.lang)}>{t().impressum}</a>
+          <a class="link" href={withLangPrefix("/datenschutz", props.lang)}>{t().datenschutz}</a>
         </div>
       </footer>
     </div>
