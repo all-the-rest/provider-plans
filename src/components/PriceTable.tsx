@@ -4,6 +4,7 @@ import { fmt, fmtBig, fmtContextWindow, fmtCredits, fmtInt, fmtTokens } from "..
 import Heading from "./Heading";
 import ShareDialog from "./ShareDialog";
 import { Tooltip } from "./Tooltip";
+import { SECTION_ANCHORS } from "../routes";
 import type { Basis, CreditField, Cycle, Lang, Model, Plan, Translation, VendorModule } from "../types";
 
 type SortKey = "name" | "cost" | "requests" | CreditField;
@@ -189,7 +190,7 @@ export default function PriceTable(props: PriceTableProps) {
   return (
     <section class="mt-10">
       <div class="flex flex-wrap items-center justify-between gap-2" data-testid="share-section">
-        <Heading anchor="prices">{props.t.headingPrices}</Heading>
+        <Heading anchor={SECTION_ANCHORS.prices}>{props.t.headingPrices}</Heading>
         <ShareDialog module={module} plan={props.plan} cycle={props.cycle} lang={props.lang} />
       </div>
 

@@ -68,8 +68,13 @@ export default function VendorPage(props: VendorPageProps) {
     if (cycle() === "monthly") sp.delete("cycle");
     else sp.set("cycle", cycle());
     const qs = sp.toString();
-    const url = qs ? window.location.pathname + "?" + qs : window.location.pathname;
-    history.replaceState(null, "", url);
+    // Query-Normalisierung (Defaults entfernen) — ein gültiger Anker-Hash
+    // (#prices, #faq, …) darf dabei NIE entfernt werden.
+    const hash = window.location.hash;
+    const url = (qs ? window.location.pathname + "?" + qs : window.location.pathname) + hash;
+    if (url !== window.location.pathname + window.location.search + hash) {
+      history.replaceState(null, "", url);
+    }
   });
 
   return (

@@ -1,5 +1,6 @@
 import { For, Show, createSignal, onMount } from "solid-js";
 import type { ChangelogEntry, Lang, Translation } from "../types";
+import { SECTION_ANCHORS } from "../routes";
 import Heading, { AnchorLink } from "./Heading";
 
 export interface ChangelogProps {
@@ -47,8 +48,8 @@ export default function Changelog(props: ChangelogProps) {
     props.entries.slice((clampedPage() - 1) * PAGE_SIZE, clampedPage() * PAGE_SIZE);
 
   return (
-    <section id="changelog" class="mt-10">
-      <Heading anchor="changelog">{props.t.headingChangelog}</Heading>
+    <section class="mt-10">
+      <Heading anchor={SECTION_ANCHORS.changelog}>{props.t.headingChangelog}</Heading>
       <Show
         when={props.entries.length > 0}
         fallback={<p class="mt-4 max-w-3xl text-sm leading-relaxed text-base-content/70">{props.t.chgNone}</p>}

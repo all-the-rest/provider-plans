@@ -6,7 +6,7 @@ import VendorRanking from "./components/VendorRanking";
 import Faq from "./components/Faq";
 import { homeFaq } from "./seo";
 import { loadAllVendors, NAV_VENDORS } from "./vendors/registry";
-import { withLangPrefix } from "./routes";
+import { SECTION_ANCHORS, withLangPrefix } from "./routes";
 import { useRouter } from "./router";
 import { fmt, fmtBig } from "./util";
 
@@ -52,7 +52,7 @@ export default function StartPage(props: StartPageProps) {
           {(list) => (
             <>
               <section class="mt-10">
-                <h2 class="text-lg font-bold tracking-tight">
+                <h2 id={SECTION_ANCHORS.providers} class="scroll-mt-24 text-lg font-bold tracking-tight">
                   {de() ? "Anbieter im Überblick" : "Providers at a glance"}
                 </h2>
                 <div class="mt-4 grid gap-6 md:grid-cols-2">

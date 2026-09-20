@@ -1,6 +1,7 @@
 import { createMemo, For } from "solid-js";
 import type { Lang, Plan, Translation, VendorModule } from "../types";
 import { fmt, fmtBig, fmtInt } from "../util";
+import { SECTION_ANCHORS } from "../routes";
 import Heading from "./Heading";
 
 export interface PlanComparisonProps {
@@ -85,7 +86,7 @@ export default function PlanComparison(props: PlanComparisonProps) {
 
   return (
     <section class="mt-10">
-      <Heading anchor="comparison">{props.t.headingComparison}</Heading>
+      <Heading anchor={SECTION_ANCHORS.comparison}>{props.t.headingComparison}</Heading>
 
       <div class="card mt-4 overflow-x-auto border border-base-300 bg-base-100">
         <table class="table table-sm">

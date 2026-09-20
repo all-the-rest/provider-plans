@@ -2,6 +2,7 @@ import { createMemo } from "solid-js";
 import type { Cycle, Lang, Plan, Translation, VendorModule } from "../types";
 import { flagshipModel } from "../vendors/shared";
 import { fmt, fmtBig, fmtInt } from "../util";
+import { SECTION_ANCHORS } from "../routes";
 import Heading from "./Heading";
 
 export interface PlanValueProps {
@@ -56,7 +57,7 @@ export default function PlanValue(props: PlanValueProps) {
 
   return (
     <section class="mt-10">
-      <Heading anchor="value">{de() ? "Was bringt dir der Plan?" : "What does the plan give you?"}</Heading>
+      <Heading anchor={SECTION_ANCHORS.value}>{de() ? "Was bringt dir der Plan?" : "What does the plan give you?"}</Heading>
 
       <div class="stats stats-vertical mt-4 w-full border border-base-300 bg-base-100 sm:stats-horizontal">
         <div class="stat">

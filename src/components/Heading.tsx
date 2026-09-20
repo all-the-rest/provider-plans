@@ -34,7 +34,7 @@ export function AnchorLink(props: { id: string; label: string }) {
 
 export default function Heading(props: HeadingProps) {
   return (
-    <h2 class={props.class ?? "text-lg font-bold tracking-tight"}>
+    <h2 id={props.anchor} class={`scroll-mt-24 ${props.class ?? "text-lg font-bold tracking-tight"}`}>
       {props.children}
       <AnchorLink id={props.anchor} label="Direktlink zu diesem Abschnitt (inkl. aller Filter)" />
     </h2>

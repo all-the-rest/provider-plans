@@ -1,5 +1,6 @@
 import { For } from "solid-js";
 import type { FaqItem } from "../seo";
+import { SECTION_ANCHORS } from "../routes";
 import Heading from "./Heading";
 
 export interface FaqProps {
@@ -12,7 +13,7 @@ export interface FaqProps {
 export default function Faq(props: FaqProps) {
   return (
     <section class="mt-10">
-      <Heading anchor={props.anchor ?? "faq"}>{props.heading}</Heading>
+      <Heading anchor={props.anchor ?? SECTION_ANCHORS.faq}>{props.heading}</Heading>
       <div class="mt-4 max-w-3xl divide-y divide-base-300 border-t border-base-300">
         <For each={props.items}>
           {(item) => (

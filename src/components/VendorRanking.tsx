@@ -2,6 +2,7 @@ import { For } from "solid-js";
 import type { Lang, Translation, VendorModule } from "../types";
 import { flagshipModel } from "../vendors/shared";
 import { fmt, fmtBig, fmtInt } from "../util";
+import { SECTION_ANCHORS } from "../routes";
 import Heading from "./Heading";
 import { withLangPrefix } from "../routes";
 
@@ -51,7 +52,7 @@ export default function VendorRanking(props: VendorRankingProps) {
 
   return (
     <section class="mt-12">
-      <Heading anchor="ranking">{de() ? "Vendor-Vergleich" : "Vendor comparison"}</Heading>
+      <Heading anchor={SECTION_ANCHORS.ranking}>{de() ? "Vendor-Vergleich" : "Vendor comparison"}</Heading>
 
       <div class="card mt-4 overflow-x-auto border border-base-300 bg-base-100">
         <table class="table table-zebra table-sm">

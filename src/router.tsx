@@ -37,6 +37,10 @@ export function RouterProvider(props: { children: JSX.Element; initialPath?: str
   onMount(() => {
     const onPop = () => setPath(normalizePath(window.location.pathname));
     const onClick = (e: MouseEvent) => {
+      // Bereits behandelte Klicks (z. B. Anker-Links mit preventDefault +
+      // eigenem replaceState + smooth scroll) nicht erneut routen — sonst
+      // würde der Router den Hash per pushState + Scroll-to-top zerstören.
+      if (e.defaultPrevented) return;
       const el = e.target as HTMLElement | null;
       const a = el?.closest?.<HTMLAnchorElement>("a");
       if (!a) return;

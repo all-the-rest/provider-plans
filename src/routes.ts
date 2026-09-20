@@ -73,3 +73,34 @@ export function alternateUrls(routePath: string): { en: string; de: string; xDef
     xDefault: canonicalUrl(routePath, "en"),
   };
 }
+
+/* ---------------------------------------------------------------------------
+ * Heading-Anker (URL-Hashes wie #prices): IMMER aus dem englischen Heading
+ * abgeleitet und sprachstabil — identische `id` in EN und DE, auf allen
+ * Routen, stabil über Sprachwechsel und `?lang=`-Alias. Einzige Quelle der
+ * Wahrheit; alle `Heading`-Usages referenzieren diese Konstanten statt
+ * literaler Strings. Reine Strings → SSR und Client rendern identisch
+ * (hydration-safe, keine `window`/`Date`-Abhängigkeit).
+ * ------------------------------------------------------------------------- */
+
+/** Sprachstabile Section-Anker (en-basiert, kleingeschrieben, URL-safe). */
+export const SECTION_ANCHORS = {
+  /** Preistabelle (Vendor-Seite). */
+  prices: "prices",
+  /** Nutzen-Abschnitt „Was bringt dir der Plan?" (Vendor-Seite). */
+  value: "value",
+  /** Modell-Übersicht (Vendor-Seite). */
+  models: "models",
+  /** Plan-Vergleich (Vendor-Seite). */
+  comparison: "comparison",
+  /** Vendor-Vergleich (Startseite). */
+  ranking: "ranking",
+  /** FAQ-Block (Start- + Vendor-Seite). */
+  faq: "faq",
+  /** Changelog (Vendor-Seite). */
+  changelog: "changelog",
+  /** Anbieter-Übersicht (Startseite). */
+  providers: "providers",
+} as const;
+
+export type SectionAnchor = (typeof SECTION_ANCHORS)[keyof typeof SECTION_ANCHORS];

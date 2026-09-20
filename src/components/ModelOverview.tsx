@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import type { Lang, Translation, VendorModule } from "../types";
 import { fmtBig, fmtContextWindow } from "../util";
+import { SECTION_ANCHORS } from "../routes";
 import Heading from "./Heading";
 
 export interface ModelOverviewProps {
@@ -14,7 +15,7 @@ export default function ModelOverview(props: ModelOverviewProps) {
   const de = () => props.lang === "de";
   return (
     <section class="mt-10">
-      <Heading anchor="models">{de() ? "Modell-Übersicht" : "Model overview"}</Heading>
+      <Heading anchor={SECTION_ANCHORS.models}>{de() ? "Modell-Übersicht" : "Model overview"}</Heading>
 
       <div class="card mt-4 overflow-x-auto border border-base-300 bg-base-100">
         <table class="table table-zebra table-sm">
