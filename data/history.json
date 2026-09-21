@@ -1170,6 +1170,165 @@
         },
         "effectiveFromMs": null
       }
+    },
+    {
+      "vendorId": "mimo",
+      "sourceUrls": [
+        "https://mimo.mi.com/docs/en-US/price/token-plan",
+        "https://mimo.mi.com/docs/en-US/price/pay-as-you-go"
+      ],
+      "plans": [
+        {
+          "id": "lite",
+          "name": "Lite",
+          "kind": "monthly",
+          "priceMonthly": 6,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 5.28,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": null,
+          "notes": null,
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "standard",
+          "name": "Standard",
+          "kind": "monthly",
+          "priceMonthly": 16,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": null,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": null,
+          "notes": null,
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "pro",
+          "name": "Pro",
+          "kind": "monthly",
+          "priceMonthly": 50,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": 44,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": null,
+          "notes": null,
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        },
+        {
+          "id": "max",
+          "name": "Max",
+          "kind": "monthly",
+          "priceMonthly": 100,
+          "priceQuarterlyMonthly": null,
+          "priceYearlyMonthly": null,
+          "credits5h": null,
+          "creditsWeekly": null,
+          "creditsMonthly": null,
+          "notes": null,
+          "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
+        }
+      ],
+      "models": [
+        {
+          "id": "mimo-v2.5-pro",
+          "name": "mimo-v2.5-pro",
+          "provider": "Xiaomi",
+          "tier": "peak",
+          "contextWindow": 1048576,
+          "creditPerM": {
+            "input": 2500000,
+            "output": 600000000,
+            "inputMiss": 300000000
+          },
+          "apiPrice": {},
+          "pattern": {
+            "input": 790,
+            "cached": 86000,
+            "output": 305
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5-pro",
+          "name": "mimo-v2.5-pro",
+          "provider": "Xiaomi",
+          "tier": "off-peak",
+          "contextWindow": 1048576,
+          "creditPerM": {
+            "input": 2500000,
+            "output": 600000000,
+            "inputMiss": 300000000
+          },
+          "apiPrice": {},
+          "pattern": {
+            "input": 790,
+            "cached": 86000,
+            "output": 305
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5",
+          "name": "mimo-v2.5",
+          "provider": "Xiaomi",
+          "tier": "peak",
+          "contextWindow": 1048576,
+          "creditPerM": {
+            "input": 2000000,
+            "output": 200000000,
+            "inputMiss": 100000000
+          },
+          "apiPrice": {},
+          "pattern": {
+            "input": 830,
+            "cached": 71500,
+            "output": 295
+          },
+          "note": null
+        },
+        {
+          "id": "mimo-v2.5",
+          "name": "mimo-v2.5",
+          "provider": "Xiaomi",
+          "tier": "off-peak",
+          "contextWindow": 1048576,
+          "creditPerM": {
+            "input": 2000000,
+            "output": 200000000,
+            "inputMiss": 100000000
+          },
+          "apiPrice": {},
+          "pattern": {
+            "input": 830,
+            "cached": 71500,
+            "output": 295
+          },
+          "note": null
+        }
+      ],
+      "peak": {
+        "windows": [
+          [
+            16,
+            24
+          ]
+        ],
+        "phaseFactor": {
+          "peak": 1,
+          "off-peak": 0.8
+        },
+        "weekendOffPeak": false,
+        "tzOffsetMin": 480,
+        "timezoneLabel": "Peking (UTC+8)",
+        "phaseLabel": {
+          "peak": "Peak",
+          "off-peak": "Off-Peak"
+        },
+        "effectiveFromMs": null
+      }
     }
   ],
   "ollama": [

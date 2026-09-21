@@ -1,5 +1,10 @@
 {
   "patterns": {
+    "grok4.7": {
+      "input": 390,
+      "cached": 32500,
+      "output": 120
+    },
     "grok4.6": {
       "input": 390,
       "cached": 32500,
@@ -124,6 +129,16 @@
       "input": 830,
       "cached": 71500,
       "output": 295
+    },
+    "mimov2.6flash": {
+      "input": 830,
+      "cached": 71500,
+      "output": 295
+    },
+    "mimov2.6pro": {
+      "input": 790,
+      "cached": 86000,
+      "output": 305
     },
     "mimov2.5": {
       "input": 830,

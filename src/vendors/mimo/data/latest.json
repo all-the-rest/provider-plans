@@ -14,8 +14,8 @@
       "priceYearlyMonthly": 5.28,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": 4100000000,
-      "notes": "Erstkauf −12 % (einmalig)",
+      "creditsMonthly": null,
+      "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
     {
@@ -24,11 +24,11 @@
       "kind": "monthly",
       "priceMonthly": 16,
       "priceQuarterlyMonthly": null,
-      "priceYearlyMonthly": 14.08,
+      "priceYearlyMonthly": null,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": 11000000000,
-      "notes": "Erstkauf −12 % (einmalig)",
+      "creditsMonthly": null,
+      "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
     {
@@ -40,8 +40,8 @@
       "priceYearlyMonthly": 44,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": 38000000000,
-      "notes": "Erstkauf −12 % (einmalig)",
+      "creditsMonthly": null,
+      "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
     {
@@ -50,11 +50,11 @@
       "kind": "monthly",
       "priceMonthly": 100,
       "priceQuarterlyMonthly": null,
-      "priceYearlyMonthly": 88,
+      "priceYearlyMonthly": null,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": 82000000000,
-      "notes": "Erstkauf −12 % (einmalig)",
+      "creditsMonthly": null,
+      "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     }
   ],
@@ -70,11 +70,7 @@
         "output": 600000000,
         "inputMiss": 300000000
       },
-      "apiPrice": {
-        "input": 0.0036,
-        "output": 0.87,
-        "inputMiss": 0.435
-      },
+      "apiPrice": {},
       "pattern": {
         "input": 790,
         "cached": 86000,
@@ -93,11 +89,7 @@
         "output": 600000000,
         "inputMiss": 300000000
       },
-      "apiPrice": {
-        "input": 0.0036,
-        "output": 0.87,
-        "inputMiss": 0.435
-      },
+      "apiPrice": {},
       "pattern": {
         "input": 790,
         "cached": 86000,
@@ -116,11 +108,7 @@
         "output": 200000000,
         "inputMiss": 100000000
       },
-      "apiPrice": {
-        "input": 0.0028,
-        "output": 0.28,
-        "inputMiss": 0.14
-      },
+      "apiPrice": {},
       "pattern": {
         "input": 830,
         "cached": 71500,
@@ -139,11 +127,7 @@
         "output": 200000000,
         "inputMiss": 100000000
       },
-      "apiPrice": {
-        "input": 0.0028,
-        "output": 0.28,
-        "inputMiss": 0.14
-      },
+      "apiPrice": {},
       "pattern": {
         "input": 830,
         "cached": 71500,
