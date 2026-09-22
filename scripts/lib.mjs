@@ -298,7 +298,7 @@ export function toContextWindow(md) {
   return typeof md?.limit?.context === "number" ? md.limit.context : null;
 }
 
-/** Modell-ID ohne Provider-Prefix, normalisiert ("xiaomi/mimo-v2.5-pro" → "mimov2.5pro"). */
+/** Modell-ID ohne Provider-Prefix, normalisiert ("xiaomi/mimo-v2.6-pro" → "mimov2.6pro"). */
 export function bareModelId(id) {
   const seg = String(id ?? "").split(/[/:]/).pop() ?? "";
   return seg.toLowerCase().replace(/[\s-_]+/g, "");
@@ -332,8 +332,8 @@ const PREFERRED_PROVIDERS = ["zhipuai", "xiaomi", "zai", "opencode-go", "opencod
 
 /**
  * Baut Lookup über ALLE Provider: Bare-Modell-ID → { md, slug }.
- * Provider-Prefixe (z. B. "xiaomi/mimo-v2.5-pro") werden auf die nackte ID
- * reduziert, damit unsere ("mimo-v2.5-pro") matcht.
+ * Provider-Prefixe (z. B. "xiaomi/mimo-v2.6-pro") werden auf die nackte ID
+ * reduziert, damit unsere ("mimo-v2.6-pro") matcht.
  */
 function buildModelsDevLookup(providers) {
   const byBare = new Map();
@@ -459,6 +459,20 @@ export function validateVendorData(obj, vendorId) {
   }
   if (!Array.isArray(data.models) || data.models.length === 0) {
     throw new Error(`validateVendorData: keine Modelle für "${vendorId}"`);
+  }
+  for (const p of data.plans) {
+    if (p.creditsMonthly == null && p.creditsWeekly == null) {
+      throw new Error(`validateVendorData: kein Credit-Pool für Plan "${p.id}" (${vendorId})`);
+    }
+  }
+  const hasNum = (o) =>
+    o != null && Object.values(o).some((v) => typeof v === "number" && Number.isFinite(v));
+  for (const m of data.models) {
+    if (m.pattern != null && (!hasNum(m.creditPerM) || !hasNum(m.apiPrice))) {
+      throw new Error(
+        `validateVendorData: Modell "${m.id}" (${m.tier ?? "?"}) ohne Credit/API-Preise (${vendorId})`
+      );
+    }
   }
   return { ...data, vendorId };
 }

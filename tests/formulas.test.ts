@@ -87,7 +87,7 @@ test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 r
   assert.ok(costMonthly !== null && costYearly !== null && costYearly < costMonthly, "USD/Anfrage sinkt mit Rabatt");
 });
 
-test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈ 0,99)", async (t) => {
+test("mimo: Formeln für MiMo-V2.6-Pro (creditsPerRequest 635.000; planValue ≈ 0,99)", async (t) => {
   const mod = await loadVendor("mimo");
   if (!mod) return t.skip("src/vendors/mimo existiert noch nicht (parallele Agentin)");
   const vm = resolveVendorModule(mod);
@@ -95,9 +95,9 @@ test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈
   const formulas = resolveFormulas(vm);
   if (!data || !formulas) return t.skip("mimo-Vendor-Modul noch nicht vollständig");
 
-  const pro = data.models.find((m) => m.id === "mimo-v2.5-pro" && m.tier === "peak");
+  const pro = data.models.find((m) => m.id === "mimo-v2.6-pro" && m.tier === "peak");
   const lite = data.plans.find((p) => p.id === "lite");
-  assert.ok(pro && pro.pattern, "MiMo-V2.5-Pro mit Pattern erwartet");
+  assert.ok(pro && pro.pattern, "MiMo-V2.6-Pro mit Pattern erwartet");
   assert.ok(lite, "Plan 'lite' erwartet");
 
   assert.ok(close(formulas.creditsPerRequest(pro), 635000, 1e-3), `creditsPerRequest = ${formulas.creditsPerRequest(pro)}`);
@@ -107,7 +107,7 @@ test("mimo: Formeln für MiMo-V2.5-Pro (creditsPerRequest 635.000; planValue ≈
   assert.ok(close(pv, 0.99, 0.01), `planValue = ${pv}`);
 
   // JS-Präzision bei kleinen Zahlen: USD-Parität = Credits/1M × (Monatspreis ÷
-  // Monats-Credits). z. B. mimo-v2.5-pro Input (Cache-Hit): 2,5e6 × (6/4,1e9) =
+  // Monats-Credits). z. B. mimo-v2.6-pro Input (Cache-Hit): 2,5e6 × (6/4,1e9) =
   // 0,0036585… ≈ API-Listenpreis 0,0036. Zeigt, dass Doubles (~1e-16 relative
   // Genauigkeit) für diese Größenordnung exakt genug sind.
   const hitUsd = formulas.fieldPriceUsd(pro, "input", lite, "monthly");

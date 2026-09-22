@@ -14,7 +14,7 @@
       "priceYearlyMonthly": 5.28,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": null,
+      "creditsMonthly": 4100000000,
       "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
@@ -24,10 +24,10 @@
       "kind": "monthly",
       "priceMonthly": 16,
       "priceQuarterlyMonthly": null,
-      "priceYearlyMonthly": null,
+      "priceYearlyMonthly": 14.08,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": null,
+      "creditsMonthly": 11000000000,
       "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
@@ -40,7 +40,7 @@
       "priceYearlyMonthly": 44,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": null,
+      "creditsMonthly": 38000000000,
       "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     },
@@ -50,18 +50,18 @@
       "kind": "monthly",
       "priceMonthly": 100,
       "priceQuarterlyMonthly": null,
-      "priceYearlyMonthly": null,
+      "priceYearlyMonthly": 88,
       "credits5h": null,
       "creditsWeekly": null,
-      "creditsMonthly": null,
+      "creditsMonthly": 82000000000,
       "notes": null,
       "sourceUrl": "https://mimo.mi.com/docs/en-US/price/token-plan"
     }
   ],
   "models": [
     {
-      "id": "mimo-v2.5-pro",
-      "name": "mimo-v2.5-pro",
+      "id": "mimo-v2.6-pro",
+      "name": "mimo-v2.6-pro",
       "provider": "Xiaomi",
       "tier": "peak",
       "contextWindow": 1048576,
@@ -70,7 +70,11 @@
         "output": 600000000,
         "inputMiss": 300000000
       },
-      "apiPrice": {},
+      "apiPrice": {
+        "input": 0.0036,
+        "output": 0.87,
+        "inputMiss": 0.435
+      },
       "pattern": {
         "input": 790,
         "cached": 86000,
@@ -79,8 +83,8 @@
       "note": null
     },
     {
-      "id": "mimo-v2.5-pro",
-      "name": "mimo-v2.5-pro",
+      "id": "mimo-v2.6-pro",
+      "name": "mimo-v2.6-pro",
       "provider": "Xiaomi",
       "tier": "off-peak",
       "contextWindow": 1048576,
@@ -89,7 +93,11 @@
         "output": 600000000,
         "inputMiss": 300000000
       },
-      "apiPrice": {},
+      "apiPrice": {
+        "input": 0.0036,
+        "output": 0.87,
+        "inputMiss": 0.435
+      },
       "pattern": {
         "input": 790,
         "cached": 86000,
@@ -98,8 +106,8 @@
       "note": null
     },
     {
-      "id": "mimo-v2.5",
-      "name": "mimo-v2.5",
+      "id": "mimo-v2.6-flash",
+      "name": "mimo-v2.6-flash",
       "provider": "Xiaomi",
       "tier": "peak",
       "contextWindow": 1048576,
@@ -108,7 +116,11 @@
         "output": 200000000,
         "inputMiss": 100000000
       },
-      "apiPrice": {},
+      "apiPrice": {
+        "input": 0.0028,
+        "output": 0.28,
+        "inputMiss": 0.14
+      },
       "pattern": {
         "input": 830,
         "cached": 71500,
@@ -117,8 +129,8 @@
       "note": null
     },
     {
-      "id": "mimo-v2.5",
-      "name": "mimo-v2.5",
+      "id": "mimo-v2.6-flash",
+      "name": "mimo-v2.6-flash",
       "provider": "Xiaomi",
       "tier": "off-peak",
       "contextWindow": 1048576,
@@ -127,7 +139,11 @@
         "output": 200000000,
         "inputMiss": 100000000
       },
-      "apiPrice": {},
+      "apiPrice": {
+        "input": 0.0028,
+        "output": 0.28,
+        "inputMiss": 0.14
+      },
       "pattern": {
         "input": 830,
         "cached": 71500,

@@ -21,6 +21,56 @@ export const MIMO_API_PRICING_URL = "https://mimo.mi.com/docs/en-US/price/pay-as
 const PLAN_SET = ["Lite", "Standard", "Pro", "Max"];
 const BEIJING_OFFSET_MIN = 480; // Beijing = UTC+8
 
+/** Einzelnes MiMo-Modell: "mimo-v2.6-pro", "mimo-v2.5", "mimo-v2.6-pro-ultraspeed". */
+const MIMO_MODEL_RE = /mimo-v\d+(?:\.\d+)?(?:-[a-z]+)*/i;
+
+/**
+ * Quota-Zelle → Credits: "4.1 billion Credits" → 4.1e9 (auch M/million,
+ * Komma-Dezimal "4,1 billion"); sonst parseIntOrNull-Fallback (altes Format
+ * "4,100,000,000 （4.1B）Credits").
+ */
+function parseQuotaCredits(raw) {
+  const s = String(raw ?? "");
+  const m = s.match(/([\d.,]+)\s*(billions?|bn|b|millions?|m)\b/i);
+  if (m) {
+    let num = m[1];
+    if (num.includes(".") || (num.match(/,/g) ?? []).length > 1) {
+      num = num.replace(/,/g, "");
+    } else if (num.includes(",")) {
+      const [a, b] = num.split(",");
+      num = b !== undefined && b.length <= 2 ? `${a}.${b}` : a + b;
+    }
+    const n = Number(num);
+    if (Number.isFinite(n)) {
+      return Math.round(n * (m[2].toLowerCase().startsWith("b") ? 1e9 : 1e6));
+    }
+  }
+  return parseIntOrNull(s);
+}
+
+/**
+ * Alle Modell-Keys einer Tabellenzelle:
+ * "`mimo-v2.6-pro`、`mimo-v2.5-pro`(to be deprecated)" → beide Keys.
+ * Prosa-Zellen (Szenarien-Texte) und ASR/TTS-Zeilen → [].
+ */
+function extractModelKeys(cell) {
+  const s = String(cell ?? "")
+    .replace(/`/g, " ")
+    .replace(/\*/g, "")
+    .replace(/\([^)]*\)/g, " ");
+  const tokens = s.split(/[\s,、，;|/]+/).map((t) => t.trim()).filter(Boolean);
+  if (!tokens.length) return [];
+  const full = new RegExp(`^${MIMO_MODEL_RE.source}$`, "i");
+  const keys = [];
+  for (const t of tokens) {
+    if (!full.test(t)) return [];
+    const key = t.toLowerCase();
+    if (/-(asr|tts)\b/i.test(key)) return [];
+    keys.push(key);
+  }
+  return keys;
+}
+
 // ---------------------------------------------------------------------------
 // parseMimoTokenPlan
 // ---------------------------------------------------------------------------
@@ -57,17 +107,19 @@ export function parseMimoTokenPlan(md) {
       const isAnnual = norm.slice(1).some((c) => /\/\s*year/i.test(c));
       const target = isAnnual ? annualPrices : monthlyPrices;
       for (let i = 0; i < currentPlans.length; i++) {
+        // "$6/month", "USD 168.96/year", "USD 1,056.00/year", "$16/seat/month" (Team)
         const priceMatch = String(norm[i + 1] ?? "").match(
-          /\$\s*([\d.]+)\s*\/\s*(?:month|year)/i
+          /(?:USD|\$)\s*([\d,]+(?:\.\d+)?)\s*\/\s*(?:seat\s*\/\s*)?(month|year)/i
         );
         if (priceMatch && target[currentPlans[i]] === undefined) {
-          target[currentPlans[i]] = parseFloat(priceMatch[1]);
+          const v = Number(priceMatch[1].replace(/,/g, ""));
+          if (Number.isFinite(v)) target[currentPlans[i]] = v;
         }
       }
-    } else if (/credit/i.test(label)) {
+    } else if (/quota|credit/i.test(label)) {
       if (!/annual/i.test(label)) {
         for (let i = 0; i < currentPlans.length; i++) {
-          const n = parseIntOrNull(norm[i + 1]);
+          const n = parseQuotaCredits(norm[i + 1]);
           if (n !== null && monthlyCredits[currentPlans[i]] === undefined) {
             monthlyCredits[currentPlans[i]] = n;
           }
@@ -138,15 +190,15 @@ export function parseTokenPlanModels(md) {
   const models = {};
   const rows = extractTableRows(md);
   for (const cells of rows) {
-    const first = String(cells[0] ?? "").trim();
-    if (!/^(mimo-v2\.5|mimo-v2\.5-pro)$/i.test(first)) continue;
-    const key = first.toLowerCase();
-    if (models[key]) continue;
-    const hit = parsePrice(cells[1]);
-    const miss = parsePrice(cells[2]);
-    const output = parsePrice(cells[3]);
-    if (hit !== null && miss !== null && output !== null) {
-      models[key] = { input: hit, inputMiss: miss, output };
+    // Modell-Spalte finden (Inference-Type-Spalte + rowspan → Index variiert)
+    const idx = cells.findIndex((c) => extractModelKeys(c).length > 0);
+    if (idx === -1) continue;
+    const keys = extractModelKeys(cells[idx]);
+    const triple = [cells[idx + 1], cells[idx + 2], cells[idx + 3]].map((c) => parsePrice(c));
+    if (triple.some((v) => v === null)) continue;
+    for (const key of keys) {
+      if (models[key]) continue;
+      models[key] = { input: triple[0], inputMiss: triple[1], output: triple[2] };
     }
   }
   return models;
@@ -164,16 +216,17 @@ export function parseMimoApiPricing(md) {
   const apiPrices = {};
   const rows = extractTableRows(md);
   for (const cells of rows) {
-    const idx = cells.findIndex((c) => {
-      const s = String(c ?? "").replace(/`/g, "").trim();
-      return /^mimo-v2\.5(-pro)?$/i.test(s);
-    });
+    // Modell-Spalte finden (Inference-Type-Spalte + rowspan → Index variiert);
+    // Mehrfach-Modelle pro Zelle ("`mimo-v2.6-pro`、`mimo-v2.5-pro`(to be deprecated)")
+    // teilen sich das Preis-Tripel.
+    const idx = cells.findIndex((c) => extractModelKeys(c).length > 0);
     if (idx === -1) continue;
-    const key = String(cells[idx]).replace(/`/g, "").trim().toLowerCase();
-    if (apiPrices[key]) continue;
+    const keys = extractModelKeys(cells[idx]);
     const usdCells = cells.slice(idx + 1).filter((c) => String(c).includes("$"));
     const prices = usdCells.map((c) => parsePrice(c)).filter((v) => v !== null);
-    if (prices.length >= 3) {
+    if (prices.length < 3) continue;
+    for (const key of keys) {
+      if (apiPrices[key]) continue;
       apiPrices[key] = { input: prices[0], inputMiss: prices[1], output: prices[2] };
     }
   }
@@ -233,7 +286,7 @@ export async function scrapeMimo(opts = {}) {
   const plans = parsed.plans.map((p) => ({ ...p, sourceUrl: MIMO_TOKEN_PLAN_URL }));
 
   const models = [];
-  for (const key of ["mimo-v2.5-pro", "mimo-v2.5"]) {
+  for (const key of ["mimo-v2.6-pro", "mimo-v2.6-flash"]) {
     const ratio = parsed.models[key];
     if (!ratio) continue;
     const creditPerM = {
@@ -264,8 +317,8 @@ export async function scrapeMimo(opts = {}) {
   const providers =
     opts.write === false ? {} : (await loadModelsDev()).providers;
   enrichModelMeta(models, providers, {
-    "mimo-v2.5-pro": { provider: "Xiaomi", contextWindow: 1048576 },
-    "mimo-v2.5": { provider: "Xiaomi", contextWindow: 1048576 },
+    "mimo-v2.6-pro": { provider: "Xiaomi", contextWindow: 1048576 },
+    "mimo-v2.6-flash": { provider: "Xiaomi", contextWindow: 1048576 },
   });
 
   const night = parsed.night;

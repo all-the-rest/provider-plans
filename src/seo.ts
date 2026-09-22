@@ -50,8 +50,8 @@ const DESCRIPTIONS: Record<string, Record<Lang, string>> = {
     en: "z.ai GLM Coding Plan: prices from $18/month, weekly credits, off-peak −50% and requests/month for GLM-5.3 & GLM-5.3-Flash — including a verdict on whether the plan is worth it.",
   },
   "/mimo": {
-    de: "Xiaomi MiMo Token Plan: Preise ab $6/Monat, monatliche Credits, Nacht-Rabatt −20 % und Requests/Monat für mimo-v2.5 & mimo-v2.5-pro — inklusive Einschätzung, ob sich der Plan lohnt.",
-    en: "Xiaomi MiMo Token Plan: prices from $6/month, monthly credits, night discount −20% and requests/month for mimo-v2.5 & mimo-v2.5-pro — including a verdict on whether the plan is worth it.",
+    de: "Xiaomi MiMo Token Plan: Preise ab $6/Monat, monatliche Credits, Nacht-Rabatt −20 % und Requests/Monat für mimo-v2.6-flash & mimo-v2.6-pro — inklusive Einschätzung, ob sich der Plan lohnt.",
+    en: "Xiaomi MiMo Token Plan: prices from $6/month, monthly credits, night discount −20% and requests/month for mimo-v2.6-flash & mimo-v2.6-pro — including a verdict on whether the plan is worth it.",
   },
   "/ollama": {
     de: "Ollama Cloud Plans: Pro $20/Monat mit $60 Credits, Max $100/Monat mit $300 Credits — DeepSeek, GLM, Kimi, Qwen und mehr, Peak/Off-Peak und Requests/Monat.",

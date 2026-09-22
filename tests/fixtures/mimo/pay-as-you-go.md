@@ -8,7 +8,7 @@
 
 ### Overseas Pricing of the Model
 
-| **MiMo-V2.5 Series** | **Input (Cache Hit)** | **Input (Cache Miss)** | **Output** |
+| **MiMo-V2.6 Series** | **Input (Cache Hit)** | **Input (Cache Miss)** | **Output** |
 | --- | --- | --- | --- |
-| `mimo-v2.5-pro` | $0.0036 | $0.435 | $0.87 |
-| `mimo-v2.5` | $0.0028 | $0.14 | $0.28 |
+| `mimo-v2.6-pro` | $0.0036 | $0.435 | $0.87 |
+| `mimo-v2.6-flash` | $0.0028 | $0.14 | $0.28 |

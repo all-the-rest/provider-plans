@@ -175,6 +175,21 @@ async function main() {
         else ok(`${v.vendorId}: ${data.plans.length} Pläne`);
         if (!Array.isArray(data.models) || data.models.length === 0) fail(`${v.file} ohne models[]`);
         else ok(`${v.vendorId}: ${data.models.length} Modelle`);
+        if (Array.isArray(data.plans) && data.plans.length > 0) {
+          const withPool = data.plans.filter((p) => p.creditsMonthly != null || p.creditsWeekly != null);
+          if (withPool.length === 0) fail(`${v.file}: kein Plan mit Credit-Pool (creditsMonthly/creditsWeekly)`);
+        }
+        if (Array.isArray(data.models) && data.models.length > 0) {
+          for (const m of data.models) {
+            if (m.pattern != null) {
+              const hasApi =
+                m.apiPrice != null &&
+                Object.values(m.apiPrice).some((x) => typeof x === "number" && Number.isFinite(x));
+              if (!hasApi)
+                fail(`${v.file}: Modell "${m.id}" (${m.tier ?? "?"}) mit Pattern, aber ohne apiPrice`);
+            }
+          }
+        }
       } catch (e) {
         fail(`/data/${v.file}: ${e instanceof Error ? e.message : String(e)}`);
       }

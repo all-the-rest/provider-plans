@@ -46,12 +46,12 @@ test("mimo: parseMimoTokenPlan liefert Off-Peak-Konfiguration", async () => {
 
 test("mimo: parseMimoTokenPlan liefert Modell-Credit-Quoten", async () => {
   const { models } = parseMimoTokenPlan(await readFixture("mimo/token-plan.md"));
-  assert.deepEqual(models["mimo-v2.5-pro"], { input: 2.5, inputMiss: 300, output: 600 });
-  assert.deepEqual(models["mimo-v2.5"], { input: 2, inputMiss: 100, output: 200 });
+  assert.deepEqual(models["mimo-v2.6-pro"], { input: 2.5, inputMiss: 300, output: 600 });
+  assert.deepEqual(models["mimo-v2.6-flash"], { input: 2, inputMiss: 100, output: 200 });
 });
 
 test("mimo: parseMimoApiPricing liefert Overseas-Preise (USD/1M)", async () => {
   const { apiPrices } = parseMimoApiPricing(await readFixture("mimo/pay-as-you-go.md"));
-  assert.deepEqual(apiPrices["mimo-v2.5-pro"], { input: 0.0036, inputMiss: 0.435, output: 0.87 });
-  assert.deepEqual(apiPrices["mimo-v2.5"], { input: 0.0028, inputMiss: 0.14, output: 0.28 });
+  assert.deepEqual(apiPrices["mimo-v2.6-pro"], { input: 0.0036, inputMiss: 0.435, output: 0.87 });
+  assert.deepEqual(apiPrices["mimo-v2.6-flash"], { input: 0.0028, inputMiss: 0.14, output: 0.28 });
 });

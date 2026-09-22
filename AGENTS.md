@@ -76,7 +76,7 @@ pnpm typecheck        # nur tsc --noEmit
 - **z.ai:** `credits/Tok = multiplier / 10.000` (GLM-5.3: 6,9/1,7/24; Flash: 2,3/0,56/8) →
   `creditPerM` = ×1M. Off-Peak (Mo–Fr 14–18 SGT + ganze Wochenenden) = **50 % Credits**.
   Wochen-Credits × 4 = Monats-Pool.
-- **MiMo:** Credits direkte pro Tok (v2.5-pro: hit 2,5 / miss 300 / out 600; v2.5: 2/100/200) →
+- **MiMo:** Credits direkte pro Tok (v2.6-pro: hit 2,5 / miss 300 / out 600; v2.6-flash: 2/100/200) →
   `creditPerM` = ×1M. Nacht (Peking 00–08 = UTC 16–24) = **0,8×**. Monats-Credits direkt.
 - **Requests/Monat = Monats-Credit-Pool ÷ (Kreditkosten pro Anfrage × Phase-Faktor)**.
 - **Basis:** `list` = API-Listenpreis (USD/1M), `full` = Credit-Preis auf Listenpreis-Parität,
@@ -162,7 +162,7 @@ pnpm typecheck        # nur tsc --noEmit
 
 - `tests/zai.test.ts` / `tests/mimo.test.ts` / `tests/patterns.test.ts` — Parser gegen Fixtures.
 - `tests/formulas.test.ts` — Formel-Mathe gegen Vendor-Module (z. B. GLM-5.3 credits/request 9,683,
-  Lite peak ≈ 4.131 Requests/Monat; MiMo-v2.5-pro credits/request 635.000, planValue ≈ 0,99).
+  Lite peak ≈ 4.131 Requests/Monat; MiMo-v2.6-pro credits/request 635.000, planValue ≈ 0,99).
 - Fixtures sind fixiert — Tests müssen deterministisch laufen.
 
 ## Schwester-Projekte (Git-Remotes)

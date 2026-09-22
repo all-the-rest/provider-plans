@@ -31,5 +31,5 @@ Language models deduct Credit quota based on the number of Tokens.
 
 | Model | Input (Cache Hit) Token | Input (missed cache) Token | Output Token |
 | --- | --- | --- | --- |
-| mimo-v2.5-pro | 2.5 Credits | 300 Credits | 600 Credits |
-| mimo-v2.5 | 2 Credits | 100 Credits | 200 Credits |
+| mimo-v2.6-pro | 2.5 Credits | 300 Credits | 600 Credits |
+| mimo-v2.6-flash | 2 Credits | 100 Credits | 200 Credits |

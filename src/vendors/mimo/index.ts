@@ -13,13 +13,13 @@ export const vendorModule: VendorModule = {
     name: "Xiaomi MiMo — Token Plan",
     shortName: "MiMo",
     tagline:
-      "Credit-basierter Token Plan für mimo-v2.5 & mimo-v2.5-pro — monatliche Credits, Off-Peak-Rabatt −20 %.",
+      "Credit-basierter Token Plan für mimo-v2.6-flash & mimo-v2.6-pro — monatliche Credits, Off-Peak-Rabatt −20 %.",
     siteUrl: "https://mimo.mi.com",
     priceSourceUrl: "https://mimo.mi.com/docs/en-US/price/token-plan",
-    flagshipId: "mimo-v2.5-pro",
+    flagshipId: "mimo-v2.6-pro",
   },
   data,
-  formulas: makeFormulas(data, peak, "mimo-v2.5-pro"),
+  formulas: makeFormulas(data, peak, "mimo-v2.6-pro"),
   fields: [
     { key: "input", labelKey: "colInputHit" },
     { key: "inputMiss", labelKey: "colInputMiss" },

@@ -9,7 +9,7 @@ Die Schätzungen basieren auf beobachteten Anfragemustern:
 - Kimi K3 — 1.050 Input-, 76.500 Cached-, 300 Output-Tokens pro Anfrage
 - LongCat-2.0 — 920 Input-, 88.900 Cached-, 200 Output-Tokens pro Anfrage
 - MiniMax M3 — 510 Input-, 56.000 Cached-, 190 Output-Tokens pro Anfrage
-- MiMo-V2.5 — 830 Input-, 71.500 Cached-, 295 Output-Tokens pro Anfrage
-- MiMo-V2.5-Pro — 790 Input-, 86.000 Cached-, 305 Output-Tokens pro Anfrage
+- MiMo-V2.6-Flash — 830 Input-, 71.500 Cached-, 295 Output-Tokens pro Anfrage
+- MiMo-V2.6-Pro — 790 Input-, 86.000 Cached-, 305 Output-Tokens pro Anfrage
 - Qwen3.8 Flash — 600 Input-, 58.000 Cached-, 200 Output-Tokens pro Anfrage
 - DeepSeek V4 Flash — 410 Input-, 71.300 Cached-, 310 Output-Tokens pro Anfrage

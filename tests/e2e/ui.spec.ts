@@ -132,7 +132,7 @@ test.describe("Startseite: Karten + logischer CTA", () => {
     await mimoCard.click();
     await page.waitForURL("**/mimo");
     expect(new URL(page.url()).pathname).toBe("/de/mimo");
-    await expect(bodyText(page)).resolves.toContain("mimo-v2.5");
+    await expect(bodyText(page)).resolves.toContain("mimo-v2.6-flash");
   });
 });
 
