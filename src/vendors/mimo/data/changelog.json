@@ -5,8 +5,8 @@
       "date": "2026-09-22",
       "changes": [
         {
-          "de": "Modelle ausgetauscht: mimo-v2.5-pro → mimo-v2.6-pro, mimo-v2.5 → mimo-v2.6-flash (gleiche Credit-Quoten und API-Preise); Pläne, Preise und Credit-Pools unverändert",
-          "en": "Models replaced: mimo-v2.5-pro → mimo-v2.6-pro, mimo-v2.5 → mimo-v2.6-flash (same credit quotas and API prices); plans, prices and credit pools unchanged"
+          "de": "mimo-v2.6-pro: Modell hinzugefügt; mimo-v2.6-flash: Modell hinzugefügt; mimo-v2.5-pro: Modell entfernt; mimo-v2.5: Modell entfernt",
+          "en": "mimo-v2.6-pro: model added; mimo-v2.6-flash: model added; mimo-v2.5-pro: model removed; mimo-v2.5: model removed"
         }
       ]
     }
