@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { mergeChangelog } from "../scripts/lib.mjs";
+import { mergeChangelog, buildChangelogEntries } from "../scripts/lib.mjs";
 
 const today = () => new Date().toISOString().slice(0, 10);
 const yesterday = () => new Date(Date.now() - 86400000).toISOString().slice(0, 10);
@@ -104,4 +104,80 @@ test("changelog: unparsebares Datum → neuer Eintrag", async () => {
   const out = await mergeChangelog("zai", snap(20), snap(18), { changelogPath: file });
   assert.equal(out.entries.length, 2);
   assert.equal(out.entries[0].id, `zai-${date}`);
+});
+
+function modelRow(id, tier) {
+  return {
+    id,
+    name: id,
+    provider: "Xiaomi",
+    tier,
+    contextWindow: null,
+    creditPerM: { input: 2500000, output: 600000000, inputMiss: 300000000 },
+    apiPrice: { input: 0.0036, output: 0.87, inputMiss: 0.435 },
+    pattern: { input: 790, cached: 86000, output: 305 },
+    note: null,
+  };
+}
+
+function planRow(id, priceMonthly) {
+  return {
+    id,
+    name: id[0].toUpperCase() + id.slice(1),
+    kind: "monthly",
+    priceMonthly,
+    priceQuarterlyMonthly: null,
+    priceYearlyMonthly: null,
+    credits5h: null,
+    creditsWeekly: null,
+    creditsMonthly: 4100000000,
+    notes: null,
+    sourceUrl: "https://mimo.mi.com/docs/en-US/price/token-plan",
+  };
+}
+
+test("changelog: Modelltausch 2.5 → 2.6 ergibt Add/Remove statt Stille", () => {
+  const prev = {
+    vendorId: "mimo",
+    plans: [planRow("lite", 6)],
+    models: [modelRow("mimo-v2.5-pro", "peak"), modelRow("mimo-v2.5-pro", "off-peak")],
+  };
+  const next = {
+    vendorId: "mimo",
+    plans: [planRow("lite", 6)],
+    models: [modelRow("mimo-v2.6-pro", "peak"), modelRow("mimo-v2.6-pro", "off-peak")],
+  };
+  const [entry] = buildChangelogEntries(prev, next, "mimo");
+  assert.ok(entry, "Eintrag erwartet");
+  assert.equal(entry.changes.length, 1);
+  assert.ok(entry.changes[0].de.includes("mimo-v2.5-pro: Modell entfernt"));
+  assert.ok(entry.changes[0].de.includes("mimo-v2.6-pro: Modell hinzugefügt"));
+  assert.ok(entry.changes[0].en.includes("model removed"));
+  assert.ok(entry.changes[0].en.includes("model added"));
+});
+
+test("changelog: Plan hinzugefügt/entfernt wird erkannt", () => {
+  const prev = { vendorId: "mimo", plans: [planRow("lite", 6)], models: [] };
+  const next = {
+    vendorId: "mimo",
+    plans: [planRow("lite", 6), planRow("ultra", 200)],
+    models: [],
+  };
+  const [added] = buildChangelogEntries(prev, next, "mimo");
+  assert.ok(added.changes[0].de.includes("Ultra: Plan hinzugefügt"));
+  const [removed] = buildChangelogEntries(next, prev, "mimo");
+  assert.ok(removed.changes[0].de.includes("Ultra: Plan entfernt"));
+});
+
+test("changelog: API-Preis-Änderung wird erkannt", () => {
+  const prev = {
+    vendorId: "mimo",
+    plans: [planRow("lite", 6)],
+    models: [modelRow("mimo-v2.6-pro", "peak")],
+  };
+  const next = JSON.parse(JSON.stringify(prev));
+  next.models[0].apiPrice.input = 0.0072;
+  const [entry] = buildChangelogEntries(prev, next, "mimo");
+  assert.ok(entry.changes[0].de.includes("input-API-Preis"));
+  assert.ok(entry.changes[0].en.includes("input API price"));
 });

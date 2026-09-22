@@ -549,15 +549,27 @@ function fmtInt(n) {
   return String(Math.round(n));
 }
 
-/** Diff zwischen vorherigem und neuem Snapshot → Changelog-Einträge (de/en). */
+/** Diff zwischen vorherigem und neuem Snapshot → Changelog-Einträge (de/en).
+ * Erkannt werden (ocgo-`computeDiff` als Vorbild, reiner Key-Vergleich):
+ * - Preis-/Pool-Änderungen bestehender Pläne (`CHANGE_LABELS`)
+ * - hinzugefügte/entfernte Pläne (Key `p.id`)
+ * - Credit- und API-Preis-Änderungen bestehender Modell-Rows
+ * - hinzugefügte/entfernte Modelle (gruppiert je Modell-ID, damit Peak-/
+ *   Off-Peak-Paare genau einen Eintrag ergeben)
+ */
 export function buildChangelogEntries(prev, next, vendorId) {
   if (!prev || !Array.isArray(prev.plans) || !Array.isArray(prev.models)) return [];
   const de = [];
   const en = [];
   const prevPlans = new Map(prev.plans.map((p) => [p.id, p]));
+  const nextPlans = new Map(next.plans.map((p) => [p.id, p]));
   for (const p of next.plans) {
     const o = prevPlans.get(p.id);
-    if (!o) continue;
+    if (!o) {
+      de.push(`${p.name}: Plan hinzugefügt (Monatspreis ${fmtPrice(p.priceMonthly)})`);
+      en.push(`${p.name}: plan added (monthly price ${fmtPrice(p.priceMonthly)})`);
+      continue;
+    }
     for (const [field, [labelDe, labelEn]] of Object.entries(CHANGE_LABELS)) {
       if (o[field] !== p[field]) {
         de.push(`${p.name}: ${labelDe} ${fmtPrice(o[field])} → ${fmtPrice(p[field])}`);
@@ -565,8 +577,17 @@ export function buildChangelogEntries(prev, next, vendorId) {
       }
     }
   }
+  for (const o of prev.plans) {
+    if (!nextPlans.has(o.id)) {
+      de.push(`${o.name}: Plan entfernt`);
+      en.push(`${o.name}: plan removed`);
+    }
+  }
   const prevModels = new Map(
     prev.models.map((m) => [`${m.id}|${m.tier ?? ""}`, m])
+  );
+  const nextModels = new Map(
+    next.models.map((m) => [`${m.id}|${m.tier ?? ""}`, m])
   );
   for (const m of next.models) {
     const o = prevModels.get(`${m.id}|${m.tier ?? ""}`);
@@ -576,6 +597,24 @@ export function buildChangelogEntries(prev, next, vendorId) {
         de.push(`${m.name}: ${field}-Credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`);
         en.push(`${m.name}: ${field} credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`);
       }
+      if (o.apiPrice?.[field] !== m.apiPrice?.[field]) {
+        de.push(`${m.name}: ${field}-API-Preis ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`);
+        en.push(`${m.name}: ${field} API price ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`);
+      }
+    }
+  }
+  const prevIds = new Map(prev.models.map((m) => [m.id, m]));
+  const nextIds = new Map(next.models.map((m) => [m.id, m]));
+  for (const [id, m] of nextIds) {
+    if (!prevIds.has(id)) {
+      de.push(`${m.name}: Modell hinzugefügt`);
+      en.push(`${m.name}: model added`);
+    }
+  }
+  for (const [id, o] of prevIds) {
+    if (!nextIds.has(id)) {
+      de.push(`${o.name}: Modell entfernt`);
+      en.push(`${o.name}: model removed`);
     }
   }
   if (!de.length) return [];
