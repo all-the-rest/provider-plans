@@ -1,6 +1,4 @@
-import type { Lang, Plan, VendorModule } from "./types";
-import { fmt, fmtBig, fmtInt } from "./util";
-import { flagshipModel } from "./vendors/shared";
+import type { Lang, VendorModule } from "./types";
 import {
   alternateUrls,
   canonicalUrl,
@@ -8,11 +6,6 @@ import {
   SITE_ORIGIN,
   stripLangPrefix,
 } from "./routes";
-
-export interface FaqItem {
-  q: string;
-  a: string;
-}
 
 export interface RouteSeo {
   title: string;
@@ -93,145 +86,6 @@ export function buildHead(routePath: string, lang: Lang, vendors: VendorModule[]
   };
 }
 
-function flagship(module: VendorModule) {
-  return flagshipModel(module);
-}
-
-function planValueText(module: VendorModule, plan: Plan, lang: Lang): string | null {
-  const v = module.formulas.planValue(plan, "monthly");
-  if (v === null || Number.isNaN(v)) return null;
-  const s = v >= 100 ? String(Math.round(v)) : v >= 10 ? v.toFixed(1) : v.toFixed(2);
-  return lang === "de" ? `≈ ${s}× den API-Gegenwert` : `≈ ${s}× the API value`;
-}
-
-/** Nutzen-orientierte FAQ je Vendor — identisch für sichtbare Seite und JSON-LD. */
-export function vendorFaq(module: VendorModule, lang: Lang): FaqItem[] {
-  const de = lang === "de";
-  const plans = module.data.plans;
-  const first = plans[0];
-  const model = flagship(module);
-  const modelName = model?.name ?? module.meta.shortName;
-  const pool = first ? module.formulas.monthlyCredits(first) : null;
-  const req = first && model ? module.formulas.requestsPerMonth(model, first) : null;
-  const value = first ? planValueText(module, first, lang) : null;
-  const prices = plans.map((p) => p.priceMonthly).filter((n): n is number => typeof n === "number");
-  const minPrice = prices.length ? Math.min(...prices) : null;
-  const maxPrice = prices.length ? Math.max(...prices) : null;
-  const modelNames = [...new Set(module.data.models.map((m) => m.name))];
-  const items: FaqItem[] = [];
-
-  if (first && value) {
-    items.push({
-      q: de ? `Lohnt sich der ${module.meta.shortName}-Plan?` : `Is the ${module.meta.shortName} plan worth it?`,
-      a: de
-        ? `Der Einstiegsplan „${first.name}“ kostet ${fmt(first.priceMonthly)}/Monat und liefert rechnerisch ${value} des enthaltenen Credit-Pools. Je nach Nutzung und Peak-/Off-Peak-Zeit lohnt er sich vor allem für Vielnutzer.`
-        : `The entry plan “${first.name}” costs ${fmt(first.priceMonthly)}/month and delivers ${value} of its included credit pool. Depending on usage and peak/off-peak timing, it pays off mainly for heavy users.`,
-    });
-  }
-  if (req !== null) {
-    items.push({
-      q: de ? "Wie viele Requests pro Monat sind enthalten?" : "How many requests per month are included?",
-      a: de
-        ? `Mit dem Flaggschiff-Modell ${modelName} sind im Plan „${first?.name ?? ""}“ ca. ${fmtInt(req, lang)} Requests/Monat enthalten (Peak); off-peak sind entsprechend mehr möglich.`
-        : `With the flagship model ${modelName}, the “${first?.name ?? ""}” plan includes about ${fmtInt(req, lang)} requests/month (peak); off-peak allows correspondingly more.`,
-    });
-  }
-  if (pool !== null) {
-    items.push({
-      q: de ? "Wie hoch ist der Credit-Pool?" : "How large is the credit pool?",
-      a: de
-        ? `Der Plan „${first?.name ?? ""}“ umfasst ${fmtBig(pool)} Credits pro Monat${first?.kind === "weekly" ? " (Wochen-Credits × 4)" : ""}.`
-        : `The “${first?.name ?? ""}” plan includes ${fmtBig(pool)} credits per month${first?.kind === "weekly" ? " (weekly credits × 4)" : ""}.`,
-    });
-  }
-  items.push({
-    q: de ? "Gibt es Peak- und Off-Peak-Zeiten?" : "Are there peak and off-peak times?",
-    a: module.i18n[lang].peakWeekendNote || module.peak.timezoneLabel,
-  });
-  items.push({
-    q: de ? "Welche Modelle sind enthalten?" : "Which models are included?",
-    a: de
-      ? `${modelNames.join(", ")}.`
-      : `${modelNames.join(", ")}.`,
-  });
-  if (minPrice !== null) {
-    items.push({
-      q: de ? "Was kostet der Plan?" : "How much does the plan cost?",
-      a:
-        minPrice === maxPrice
-          ? de
-            ? `${fmt(minPrice)}/Monat (monatliche Abrechnung).`
-            : `${fmt(minPrice)}/month (monthly billing).`
-          : de
-            ? `Je nach Plan zwischen ${fmt(minPrice)} und ${fmt(maxPrice)} pro Monat (monatliche Abrechnung).`
-            : `Depending on the plan, between ${fmt(minPrice)} and ${fmt(maxPrice)} per month (monthly billing).`,
-    });
-  }
-  return items;
-}
-
-/** Nutzen-orientierte FAQ der Startseite. */
-export function homeFaq(vendors: VendorModule[], lang: Lang): FaqItem[] {
-  const de = lang === "de";
-  const cheapest = vendors
-    .map((m) => ({ m, plan: m.data.plans[0] }))
-    .filter((x) => x.plan)
-    .sort((a, b) => a.plan!.priceMonthly - b.plan!.priceMonthly)[0];
-  const names = vendors.map((m) => m.meta.name).join(", ");
-  const bestReq = vendors
-    .map((m) => {
-      const model = flagship(m);
-      const plan = m.data.plans[0];
-      const req = model && plan ? m.formulas.requestsPerMonth(model, plan) : null;
-      return { m, req };
-    })
-    .filter((x) => x.req !== null)
-    .sort((a, b) => (b.req ?? 0) - (a.req ?? 0))[0];
-
-  const items: FaqItem[] = [];
-  items.push({
-    q: de ? "Welcher Coding-Plan ist am günstigsten?" : "Which coding plan is the cheapest?",
-    a: cheapest
-      ? de
-        ? `${cheapest.m.meta.name} startet mit „${cheapest.plan!.name}“ ab ${fmt(cheapest.plan!.priceMonthly)}/Monat.`
-        : `${cheapest.m.meta.name} starts at ${fmt(cheapest.plan!.priceMonthly)}/month with “${cheapest.plan!.name}”.`
-      : de
-        ? "Die Preise werden täglich automatisch aktualisiert."
-        : "Prices are updated automatically every day.",
-  });
-  if (bestReq && bestReq.req !== null) {
-    items.push({
-      q: de ? "Wo bekomme ich die meisten Requests pro Monat?" : "Where do I get the most requests per month?",
-      a: de
-        ? `Im Einstiegsplan von ${bestReq.m.meta.name} sind mit dem Flaggschiff-Modell ca. ${fmtInt(bestReq.req, lang)} Requests/Monat enthalten.`
-        : `The entry plan of ${bestReq.m.meta.name} includes about ${fmtInt(bestReq.req, lang)} requests/month with the flagship model.`,
-    });
-  }
-  items.push({
-    q: de ? "Was bedeutet Peak und Off-Peak?" : "What do peak and off-peak mean?",
-    a: de
-      ? "Zu Peak-Zeiten kosten Anfragen den vollen Credit-Satz, off-peak weniger (z. B. −50 % bei z.ai, −20 % bei MiMo). Die genauen Zeitfenster stehen auf jeder Vendor-Seite."
-      : "During peak hours requests cost the full credit rate, off-peak less (e.g. −50% at z.ai, −20% at MiMo). The exact time windows are shown on each vendor page.",
-  });
-  items.push({
-    q: de ? "Welche Anbieter vergleicht diese Seite?" : "Which providers does this site compare?",
-    a: de ? `${names}.` : `${names}.`,
-  });
-  items.push({
-    q: de ? "Lohnt sich ein Jahres-Abo?" : "Is an annual subscription worth it?",
-    a: de
-      ? "Viele Pläne gewähren bei Quartals- oder Jahreszahlung einen Rabatt (z. B. −20 % / −30 % bei z.ai). Der Umschalter auf der Vendor-Seite rechnet die Preise inklusive Rabatt."
-      : "Many plans offer a discount for quarterly or annual billing (e.g. −20% / −30% at z.ai). The switcher on each vendor page recalculates prices including the discount.",
-  });
-  items.push({
-    q: de ? "Wie aktuell sind die Preise?" : "How current are the prices?",
-    a: de
-      ? "Die Daten werden täglich automatisch aus den offiziellen Anbieter-Seiten gescrapt; der Stand steht im Footer jeder Seite."
-      : "The data is scraped automatically from the official provider pages every day; the timestamp is shown in the footer of every page.",
-  });
-  return items;
-}
-
 export function buildJsonLd(routePath: string, lang: Lang, vendors: VendorModule[]): unknown[] {
   const key = stripLangPrefix(routePath);
   const seo = routeSeo(key, lang);
@@ -263,7 +117,6 @@ export function buildJsonLd(routePath: string, lang: Lang, vendors: VendorModule
         name,
       })),
     });
-    graph.push(faqPage(vendorFaq(vendor, lang)));
   } else if (key === "/") {
     graph.push({
       "@type": "WebSite",
@@ -282,22 +135,10 @@ export function buildJsonLd(routePath: string, lang: Lang, vendors: VendorModule
         url: canonicalUrl(m.meta.path, lang),
       })),
     });
-    graph.push(faqPage(homeFaq(vendors, lang)));
   }
 
   if (graph.length === 0) return [];
   return [{ "@context": "https://schema.org", "@graph": graph }];
-}
-
-function faqPage(items: FaqItem[]): unknown {
-  return {
-    "@type": "FAQPage",
-    mainEntity: items.map((it) => ({
-      "@type": "Question",
-      name: it.q,
-      acceptedAnswer: { "@type": "Answer", text: it.a },
-    })),
-  };
 }
 
 /* ---------------------------------------------------------------------------

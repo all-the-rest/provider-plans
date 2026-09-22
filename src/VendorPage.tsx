@@ -8,10 +8,8 @@ import PlanValue from "./components/PlanValue";
 import PriceTable from "./components/PriceTable";
 import ModelOverview from "./components/ModelOverview";
 import PlanComparison from "./components/PlanComparison";
-import Faq from "./components/Faq";
 import Changelog from "./components/Changelog";
 import Footer from "./components/Footer";
-import { vendorFaq } from "./seo";
 import { CHANGELOGS } from "./changelogs";
 import { useRouter } from "./router";
 
@@ -69,7 +67,7 @@ export default function VendorPage(props: VendorPageProps) {
     else sp.set("cycle", cycle());
     const qs = sp.toString();
     // Query-Normalisierung (Defaults entfernen) — ein gültiger Anker-Hash
-    // (#prices, #faq, …) darf dabei NIE entfernt werden.
+    // (#prices, #value, …) darf dabei NIE entfernt werden.
     const hash = window.location.hash;
     const url = (qs ? window.location.pathname + "?" + qs : window.location.pathname) + hash;
     if (url !== window.location.pathname + window.location.search + hash) {
@@ -113,10 +111,6 @@ export default function VendorPage(props: VendorPageProps) {
         />
         <ModelOverview module={module} lang={props.lang} t={t()} />
         <PlanComparison module={module} t={t()} lang={props.lang} />
-        <Faq
-          heading={props.lang === "de" ? "Häufige Fragen" : "Frequently asked questions"}
-          items={vendorFaq(module, props.lang)}
-        />
         <Changelog entries={CHANGELOGS[module.meta.id]} t={t()} lang={props.lang} />
       </main>
       <Footer t={t()} lang={props.lang} meta={module.meta} />

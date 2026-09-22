@@ -95,8 +95,6 @@ export const SECTION_ANCHORS = {
   comparison: "comparison",
   /** Vendor-Vergleich (Startseite). */
   ranking: "ranking",
-  /** FAQ-Block (Start- + Vendor-Seite). */
-  faq: "faq",
   /** Changelog (Vendor-Seite). */
   changelog: "changelog",
   /** Anbieter-Übersicht (Startseite). */

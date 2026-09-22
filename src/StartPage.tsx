@@ -3,8 +3,6 @@ import type { Lang, Translation, VendorModule } from "./types";
 import { shell } from "./i18n";
 import Header from "./components/Header";
 import VendorRanking from "./components/VendorRanking";
-import Faq from "./components/Faq";
-import { homeFaq } from "./seo";
 import { loadAllVendors, NAV_VENDORS } from "./vendors/registry";
 import { SECTION_ANCHORS, withLangPrefix } from "./routes";
 import { useRouter } from "./router";
@@ -107,10 +105,6 @@ export default function StartPage(props: StartPageProps) {
               </section>
 
               <VendorRanking vendors={list()} lang={props.lang} t={t()} />
-              <Faq
-                heading={de() ? "Häufige Fragen" : "Frequently asked questions"}
-                items={homeFaq(list(), props.lang)}
-              />
             </>
           )}
         </Show>

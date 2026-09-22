@@ -122,10 +122,10 @@ pnpm typecheck        # nur tsc --noEmit
 - **Head-SEO (build-generiert in `scripts/prerender.mjs`, Client-Update via `src/seo.ts:applyHead`):**
   Title/Description je Route und Sprache, Canonical je Datei auf die eigene Sprach-URL, `hreflang`
   `en`/`de`/`x-default`, `og:locale` (`en_US`/`de_DE`) + `og:locale:alternate`, RSS-Autodiscovery
-  (`releases.atom`), JSON-LD (`Product`/`Offer` + `ItemList` + `FAQPage`; Home zusätzlich `WebSite`).
+  (`releases.atom`), JSON-LD (`Product`/`Offer` + `ItemList`; Home zusätzlich `WebSite`).
   Dazu `dist/robots.txt` und `dist/sitemap.xml` (beide Sprach-URLs).
 - **Inhalte (server- und clientseitig identisch):** „Was bringt dir der Plan?" (`src/components/PlanValue.tsx`),
-  „Modell-Übersicht" (`ModelOverview.tsx`), FAQ (`Faq.tsx` + `vendorFaq`/`homeFaq` aus `src/seo.ts`),
+  „Modell-Übersicht" (`ModelOverview.tsx`),
   Startseiten-Ranking (`VendorRanking.tsx`). Keine `Date`/`window`-Abhängigkeit im Rendering.
 - **Build-Stempel:** `process.env.BUILD_STAMP` wird einmalig in `scripts/prerender.mjs` gesetzt;
   `vite.config.ts` nutzt ihn für `__BUILD_TIME_ISO__` → Client und SSR zeigen denselben „Stand".

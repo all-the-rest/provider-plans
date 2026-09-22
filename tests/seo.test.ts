@@ -167,13 +167,13 @@ describe("seo/prerender", () => {
     }
   });
 
-  it("JSON-LD enthält Product/Offer, ItemList und FAQPage", opts, () => {
+  it("JSON-LD enthält Product/Offer und ItemList (keine FAQPage)", opts, () => {
     const html = read("z-ai/index.html");
     const [graph] = jsonLdBlocks(html) as { "@graph": { "@type": string }[] }[];
     const types = graph["@graph"].map((n) => n["@type"]);
     assert.ok(types.includes("Product"), "Product fehlt");
     assert.ok(types.includes("ItemList"), "ItemList fehlt");
-    assert.ok(types.includes("FAQPage"), "FAQPage fehlt");
+    assert.ok(!types.includes("FAQPage"), "FAQPage sollte entfernt sein");
     const product = graph["@graph"].find((n) => n["@type"] === "Product") as {
       offers: { price: number; priceCurrency: string }[];
     };
