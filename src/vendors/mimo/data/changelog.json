@@ -5,18 +5,8 @@
       "date": "2026-09-22",
       "changes": [
         {
-          "de": "Lite: Monats-Credits – → $4100000000; Standard: Jahrespreis (je Monat) – → $14.08; Standard: Monats-Credits – → $11000000000; Pro: Monats-Credits – → $38000000000; Max: Jahrespreis (je Monat) – → $88; Max: Monats-Credits – → $82000000000",
-          "en": "Lite: Monthly credits – → $4100000000; Standard: Yearly price (per month) – → $14.08; Standard: Monthly credits – → $11000000000; Pro: Monthly credits – → $38000000000; Max: Yearly price (per month) – → $88; Max: Monthly credits – → $82000000000"
-        }
-      ]
-    },
-    {
-      "id": "mimo-2026-09-21",
-      "date": "2026-09-21",
-      "changes": [
-        {
-          "de": "Lite: Monats-Credits $4100000000 → –; Standard: Jahrespreis (je Monat) $14.08 → –; Standard: Monats-Credits $11000000000 → –; Pro: Monats-Credits $38000000000 → –; Max: Jahrespreis (je Monat) $88 → –; Max: Monats-Credits $82000000000 → –",
-          "en": "Lite: Monthly credits $4100000000 → –; Standard: Yearly price (per month) $14.08 → –; Standard: Monthly credits $11000000000 → –; Pro: Monthly credits $38000000000 → –; Max: Yearly price (per month) $88 → –; Max: Monthly credits $82000000000 → –"
+          "de": "Modelle ausgetauscht: mimo-v2.5-pro → mimo-v2.6-pro, mimo-v2.5 → mimo-v2.6-flash (gleiche Credit-Quoten und API-Preise); Pläne, Preise und Credit-Pools unverändert",
+          "en": "Models replaced: mimo-v2.5-pro → mimo-v2.6-pro, mimo-v2.5 → mimo-v2.6-flash (same credit quotas and API prices); plans, prices and credit pools unchanged"
         }
       ]
     }
