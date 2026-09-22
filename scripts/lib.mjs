@@ -623,7 +623,9 @@ export function buildChangelogEntries(prev, next, vendorId) {
     {
       id: `${vendorId}-${date}`,
       date,
-      changes: [{ de: de.join("; "), en: en.join("; ") }],
+      // Ein Change-Objekt je Ereignis (kein Semikolon-Block): UI und
+      // Release-Notes rendern daraus je einen Listeneintrag.
+      changes: de.map((d, i) => ({ de: d, en: en[i] })),
     },
   ];
 }

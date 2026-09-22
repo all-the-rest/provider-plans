@@ -140,20 +140,32 @@ test("changelog: Modelltausch 2.5 → 2.6 ergibt Add/Remove statt Stille", () =>
   const prev = {
     vendorId: "mimo",
     plans: [planRow("lite", 6)],
-    models: [modelRow("mimo-v2.5-pro", "peak"), modelRow("mimo-v2.5-pro", "off-peak")],
+    models: [
+      modelRow("mimo-v2.5-pro", "peak"),
+      modelRow("mimo-v2.5-pro", "off-peak"),
+      modelRow("mimo-v2.5", "peak"),
+      modelRow("mimo-v2.5", "off-peak"),
+    ],
   };
   const next = {
     vendorId: "mimo",
     plans: [planRow("lite", 6)],
-    models: [modelRow("mimo-v2.6-pro", "peak"), modelRow("mimo-v2.6-pro", "off-peak")],
+    models: [
+      modelRow("mimo-v2.6-pro", "peak"),
+      modelRow("mimo-v2.6-pro", "off-peak"),
+      modelRow("mimo-v2.6-flash", "peak"),
+      modelRow("mimo-v2.6-flash", "off-peak"),
+    ],
   };
   const [entry] = buildChangelogEntries(prev, next, "mimo");
   assert.ok(entry, "Eintrag erwartet");
-  assert.equal(entry.changes.length, 1);
-  assert.ok(entry.changes[0].de.includes("mimo-v2.5-pro: Modell entfernt"));
-  assert.ok(entry.changes[0].de.includes("mimo-v2.6-pro: Modell hinzugefügt"));
-  assert.ok(entry.changes[0].en.includes("model removed"));
-  assert.ok(entry.changes[0].en.includes("model added"));
+  assert.equal(entry.changes.length, 4);
+  const deAll = entry.changes.map((c) => c.de);
+  assert.ok(deAll.includes("mimo-v2.6-pro: Modell hinzugefügt"));
+  assert.ok(deAll.includes("mimo-v2.6-flash: Modell hinzugefügt"));
+  assert.ok(deAll.includes("mimo-v2.5-pro: Modell entfernt"));
+  assert.ok(deAll.includes("mimo-v2.5: Modell entfernt"));
+  assert.ok(entry.changes.every((c) => /model (added|removed)/.test(c.en)));
 });
 
 test("changelog: Plan hinzugefügt/entfernt wird erkannt", () => {

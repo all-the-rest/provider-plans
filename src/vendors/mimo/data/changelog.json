@@ -5,8 +5,20 @@
       "date": "2026-09-22",
       "changes": [
         {
-          "de": "mimo-v2.6-pro: Modell hinzugefügt; mimo-v2.6-flash: Modell hinzugefügt; mimo-v2.5-pro: Modell entfernt; mimo-v2.5: Modell entfernt",
-          "en": "mimo-v2.6-pro: model added; mimo-v2.6-flash: model added; mimo-v2.5-pro: model removed; mimo-v2.5: model removed"
+          "de": "mimo-v2.6-pro: Modell hinzugefügt",
+          "en": "mimo-v2.6-pro: model added"
+        },
+        {
+          "de": "mimo-v2.6-flash: Modell hinzugefügt",
+          "en": "mimo-v2.6-flash: model added"
+        },
+        {
+          "de": "mimo-v2.5-pro: Modell entfernt",
+          "en": "mimo-v2.5-pro: model removed"
+        },
+        {
+          "de": "mimo-v2.5: Modell entfernt",
+          "en": "mimo-v2.5: model removed"
         }
       ]
     }
