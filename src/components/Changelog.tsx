@@ -70,8 +70,20 @@ export default function Changelog(props: ChangelogProps) {
                     <For each={[...entry.changes].reverse()}>
                       {(ch) => (
                         <li class="flex items-center gap-2">
-                          <span class="badge badge-sm badge-ghost shrink-0">i</span>
-                          <span>{(ch as any)[props.lang]}</span>
+                          <Show
+                            when={ch.kind === "added"}
+                            fallback={
+                              <Show
+                                when={ch.kind === "removed"}
+                                fallback={<span class="badge badge-sm badge-ghost shrink-0">≈</span>}
+                              >
+                                <span class="badge badge-sm badge-error shrink-0">−</span>
+                              </Show>
+                            }
+                          >
+                            <span class="badge badge-sm badge-success shrink-0">+</span>
+                          </Show>
+                          <span>{ch[props.lang]}</span>
                         </li>
                       )}
                     </For>

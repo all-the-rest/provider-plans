@@ -160,12 +160,16 @@ test("changelog: Modelltausch 2.5 → 2.6 ergibt Add/Remove statt Stille", () =>
   const [entry] = buildChangelogEntries(prev, next, "mimo");
   assert.ok(entry, "Eintrag erwartet");
   assert.equal(entry.changes.length, 4);
-  const deAll = entry.changes.map((c) => c.de);
-  assert.ok(deAll.includes("mimo-v2.6-pro: Modell hinzugefügt"));
-  assert.ok(deAll.includes("mimo-v2.6-flash: Modell hinzugefügt"));
-  assert.ok(deAll.includes("mimo-v2.5-pro: Modell entfernt"));
-  assert.ok(deAll.includes("mimo-v2.5: Modell entfernt"));
-  assert.ok(entry.changes.every((c) => /model (added|removed)/.test(c.en)));
+  const byDe = new Map(entry.changes.map((c) => [c.de, c]));
+  const added = byDe.get("mimo-v2.6-pro: Modell hinzugefügt (Credits/Token 2.5/300/600, API $0.0036/$0.435/$0.87 je 1M Token)");
+  assert.ok(added, "hinzugefügt-Eintrag mit Preisdetails erwartet");
+  assert.equal(added.kind, "added");
+  assert.ok(added.en.includes("model added"));
+  assert.ok(added.en.includes("$0.0036/$0.435/$0.87 per 1M tokens"));
+  const removed = byDe.get("mimo-v2.5-pro: Modell entfernt (Credits/Token 2.5/300/600, API $0.0036/$0.435/$0.87 je 1M Token)");
+  assert.ok(removed, "entfernt-Eintrag mit Preisdetails erwartet");
+  assert.equal(removed.kind, "removed");
+  assert.ok(entry.changes.every((c) => ["added", "removed"].includes(c.kind)));
 });
 
 test("changelog: Plan hinzugefügt/entfernt wird erkannt", () => {

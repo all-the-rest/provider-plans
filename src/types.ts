@@ -187,10 +187,19 @@ export interface VendorModule {
   i18n: Record<Lang, Translation>;
 }
 
+export type ChangelogChangeKind = "added" | "removed" | "changed";
+
+export interface ChangelogChange {
+  de: string;
+  en: string;
+  /** Steuert das ocgo-Badge: added = grün (+), removed = rot (−), changed = neutral (≈). */
+  kind?: ChangelogChangeKind;
+}
+
 export interface ChangelogEntry {
   id: string;
   date: string;
-  changes: { de: string; en: string }[];
+  changes: ChangelogChange[];
 }
 
 export interface ChangelogData {

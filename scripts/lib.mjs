@@ -441,7 +441,13 @@ const vendorDataSchema = z.object({
 const changelogEntrySchema = z.object({
   id: z.string(),
   date: z.string(),
-  changes: z.array(z.object({ de: z.string(), en: z.string() })),
+  changes: z.array(
+    z.object({
+      de: z.string(),
+      en: z.string(),
+      kind: z.enum(["added", "removed", "changed"]).optional(),
+    })
+  ),
 });
 
 export const changelogSchema = z.object({
@@ -549,6 +555,35 @@ function fmtInt(n) {
   return String(Math.round(n));
 }
 
+/** Credits/Token aus Credits/1M (z. B. 2500000 → "2.5", 300000000 → "300"). */
+function fmtQuota(perM) {
+  if (typeof perM !== "number" || !Number.isFinite(perM)) return "–";
+  return String(Number((perM / 1e6).toPrecision(6)));
+}
+
+/**
+ * Preis-Details eines Modells für Add/Remove-Einträge (ocgo-Vorbild:
+ * "hinzugefügt ($0.435 / $0.87 / $0.0036 @ …)").
+ * @returns {{de: string, en: string} | null} null wenn keine Preisdaten
+ */
+function modelPricing(m) {
+  const c = m.creditPerM ?? {};
+  const a = m.apiPrice ?? {};
+  const hasCredit = ["input", "inputMiss", "output"].some(
+    (f) => typeof c[f] === "number" && Number.isFinite(c[f])
+  );
+  const hasApi = ["input", "inputMiss", "output"].some(
+    (f) => typeof a[f] === "number" && Number.isFinite(a[f])
+  );
+  if (!hasCredit && !hasApi) return null;
+  const credits = `${fmtQuota(c.input)}/${fmtQuota(c.inputMiss)}/${fmtQuota(c.output)}`;
+  const api = `${fmtPrice(a.input)}/${fmtPrice(a.inputMiss)}/${fmtPrice(a.output)}`;
+  return {
+    de: `Credits/Token ${credits}, API ${api} je 1M Token`,
+    en: `credits/token ${credits}, API ${api} per 1M tokens`,
+  };
+}
+
 /** Diff zwischen vorherigem und neuem Snapshot → Changelog-Einträge (de/en).
  * Erkannt werden (ocgo-`computeDiff` als Vorbild, reiner Key-Vergleich):
  * - Preis-/Pool-Änderungen bestehender Pläne (`CHANGE_LABELS`)
@@ -559,28 +594,33 @@ function fmtInt(n) {
  */
 export function buildChangelogEntries(prev, next, vendorId) {
   if (!prev || !Array.isArray(prev.plans) || !Array.isArray(prev.models)) return [];
-  const de = [];
-  const en = [];
+  const changes = [];
+  const push = (de, en, kind) => changes.push({ de, en, kind });
   const prevPlans = new Map(prev.plans.map((p) => [p.id, p]));
   const nextPlans = new Map(next.plans.map((p) => [p.id, p]));
   for (const p of next.plans) {
     const o = prevPlans.get(p.id);
     if (!o) {
-      de.push(`${p.name}: Plan hinzugefügt (Monatspreis ${fmtPrice(p.priceMonthly)})`);
-      en.push(`${p.name}: plan added (monthly price ${fmtPrice(p.priceMonthly)})`);
+      push(
+        `${p.name}: Plan hinzugefügt (Monatspreis ${fmtPrice(p.priceMonthly)})`,
+        `${p.name}: plan added (monthly price ${fmtPrice(p.priceMonthly)})`,
+        "added"
+      );
       continue;
     }
     for (const [field, [labelDe, labelEn]] of Object.entries(CHANGE_LABELS)) {
       if (o[field] !== p[field]) {
-        de.push(`${p.name}: ${labelDe} ${fmtPrice(o[field])} → ${fmtPrice(p[field])}`);
-        en.push(`${p.name}: ${labelEn} ${fmtPrice(o[field])} → ${fmtPrice(p[field])}`);
+        push(
+          `${p.name}: ${labelDe} ${fmtPrice(o[field])} → ${fmtPrice(p[field])}`,
+          `${p.name}: ${labelEn} ${fmtPrice(o[field])} → ${fmtPrice(p[field])}`,
+          "changed"
+        );
       }
     }
   }
   for (const o of prev.plans) {
     if (!nextPlans.has(o.id)) {
-      de.push(`${o.name}: Plan entfernt`);
-      en.push(`${o.name}: plan removed`);
+      push(`${o.name}: Plan entfernt`, `${o.name}: plan removed`, "removed");
     }
   }
   const prevModels = new Map(
@@ -594,12 +634,18 @@ export function buildChangelogEntries(prev, next, vendorId) {
     if (!o) continue;
     for (const field of ["input", "cached", "output", "inputMiss"]) {
       if (o.creditPerM?.[field] !== m.creditPerM?.[field]) {
-        de.push(`${m.name}: ${field}-Credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`);
-        en.push(`${m.name}: ${field} credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`);
+        push(
+          `${m.name}: ${field}-Credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`,
+          `${m.name}: ${field} credits ${fmtInt(o.creditPerM?.[field])} → ${fmtInt(m.creditPerM?.[field])}`,
+          "changed"
+        );
       }
       if (o.apiPrice?.[field] !== m.apiPrice?.[field]) {
-        de.push(`${m.name}: ${field}-API-Preis ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`);
-        en.push(`${m.name}: ${field} API price ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`);
+        push(
+          `${m.name}: ${field}-API-Preis ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`,
+          `${m.name}: ${field} API price ${fmtPrice(o.apiPrice?.[field])} → ${fmtPrice(m.apiPrice?.[field])}`,
+          "changed"
+        );
       }
     }
   }
@@ -607,17 +653,25 @@ export function buildChangelogEntries(prev, next, vendorId) {
   const nextIds = new Map(next.models.map((m) => [m.id, m]));
   for (const [id, m] of nextIds) {
     if (!prevIds.has(id)) {
-      de.push(`${m.name}: Modell hinzugefügt`);
-      en.push(`${m.name}: model added`);
+      const pricing = modelPricing(m);
+      push(
+        `${m.name}: Modell hinzugefügt${pricing ? ` (${pricing.de})` : ""}`,
+        `${m.name}: model added${pricing ? ` (${pricing.en})` : ""}`,
+        "added"
+      );
     }
   }
   for (const [id, o] of prevIds) {
     if (!nextIds.has(id)) {
-      de.push(`${o.name}: Modell entfernt`);
-      en.push(`${o.name}: model removed`);
+      const pricing = modelPricing(o);
+      push(
+        `${o.name}: Modell entfernt${pricing ? ` (${pricing.de})` : ""}`,
+        `${o.name}: model removed${pricing ? ` (${pricing.en})` : ""}`,
+        "removed"
+      );
     }
   }
-  if (!de.length) return [];
+  if (!changes.length) return [];
   const date = new Date().toISOString().slice(0, 10);
   return [
     {
@@ -625,7 +679,7 @@ export function buildChangelogEntries(prev, next, vendorId) {
       date,
       // Ein Change-Objekt je Ereignis (kein Semikolon-Block): UI und
       // Release-Notes rendern daraus je einen Listeneintrag.
-      changes: de.map((d, i) => ({ de: d, en: en[i] })),
+      changes,
     },
   ];
 }
