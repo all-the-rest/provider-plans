@@ -8,7 +8,7 @@ Komponenten für alle Vendors, aber **eigene Umrechnungsformeln je Vendor** (Cre
 Off-Peak-Abzüge, Bindungs-Boni).
 
 - Repo: `all-the-rest/provider-plans` · GitHub Pages Custom Domain:
-  **`ai-vendor-price-tracking.all-the-rest`** (CNAME in `public/`, gesetzt).
+  **`ai-vendor-price-tracking.all-the.rest`** (CNAME in `public/`, gesetzt).
 - Referenz-Vorlagen: `~/dev/cc-price-tracker` (Komponenten/Formel-Layer), `~/dev/ocgo-price-tracker`
   (Peak-/Lokalzeit-Logik, Pattern-Parser). Übernahme erfolgt bewusst **manuell** (Muster, kein Copy-Paste-Fork).
 
