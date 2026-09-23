@@ -30,6 +30,11 @@
       "cached": 52000,
       "output": 150
     },
+    "gpt6luna": {
+      "input": 1000,
+      "cached": 50000,
+      "output": 220
+    },
     "gpt5.6luna": {
       "input": 1000,
       "cached": 50000,
