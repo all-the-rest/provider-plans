@@ -428,7 +428,7 @@
       "name": "mistral-large-3",
       "provider": "Mistral",
       "tier": null,
-      "contextWindow": 256000,
+      "contextWindow": 262144,
       "creditPerM": {
         "input": 0.5,
         "output": 1.5
@@ -493,7 +493,7 @@
       "name": "nemotron-3-ultra",
       "provider": "NVIDIA",
       "tier": null,
-      "contextWindow": 262144,
+      "contextWindow": 131072,
       "creditPerM": {
         "input": 0.1,
         "cached": 0.1,
