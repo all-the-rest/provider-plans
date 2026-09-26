@@ -151,7 +151,9 @@ pnpm typecheck        # nur tsc --noEmit
 ## CI/CD (`.github/workflows/provider-plans.yml`)
 
 - Trigger: täglicher Cron + `workflow_dispatch` + `push` auf `main`.
-- Pipeline: install (`--frozen-lockfile`, esbuild-approve via pnpm-workspace.yaml) → `pnpm test` →
+- Pipeline: install (`--frozen-lockfile`, esbuild-approve via pnpm-workspace.yaml) →
+  `pnpm test` (**nur** bei `push`/`pull_request` — `if: github.event_name == 'push' \|\| github.event_name == 'pull_request'`;
+  bei `schedule`/`workflow_dispatch` übersprungen, da der Code unverändert ist) →
   `pnpm scrape` (z.ai-Plan-Preise per Playwright im Prebuilt-Browser-Image) → `pnpm build` →
   `pnpm smoke` (bricht rot ab, bevor kaputte Bundles auf Pages landen) →
   Commit (nur bei Änderung) → Release/RSS → deploy-pages (CNAME).
