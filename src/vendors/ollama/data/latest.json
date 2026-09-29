@@ -49,9 +49,9 @@
         "output": 0.6
       },
       "pattern": {
-        "input": 410,
-        "cached": 71300,
-        "output": 310
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -72,9 +72,9 @@
         "output": 0.66
       },
       "pattern": {
-        "input": 410,
-        "cached": 71300,
-        "output": 310
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -95,9 +95,9 @@
         "output": 0.66
       },
       "pattern": {
-        "input": 410,
-        "cached": 71300,
-        "output": 310
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -118,9 +118,9 @@
         "output": 1.98
       },
       "pattern": {
-        "input": 750,
-        "cached": 82000,
-        "output": 290
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -141,9 +141,9 @@
         "output": 1.98
       },
       "pattern": {
-        "input": 750,
-        "cached": 82000,
-        "output": 290
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -187,9 +187,9 @@
         "output": 4.4
       },
       "pattern": {
-        "input": 700,
-        "cached": 52000,
-        "output": 150
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -210,9 +210,9 @@
         "output": 0.5
       },
       "pattern": {
-        "input": 1000,
-        "cached": 55000,
-        "output": 200
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -233,9 +233,9 @@
         "output": 4.4
       },
       "pattern": {
-        "input": 700,
-        "cached": 52000,
-        "output": 150
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -256,9 +256,9 @@
         "output": 3.2
       },
       "pattern": {
-        "input": 700,
-        "cached": 52000,
-        "output": 150
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -325,9 +325,9 @@
         "output": 15
       },
       "pattern": {
-        "input": 1050,
-        "cached": 76500,
-        "output": 300
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -394,9 +394,9 @@
         "output": 2.4
       },
       "pattern": {
-        "input": 510,
-        "cached": 56000,
-        "output": 190
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -417,9 +417,9 @@
         "output": 1.2
       },
       "pattern": {
-        "input": 300,
-        "cached": 55000,
-        "output": 125
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },

@@ -76,9 +76,9 @@
         "inputMiss": 0.435
       },
       "pattern": {
-        "input": 790,
-        "cached": 86000,
-        "output": 305
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -99,9 +99,9 @@
         "inputMiss": 0.435
       },
       "pattern": {
-        "input": 790,
-        "cached": 86000,
-        "output": 305
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -122,9 +122,9 @@
         "inputMiss": 0.14
       },
       "pattern": {
-        "input": 830,
-        "cached": 71500,
-        "output": 295
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     },
@@ -145,9 +145,9 @@
         "inputMiss": 0.14
       },
       "pattern": {
-        "input": 830,
-        "cached": 71500,
-        "output": 295
+        "input": 850,
+        "cached": 49000,
+        "output": 163
       },
       "note": null
     }
