@@ -84,13 +84,22 @@ pnpm preview           # build testen (Deep-Links wie /z-ai liefern 200)
     "pattern": { "input": 700, "cached": 52000, "output": 150 },     // OpenCode-Doku
     "note": null
   }],
-  "peak": { "windows": [[6,10]], "phaseFactor": { "peak": 1, "off-peak": 0.5 },
-            "weekendOffPeak": true, "tzOffsetMin": 480,
-            "timezoneLabel": "SGT (UTC+8)", "phaseLabel": { "peak": "Peak", "off-peak": "Off-Peak" },
-            "effectiveFromMs": … }
+  "peak": {
+    "timezone": "Asia/Singapore",                               // IANA, Wochentag wird hier bewertet
+    "peak":    { "days": [1,2,3,4,5], "windowsUtc": [[6,10]] }, // ISO 1=Mo…7=So; UTC-Fenster
+    "offPeak": { "days": [6,7], "allDay": true },
+    // "holidays": { … }  // nur wenn eine PERMANENTE Quelle Feiertage nennt (derzeit kein Vendor)
+    "phaseFactor": { "peak": 1, "off-peak": 0.5 },
+    "phaseLabel": { "peak": "Peak", "off-peak": "Off-Peak" },
+    "effectiveFromMs": …
+  }
 }
 ```
 
+- `peak.days`/`offPeak.days` sind disjunkt und ergeben zusammen `{1..7}`; `peak.days` ist nie
+  leer, `offPeak.days` darf leer sein (MiMo gilt täglich). Der Feiertagskalender liegt als
+  Handpflege-Konfiguration in `src/vendors/holidays.json` (derzeit leer `{}` — keine permanente
+  Quelle nennt Feiertage).
 - MiMo nutzt zusätzlich das Feld `inputMiss` (Cache-Miss) in `creditPerM`/`apiPrice`;
   das Pattern-Mapping ist vendor-spezifisch (z. B. MiMo: Pattern-Input → `inputMiss`).
 - `derived`: `creditsPerRequest` = Pattern × Credit-Kosten; `requestsPerMonth` =

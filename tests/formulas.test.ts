@@ -53,7 +53,7 @@ function resolveFormulas(vm) {
   return null;
 }
 
-test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 requests)", async (t) => {
+test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,308; Lite ≈ 4.298/8.595 requests)", async (t) => {
   const mod = await loadVendor("zai");
   if (!mod) return t.skip("src/vendors/zai existiert noch nicht (parallele Agentin)");
   const vm = resolveVendorModule(mod);
@@ -67,11 +67,11 @@ test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 r
   assert.ok(peakModel && peakModel.pattern, "GLM-5.3 peak-Row mit Pattern erwartet");
   assert.ok(lite, "Plan 'lite' erwartet");
 
-  assert.ok(close(formulas.creditsPerRequest(peakModel), 9.683), `creditsPerRequest peak = ${formulas.creditsPerRequest(peakModel)}`);
+  assert.ok(close(formulas.creditsPerRequest(peakModel), 9.3077), `creditsPerRequest peak = ${formulas.creditsPerRequest(peakModel)}`);
   const rpm = formulas.requestsPerMonth(peakModel, lite);
-  assert.ok(close(rpm, 4131, 1), `requestsPerMonth peak = ${rpm}`);
+  assert.ok(close(rpm, 4298, 1), `requestsPerMonth peak = ${rpm}`);
   const rpmOff = formulas.requestsPerMonth(offPeakModel, lite);
-  assert.ok(close(rpmOff, 8262, 1), `requestsPerMonth off-peak = ${rpmOff}`);
+  assert.ok(close(rpmOff, 8595, 1), `requestsPerMonth off-peak = ${rpmOff}`);
 
   // USD über Plan-Parität: Credits/1M × (Monatspreis ÷ Monats-Credits) — z. B.
   // GLM-5.3 Input: 690 × (18/40.000) = 0,3105 (peak, Faktor 1.0).
@@ -87,7 +87,7 @@ test("zai: Formeln für GLM-5.3 (creditsPerRequest 9,683; Lite ≈ 4.131/8.262 r
   assert.ok(costMonthly !== null && costYearly !== null && costYearly < costMonthly, "USD/Anfrage sinkt mit Rabatt");
 });
 
-test("mimo: Formeln für MiMo-V2.6-Pro (creditsPerRequest 635.000; planValue ≈ 0,99)", async (t) => {
+test("mimo: Formeln für MiMo-V2.6-Pro (creditsPerRequest 475.300; planValue ≈ 0,99)", async (t) => {
   const mod = await loadVendor("mimo");
   if (!mod) return t.skip("src/vendors/mimo existiert noch nicht (parallele Agentin)");
   const vm = resolveVendorModule(mod);
@@ -100,9 +100,9 @@ test("mimo: Formeln für MiMo-V2.6-Pro (creditsPerRequest 635.000; planValue ≈
   assert.ok(pro && pro.pattern, "MiMo-V2.6-Pro mit Pattern erwartet");
   assert.ok(lite, "Plan 'lite' erwartet");
 
-  assert.ok(close(formulas.creditsPerRequest(pro), 635000, 1e-3), `creditsPerRequest = ${formulas.creditsPerRequest(pro)}`);
+  assert.ok(close(formulas.creditsPerRequest(pro), 475300, 1e-3), `creditsPerRequest = ${formulas.creditsPerRequest(pro)}`);
   const rpm = formulas.requestsPerMonth(pro, lite);
-  assert.ok(close(rpm, 6457, 1), `requestsPerMonth = ${rpm}`);
+  assert.ok(close(rpm, 8626, 1), `requestsPerMonth = ${rpm}`);
   const pv = formulas.planValue(lite, "monthly");
   assert.ok(close(pv, 0.99, 0.01), `planValue = ${pv}`);
 

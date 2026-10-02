@@ -7,8 +7,6 @@ const mimoDe = {
   colOutput: "Output",
   cycleQuarterly: "Quartal",
   cycleYearly: "Jährlich (−12 %)",
-  peakWeekendNote:
-    "Off-Peak-Rabatt: täglich 00–08 Uhr Peking-Zeit (UTC 16–24) → −20 % Credits.",
 };
 
 const mimoEn = {
@@ -17,8 +15,6 @@ const mimoEn = {
   colOutput: "Output",
   cycleQuarterly: "Quarterly",
   cycleYearly: "Yearly (−12%)",
-  peakWeekendNote:
-    "Off-peak discount: daily 00–08 Beijing time (UTC 16–24) → −20% credits.",
 };
 
 export const i18n: Record<Lang, Translation> = {

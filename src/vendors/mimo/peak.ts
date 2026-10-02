@@ -1,11 +1,10 @@
 import type { PeakConfig } from "../../types";
 
 export const peak: PeakConfig = {
-  windows: [[16, 24]],
+  timezone: "Asia/Shanghai",
+  peak: { days: [1, 2, 3, 4, 5, 6, 7], windowsUtc: [[16, 24]] },
+  offPeak: { days: [], allDay: true },
   phaseFactor: { peak: 1, "off-peak": 0.8 },
-  weekendOffPeak: false,
-  tzOffsetMin: 480,
-  timezoneLabel: "Peking (UTC+8)",
   phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },
   effectiveFromMs: null,
 };

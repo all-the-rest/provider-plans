@@ -36,12 +36,15 @@ test("mimo: parseMimoTokenPlan liefert Monats-Preise", async () => {
   }
 });
 
-test("mimo: parseMimoTokenPlan liefert Off-Peak-Konfiguration", async () => {
+test("mimo: parseMimoTokenPlan liefert Off-Peak-Konfiguration (datengetriebene Form)", async () => {
   const { night } = parseMimoTokenPlan(await readFixture("mimo/token-plan.md"));
-  assert.equal(night.factor, 0.8);
-  assert.deepEqual(night.windows, [[16, 24]]);
-  assert.equal(night.weekend, false);
-  assert.equal(night.tz, 480);
+  assert.equal(night.timezone, "Asia/Shanghai");
+  assert.deepEqual(night.peak.days, [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(night.peak.windowsUtc, [[16, 24]]);
+  assert.deepEqual(night.offPeak.days, []); // täglich — kein Wochenend-Sonderfall
+  assert.equal(night.offPeak.allDay, true);
+  assert.equal(night.holidays, undefined);
+  assert.equal(night.phaseFactor["off-peak"], 0.8);
 });
 
 test("mimo: parseMimoTokenPlan liefert Modell-Credit-Quoten", async () => {

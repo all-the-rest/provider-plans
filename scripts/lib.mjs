@@ -1,5 +1,6 @@
 // scripts/lib.mjs — gemeinsame Helfer für alle Scraper (fetch, Parser, zod, Snapshot-I/O).
 // ESM (".mjs"), nur Node ≥ 22. Importiert kein src/ — reine Grundbausteine.
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -420,15 +421,142 @@ const modelSchema = z.object({
   note: z.string().nullable(),
 });
 
-const peakSchema = z.object({
-  windows: z.array(z.tuple([z.number(), z.number()])),
-  phaseFactor: z.object({ peak: z.number(), "off-peak": z.number() }),
-  weekendOffPeak: z.boolean(),
-  tzOffsetMin: z.number(),
-  timezoneLabel: z.string(),
-  phaseLabel: z.object({ peak: z.string(), "off-peak": z.string() }),
-  effectiveFromMs: z.number().nullable(),
+// ---- Peak-Regeln (datengetrieben, eine Form für die ganze Tracker-Familie) ------
+//
+// `holidayCalendars` ist in diesem Repo eine Handpflege-Konfiguration
+// (`src/vendors/holidays.json`) — kein Generator wie in den Scraper-Repos, wo
+// `chinese-days` den Kalender erzeugt. Die `peak`-Blöcke der Vendors referenzieren
+// nur den Schlüssel; die Daten liegen an einer Stelle.
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+const holidayCalendarSchema = z.object({
+  dates: z.array(z.string().regex(ISO_DATE_RE, "kein ISO-Datum (YYYY-MM-DD)")),
+  coveredThrough: z.string().regex(ISO_DATE_RE, "kein ISO-Datum (YYYY-MM-DD)"),
 });
+
+export const holidayCalendarsSchema = z.record(z.string(), holidayCalendarSchema);
+
+export const HOLIDAY_CALENDARS = (() => {
+  try {
+    return JSON.parse(readFileSync(resolve(repoRoot, "src", "vendors", "holidays.json"), "utf8"));
+  } catch {
+    return {};
+  }
+})();
+
+const VALID_TIMEZONES = new Set(Intl.supportedValuesOf("timeZone"));
+
+/** Gültiger IANA-Zeitzonenname (`UTC` ist nicht immer in `supportedValuesOf`). */
+function isValidTimeZone(tz) {
+  return tz === "UTC" || VALID_TIMEZONES.has(tz);
+}
+
+let holidayCalendarsChecked = false;
+
+/** Kalender-Konfiguration prüfen: ISO-Daten, streng aufsteigend, ≤ coveredThrough. */
+function assertHolidayCalendars() {
+  if (holidayCalendarsChecked) return;
+  holidayCalendarsSchema.parse(HOLIDAY_CALENDARS);
+  for (const [key, cal] of Object.entries(HOLIDAY_CALENDARS)) {
+    for (let i = 0; i < cal.dates.length; i++) {
+      if (i > 0 && cal.dates[i] <= cal.dates[i - 1]) {
+        throw new Error(`holidayCalendars[${key}].dates nicht streng aufsteigend bei ${cal.dates[i]}`);
+      }
+      if (cal.dates[i] > cal.coveredThrough) {
+        throw new Error(`holidayCalendars[${key}].dates[${i}] ${cal.dates[i]} > coveredThrough ${cal.coveredThrough}`);
+      }
+    }
+  }
+  holidayCalendarsChecked = true;
+}
+
+/**
+ * zod-Invarianten der Peak-Regel. Bewusst zusätzlich zu `peakSchema`, weil die
+ * Regeln querfeldein (Tage/Fenster/Zone/Kalender) geprüft werden.
+ *
+ * Abweichung zur Spezifikation §1.2: `offPeak.days` darf leer sein (MiMo gilt
+ * täglich — die Off-Peak-Zeit steckt dort im UTC-Fenster, nicht in Wochentagen).
+ * `peak.days` bleibt nicht leer, und die Partition {1..7} wird weiter erzwungen.
+ */
+export function assertPeakInvariants(peak, vendorId = "?") {
+  const fail = (msg) => {
+    throw new Error(`validateVendorData: Peak-Regel (${vendorId}): ${msg}`);
+  };
+  const p = peak.peak;
+  const o = peak.offPeak;
+  if (p.days.length === 0) fail("peak.days ist leer");
+  if (new Set(p.days).size !== p.days.length) fail("peak.days enthält Duplikate");
+  if (new Set(o.days).size !== o.days.length) fail("offPeak.days enthält Duplikate");
+  const pSet = new Set(p.days);
+  const oSet = new Set(o.days);
+  for (const d of pSet) if (oSet.has(d)) fail(`peak.days ∩ offPeak.days ≠ ∅ (${d})`);
+  for (const d of [...pSet, ...oSet]) {
+    if (!Number.isInteger(d) || d < 1 || d > 7) fail(`Wochentag ${d} außerhalb 1..7`);
+  }
+  if (new Set([...pSet, ...oSet]).size !== 7) fail("peak.days ∪ offPeak.days ≠ {1..7}");
+
+  if (p.windowsUtc.length === 0) fail("kein UTC-Fenster");
+  for (const [s, e] of p.windowsUtc) {
+    if (!Number.isInteger(s) || !Number.isInteger(e) || !(s >= 0 && s < e && e <= 24)) {
+      fail(`Fenster [${s}, ${e}] verletzt 0 ≤ start < end ≤ 24`);
+    }
+  }
+  const sorted = [...p.windowsUtc].sort((a, b) => a[0] - b[0]);
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i][0] < sorted[i - 1][1]) fail(`Fenster [${sorted[i - 1]}] und [${sorted[i]}] überlappen`);
+  }
+
+  if (!isValidTimeZone(peak.timezone)) fail(`ungültige IANA-Zeitzone "${peak.timezone}"`);
+  if (peak.holidays) {
+    if (peak.holidays.policy !== "off-peak") fail(`unbekannte holidays.policy "${peak.holidays.policy}"`);
+    if (!(peak.holidays.calendar in HOLIDAY_CALENDARS)) {
+      fail(`holidays.calendar "${peak.holidays.calendar}" fehlt in holidayCalendars`);
+    }
+  }
+}
+
+/**
+ * Peak-Block aus den Vendor-Angaben bauen — eine Form für alle Vendors
+ * (`offPeak.allDay` ist immer `true`; `holidays` nur, wenn die Quelle Feiertage nennt).
+ */
+export function buildPeakConfig({
+  timezone,
+  days,
+  windowsUtc,
+  offPeakDays,
+  offPeakFactor,
+  holidays = null,
+  effectiveFromMs = null,
+}) {
+  return {
+    timezone,
+    peak: { days, windowsUtc },
+    offPeak: { days: offPeakDays, allDay: true },
+    ...(holidays ? { holidays } : {}),
+    phaseFactor: { peak: 1, "off-peak": offPeakFactor },
+    phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },
+    effectiveFromMs,
+  };
+}
+
+const peakDayList = z.array(z.number().int().min(1).max(7));
+
+// `.strict()`: entfernte Altfelder (`windows`, `weekendOffPeak`, `tzOffsetMin`,
+// `timezoneLabel`) sollen den Lauf rot machen, statt still mitgeschleppt zu werden.
+const peakSchema = z
+  .object({
+    timezone: z.string(),
+    peak: z.object({
+      days: peakDayList,
+      windowsUtc: z.array(z.tuple([z.number().int().min(0).max(24), z.number().int().min(0).max(24)])),
+    }),
+    offPeak: z.object({ days: peakDayList, allDay: z.literal(true) }),
+    holidays: z.object({ policy: z.literal("off-peak"), calendar: z.string() }).optional(),
+    phaseFactor: z.object({ peak: z.number(), "off-peak": z.number() }),
+    phaseLabel: z.object({ peak: z.string(), "off-peak": z.string() }),
+    effectiveFromMs: z.number().nullable(),
+  })
+  .strict();
 
 const vendorDataSchema = z.object({
   vendorId: z.enum(["zai", "mimo", "ollama"]),
@@ -460,6 +588,8 @@ export function validateVendorData(obj, vendorId) {
   if (data.vendorId !== vendorId) {
     throw new Error(`validateVendorData: vendorId "${data.vendorId}" !== erwartet "${vendorId}"`);
   }
+  assertHolidayCalendars();
+  assertPeakInvariants(data.peak, vendorId);
   if (!Array.isArray(data.plans) || data.plans.length === 0) {
     throw new Error(`validateVendorData: keine Pläne für "${vendorId}"`);
   }

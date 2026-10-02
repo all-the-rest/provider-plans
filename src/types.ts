@@ -59,22 +59,49 @@ export interface Model {
   note: string | null;
 }
 
+/** Feiertagsregel einer Peak-Konfiguration: an Feiertagen ganztägig Off-Peak. */
+export interface PeakHolidayRule {
+  policy: "off-peak";
+  /** Schlüssel in `HolidayCalendars`. */
+  calendar: string;
+}
+
+/**
+ * Datengetriebene Peak-Regel eines Vendors (eine Form für die ganze Tracker-Familie,
+ * vgl. `ocgo-price-tracker`/`cc-price-tracker`). Der Wochentag wird in `timezone`
+ * bewertet, die Zeitfenster in UTC — kein `weekendOffPeak`-Boolean und kein
+ * Offset/Label mehr (eine Quelle der Wahrheit).
+ */
 export interface PeakConfig {
-  /** UTC-Stunden-Fenster [start, end) — z.B. [[6,10]] für SGT Mo–Fr 14–18. */
-  windows: [number, number][];
+  /** IANA-Zeitzone, in der der Wochentag bewertet wird (z. B. „Asia/Singapore"). */
+  timezone: string;
+  /** Wochentage + UTC-Stunden-Fenster, in denen Peak gilt. */
+  peak: {
+    days: number[];
+    /** UTC-Stunden-Fenster [start, end), z. B. [[6,10]] für SGT Mo–Fr 14–18. */
+    windowsUtc: [number, number][];
+  };
+  /** Wochentage, an denen ganztägig Off-Peak gilt (`allDay` ist immer `true`). */
+  offPeak: { days: number[]; allDay: true };
+  /** Nur gesetzt, wenn die Quelle Feiertage nennt. */
+  holidays?: PeakHolidayRule;
   /** Credit-Faktor je Phase: `peak` = 1.0 (Basis), `off-peak` = z. B. 0.5 / 0.8. */
   phaseFactor: Record<Phase, number>;
-  /** Wochenenden (Vendor-Zeitzone) durchgehend off-peak? z.ai: ja, MiMo: nein. */
-  weekendOffPeak: boolean;
-  /** Zeitzonen-Offset der Vendor-Zeit in Minuten (z. B. +480 = UTC+8). */
-  tzOffsetMin: number;
-  /** Anzeige-Label der Zeitzone (z. B. „SGT (UTC+8)"). */
-  timezoneLabel: string;
   /** Anzeige-Namen je Phase („Peak" / „Off-Peak", einheitlich für alle Vendors). */
   phaseLabel: Record<Phase, string>;
-  /** Ab diesem Zeitpunkt gelten die Regeln (ms); davor alles wie peak. */
+  /** Ab diesem Zeitpunkt gelten die Regeln (ms); davor kein Peak (Vorlaufzeit). */
   effectiveFromMs: number | null;
 }
+
+/** Feiertagskalender: lokale Kalendertage + letzter abgedeckter Tag (ISO-Datum). */
+export interface HolidayCalendar {
+  /** Aufsteigend sortierte ISO-Datumsstrings (lokale Kalendertage der Regel-Zone). */
+  dates: string[];
+  /** Letzter Kalendertag, den die Feiertagsquelle abdeckt (ISO-Datum). */
+  coveredThrough: string;
+}
+
+export type HolidayCalendars = Record<string, HolidayCalendar>;
 
 export interface VendorPriceData {
   vendorId: VendorId;
@@ -120,7 +147,6 @@ export type Translation = Record<string, string> & {
   perMonth: string;
   contextTokens: string;
   peakTooltip: string;
-  peakWeekendNote: string;
   patternsSource: string;
   costTooltip: string;
   requestsTooltip: string;

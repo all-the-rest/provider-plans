@@ -5,6 +5,7 @@ import { chromium } from "@playwright/test";
 import * as cheerio from "cheerio";
 import {
   assertPatternConsistency,
+  buildPeakConfig,
   enrichModelMeta,
   extractTableRows,
   fetchText,
@@ -75,6 +76,13 @@ export function parseZaiOverview(md) {
   return { allowance, multipliers, peak: parsePeakConfig(md) };
 }
 
+/**
+ * Peak-Regel aus dem Quelltext: Wochentags-Scope („Monday to Friday") + UTC-Fenster
+ * (14:00–18:00 SGT → UTC 06–10). Der Wochenend-Sonderfall ergibt sich aus der Partition
+ * (`peak.days` = Mo–Fr, `offPeak.days` = Sa/So). **Kein** `holidays`: die permanente
+ * Peak-Regel nennt keine Feiertage (nur der temporäre Kampagnen-Hinweis erwähnt sie —
+ * daraus wird nichts abgeleitet, quellenbindend wie in `ocgo`/`cc`).
+ */
 function parsePeakConfig(md) {
   // Faktor: „… charged at 50% of the standard credit rate …"
   let factor = 1;
@@ -88,23 +96,26 @@ function parsePeakConfig(md) {
   }
 
   // Fenster: „Peak hours: Monday to Friday, 14:00–18:00 Singapore Standard Time (UTC+8)" → UTC 06–10
-  let windows = [[6, 10]];
+  let windowsUtc = [[6, 10]];
   const peakMatch = md.match(
     /Peak hours[\s\S]{0,40}?Monday to Friday,\s*(\d{1,2}):(\d{2})\s*[–—-]\s*(\d{1,2}):(\d{2})/i
   );
   if (peakMatch) {
     const startUtc = (Number(peakMatch[1]) - PEAK_OFFSET_MIN / 60 + 24) % 24;
     const endUtc = (Number(peakMatch[3]) - PEAK_OFFSET_MIN / 60 + 24) % 24;
-    windows = [[startUtc, endUtc]];
+    windowsUtc = [[startUtc, endUtc]];
   }
 
-  return {
-    windows,
-    factor,
-    weekend: true, // z.ai: Wochenenden durchgehend off-peak
-    tz: PEAK_OFFSET_MIN,
-    effectiveFrom: OFF_PEAK_EFFECTIVE,
-  };
+  const weekdayOnly = /Monday to Friday/i.test(md);
+
+  return buildPeakConfig({
+    timezone: "Asia/Singapore",
+    days: weekdayOnly ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6, 7],
+    windowsUtc,
+    offPeakDays: weekdayOnly ? [6, 7] : [],
+    offPeakFactor: factor,
+    effectiveFromMs: OFF_PEAK_EFFECTIVE,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -457,21 +468,12 @@ export async function scrapeZai(opts = {}) {
     "glm-5.3-flash": { provider: "Z.ai", contextWindow: 1000000 },
   });
 
-  const peak = overview.peak;
   const data = {
     vendorId: "zai",
     sourceUrls: [ZAI_OVERVIEW_URL, ZAI_PRICING_URL, ZAI_SUBSCRIBE_URL],
     plans,
     models: modelRows,
-    peak: {
-      windows: peak.windows,
-      phaseFactor: { peak: 1, "off-peak": peak.factor },
-      weekendOffPeak: peak.weekend,
-      tzOffsetMin: peak.tz,
-      timezoneLabel: "SGT (UTC+8)",
-      phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },
-      effectiveFromMs: peak.effectiveFrom,
-    },
+    peak: overview.peak,
   };
 
   const validated = validateVendorData(data, "zai");

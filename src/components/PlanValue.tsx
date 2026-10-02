@@ -1,5 +1,6 @@
 import { createMemo } from "solid-js";
 import type { Cycle, Lang, Plan, Translation, VendorModule } from "../types";
+import { peakScopeNote } from "../peakScope";
 import { flagshipModel } from "../vendors/shared";
 import { fmt, fmtBig, fmtInt } from "../util";
 import { SECTION_ANCHORS } from "../routes";
@@ -94,7 +95,7 @@ export default function PlanValue(props: PlanValueProps) {
           : `“${props.plan.name}” costs ${fmt(price())}/month and includes ${fmtBig(pool())} credits — with ${modelName()} that is about ${fmtInt(req(), props.lang)} requests/month at peak, or about ${fmtInt(reqOffPeak(), props.lang)} off-peak. ${verdict()}`}
       </p>
 
-      <p class="mt-2 max-w-3xl text-xs text-base-content/60">{props.t.peakWeekendNote}</p>
+      <p class="mt-2 max-w-3xl text-xs text-base-content/60">{peakScopeNote(props.module.peak, props.lang)}</p>
     </section>
   );
 }

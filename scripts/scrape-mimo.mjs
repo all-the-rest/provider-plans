@@ -2,6 +2,7 @@
 // Off-Peak-Rabatt aus dem Token-Plan-Doc, Overseas-API-Preise aus pay-as-you-go.
 import {
   assertPatternConsistency,
+  buildPeakConfig,
   enrichModelMeta,
   extractTableRows,
   fetchText,
@@ -19,7 +20,6 @@ export const MIMO_TOKEN_PLAN_URL = "https://mimo.mi.com/docs/en-US/price/token-p
 export const MIMO_API_PRICING_URL = "https://mimo.mi.com/docs/en-US/price/pay-as-you-go";
 
 const PLAN_SET = ["Lite", "Standard", "Pro", "Max"];
-const BEIJING_OFFSET_MIN = 480; // Beijing = UTC+8
 
 /** Einzelnes MiMo-Modell: "mimo-v2.6-pro", "mimo-v2.5", "mimo-v2.6-pro-ultraspeed". */
 const MIMO_MODEL_RE = /mimo-v\d+(?:\.\d+)?(?:-[a-z]+)*/i;
@@ -177,12 +177,20 @@ function parseNightConfig(md) {
     : 0.8;
 
   // „UTC 16:00-24:00" aus dem Off-Peak-Satz
-  let windows = [[16, 24]];
+  let windowsUtc = [[16, 24]];
   const utcMatch = md.match(/UTC\s*(\d{1,2}):(\d{2})\s*[-–—]\s*(\d{1,2}):(\d{2})/i);
   if (utcMatch) {
-    windows = [[Number(utcMatch[1]), Number(utcMatch[3])]];
+    windowsUtc = [[Number(utcMatch[1]), Number(utcMatch[3])]];
   }
-  return { factor, windows, weekend: false, tz: BEIJING_OFFSET_MIN };
+  // MiMo gilt täglich (kein Wochenend-Sonderfall); die Quelle nennt keine Feiertage.
+  return buildPeakConfig({
+    timezone: "Asia/Shanghai",
+    days: [1, 2, 3, 4, 5, 6, 7],
+    windowsUtc,
+    offPeakDays: [],
+    offPeakFactor: factor,
+    effectiveFromMs: null,
+  });
 }
 
 /** Modell-Credit-Quoten aus dem „Language Model"-Abschnitt. */
@@ -321,24 +329,12 @@ export async function scrapeMimo(opts = {}) {
     "mimo-v2.6-flash": { provider: "Xiaomi", contextWindow: 1048576 },
   });
 
-  const night = parsed.night;
   const data = {
     vendorId: "mimo",
     sourceUrls: [MIMO_TOKEN_PLAN_URL, MIMO_API_PRICING_URL],
     plans,
     models,
-    peak: {
-      windows: night.windows,
-      phaseFactor: { peak: 1, "off-peak": night.factor },
-      weekendOffPeak: night.weekend,
-      tzOffsetMin: night.tz,
-      timezoneLabel: "Peking (UTC+8)",
-      phaseLabel: {
-        peak: "Peak",
-        "off-peak": "Off-Peak",
-      },
-      effectiveFromMs: null,
-    },
+    peak: parsed.night,
   };
 
   const validated = validateVendorData(data, "mimo");

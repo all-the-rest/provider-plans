@@ -74,13 +74,78 @@ pnpm typecheck        # nur tsc --noEmit
 ## Formel-Zusammenfassung (je Vendor in `formulas.ts`)
 
 - **z.ai:** `credits/Tok = multiplier / 10.000` (GLM-5.3: 6,9/1,7/24; Flash: 2,3/0,56/8) →
-  `creditPerM` = ×1M. Off-Peak (Mo–Fr 14–18 SGT + ganze Wochenenden) = **50 % Credits**.
+  `creditPerM` = ×1M. Off-Peak (Mo–Fr 14–18 SGT + ganze Wochenenden + Feiertage) = **50 % Credits**.
   Wochen-Credits × 4 = Monats-Pool.
 - **MiMo:** Credits direkte pro Tok (v2.6-pro: hit 2,5 / miss 300 / out 600; v2.6-flash: 2/100/200) →
   `creditPerM` = ×1M. Nacht (Peking 00–08 = UTC 16–24) = **0,8×**. Monats-Credits direkt.
 - **Requests/Monat = Monats-Credit-Pool ÷ (Kreditkosten pro Anfrage × Phase-Faktor)**.
 - **Basis:** `list` = API-Listenpreis (USD/1M), `full` = Credit-Preis auf Listenpreis-Parität,
   `paid` = Credit-Preis auf tatsächlichem Monatspreis (inkl. Bindungs-Rabatt des Zyklus).
+
+## Peak-Regeln (datengetrieben, eine Form für die Tracker-Familie)
+
+`PeakConfig` (`src/types.ts`) ist die **eine** Form für Peak-Regeln — identisch zu
+`ocgo-price-tracker`/`cc-price-tracker`. Die früheren Felder `windows`,
+`weekendOffPeak: boolean`, `tzOffsetMin` und `timezoneLabel` sind **entfernt** (nicht
+parallel weitergeführt): der Wochentags-Scope war als Boolean/Prosa doppelt gepflegt
+und die Zeitzone als Offset statt als IANA-Zone.
+
+```ts
+interface PeakConfig {
+  timezone: string;                 // IANA, Zone in der der Wochentag bewertet wird
+  peak: { days: number[]; windowsUtc: [number, number][] };  // ISO 1=Mo…7=So
+  offPeak: { days: number[]; allDay: true };                  // ganztägig Off-Peak
+  holidays?: { policy: "off-peak"; calendar: string };        // nur wenn Quelle Feiertage nennt
+  phaseFactor: Record<Phase, number>;   // peak = 1.0, off-peak = 0.5 / 0.8
+  phaseLabel: Record<Phase, string>;
+  effectiveFromMs: number | null;       // davor kein Peak (Vorlaufzeit)
+}
+```
+
+- **`days`-Konvention (repo-übergreifend gültig, auch für `ocgo`/`cc`):** ISO-Wochentage
+  1=Montag … 7=Sonntag. `peak.days` und `offPeak.days` sind disjunkt und ergeben zusammen
+  `{1..7}`. **`peak.days` ist nie leer; `offPeak.days` darf leer sein** (nötig für Anbieter
+  mit täglichem Fenster wie MiMo — die Off-Peak-Zeit steckt dort im UTC-Fenster, nicht in
+  Wochentagen). Diese Fassung präzisiert Spezifikation §1.2 („beide nicht leer"), die §6
+  für `mimo` (`offPeak.days: []`) sonst widerspricht; Invariante bleibt die Partition `{1..7}`.
+- **Vendor-Werte:** `zai` = `Asia/Singapore`, Peak Mo–Fr `windowsUtc [[6,10]]` (14–18 SGT),
+  `offPeak.days [6,7]`. `mimo` = `Asia/Shanghai`, Peak täglich `windowsUtc [[16,24]]`
+  (Peking 00–08), `offPeak.days []`. `ollama` = `UTC`, Peak Mo–Fr `windowsUtc [[12,18]]`,
+  `offPeak.days [6,7]` (DeepSeek-Zeilen tragen Ollamas Fenster). **Kein** Vendor setzt
+  derzeit `holidays` — siehe unten.
+- **Pflege:** `src/vendors/<id>/peak.ts` ist **handgepflegt** (kein Generator, wie schon
+  vor dem Umbau) und der Laufzeit-Wert des Clients. Die Scraper erzeugen denselben Block
+  im `peak`-Feld von `src/vendors/<id>/data/latest.json` über `buildPeakConfig` (`scripts/lib.mjs`);
+  beide werden vom zod-Check (`validateVendorData` → `assertPeakInvariants`) geprüft und
+  müssen synchron bleiben.
+- **Feiertagskalender (`holidays`, optional, derzeit ungenutzt):** `src/vendors/holidays.json`
+  ist eine **Handpflege-Konfiguration** in diesem Repo (bewusst **kein** `chinese-days`/Generator
+  — das ist Aufgabe der Scraper-Repos) und **aktuell leer `{}`**. Regel: `holidays` wird nur
+  gesetzt, wenn eine **permanente** Vendor-Quelle eine Feiertags-Off-Peak-Regel nennt.
+  **Für `zai` ist das nicht der Fall** und deshalb bewusst entfernt:
+  - `tests/fixtures/zai/overview.md:28` „During off-peak hours, model usage is charged at
+    50% of the standard credit rate.", `:30` „**Peak hours**: Monday to Friday, 14:00–18:00
+    Singapore Standard Time (UTC+8)." — **keine** Feiertage, kein Wochenend-Satz.
+  - Live identisch: `https://docs.z.ai/devpack/overview.md` (Peak Mo–Fr 14–18 SGT);
+    `…/faq.md` und `…/usage-policy.md` enthalten kein „holiday".
+  - Einziger Treffer `https://docs.z.ai/devpack/notice/event-glm-5.3-flash.md`: „All times
+    are based on Singapore Time, and the campaign time window applies on weekends and public
+    holidays as well." — das ist ein **temporäres** Aktionsfenster (GLM-5.3-Flash,
+    03.09.–07.10.2026, 23:00–09:00 SGT, Zero-Quota/doppeltes Kontingent), **nicht** die
+    permanente Peak-Regel. Daraus wird nichts abgeleitet (quellenbindend wie `ocgo`/`cc`).
+  Sobald eine Quelle Feiertage nennt: Kalender `{ dates, coveredThrough }` in
+  `src/vendors/holidays.json` ergänzen und in `PeakConfig.holidays` referenzieren.
+  Validierung bleibt aktiv: `assertHolidayCalendars` (ISO, streng aufsteigend,
+  ≤ `coveredThrough`) + Referenz-Check in `assertPeakInvariants`.
+- **Auswertung:** `src/peakLogic.ts` (JSX-frei, für Tests/SSR) ist die reine Regel
+  (§2 der Spezifikation): Feiertag → Off-Peak; sonst `peak.days` + UTC-Fenster → Peak;
+  sonst Off-Peak. Das Feiertags-/Wochentagsdatum wird **immer in `timezone`** gebildet
+  (`localIsoDate`), nie in der Browser-Zone. `src/peak.tsx` ist nur die UI (`PeakIndicator`,
+  `usePeakClock`). Die Wochentags-Prosa wird aus `days` generiert (`src/peakScope.ts`),
+  nicht mehr per `peakWeekendNote` in den Vendor-`i18n.ts` gepflegt.
+- **Changelog:** Änderungen an Peak-Regeln/Kalendern erzeugen **kein** Changelog-Event
+  (`buildChangelogEntries` vergleicht `peak` nicht) — bewusst still, offen notiert in
+  `AGENTS.todo.md`.
 
 ## UI-Regeln (daisyUI 5 / Tailwind 4)
 
@@ -163,8 +228,10 @@ pnpm typecheck        # nur tsc --noEmit
 ## Tests
 
 - `tests/zai.test.ts` / `tests/mimo.test.ts` / `tests/patterns.test.ts` — Parser gegen Fixtures.
-- `tests/formulas.test.ts` — Formel-Mathe gegen Vendor-Module (z. B. GLM-5.3 credits/request 9,683,
-  Lite peak ≈ 4.131 Requests/Monat; MiMo-v2.6-pro credits/request 635.000, planValue ≈ 0,99).
+- `tests/formulas.test.ts` — Formel-Mathe gegen Vendor-Module (z. B. GLM-5.3 credits/request 9,308,
+  Lite peak ≈ 4.298 Requests/Monat; MiMo-v2.6-pro credits/request 475.300, planValue ≈ 0,99).
+- `tests/peak.test.ts` — datengetriebene Peak-Auswertung (`isPeakActive`/`nextTransition` je Vendor,
+  Feiertag, `effectiveFrom`, Zonenrand), zod-Invarianten als Negativtests, Feiertagskalender.
 - Fixtures sind fixiert — Tests müssen deterministisch laufen.
 
 ## Schwester-Projekte (Git-Remotes)

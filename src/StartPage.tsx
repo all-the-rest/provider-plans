@@ -19,7 +19,7 @@ interface StartPageProps {
 
 export default function StartPage(props: StartPageProps) {
   const { path } = useRouter();
-  const t = () => ({ ...shell[props.lang], peakWeekendNote: "" }) as Translation;
+  const t = () => shell[props.lang] as Translation;
 
   // Fallback nur, wenn keine synchronen Module übergeben wurden (z. B. Sonderfälle).
   const [loaded] = createResource(async () =>

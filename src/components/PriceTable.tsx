@@ -263,7 +263,7 @@ export default function PriceTable(props: PriceTableProps) {
           <tbody>
             <For each={sortedModels()}>
               {(model) => {
-                const inactive = model.tier !== null && !isTierActive(model.tier, now(), module.peak.windows, module.peak);
+                const inactive = model.tier !== null && !isTierActive(model.tier, now(), module.peak);
                 const hasPattern = model.pattern !== null;
                 return (
                   <tr class="align-top" classList={{ "opacity-50": inactive }}>
@@ -296,13 +296,7 @@ export default function PriceTable(props: PriceTableProps) {
                       )}
                       {model.tier !== null && (
                         <div class="mt-1">
-                          <PeakIndicator
-                            tier={model.tier}
-                            ranges={module.peak.windows}
-                            config={module.peak}
-                            now={now()}
-                            t={props.t}
-                          />
+                          <PeakIndicator tier={model.tier} config={module.peak} now={now()} t={props.t} />
                         </div>
                       )}
                     </td>

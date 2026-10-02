@@ -1,4 +1,5 @@
 import type { Cycle, Lang, Phase, Plan, VendorModule } from "../types";
+import { describeWeekdays } from "../peakScope";
 import { fmt } from "../util";
 import { BUILD_TIME_ISO } from "../buildInfo";
 
@@ -65,17 +66,14 @@ export function buildSocialCardInput(
 
   let peakNote = "";
   const p = module.peak;
-  if (p.windows.length > 0) {
+  if (p.peak.windowsUtc.length > 0) {
     const pad = (n: number) => String(n).padStart(2, "0");
-    const win = p.windows.map(([s, e]) => `${pad(s)}–${pad(e)}`).join(", ");
+    const win = p.peak.windowsUtc.map(([s, e]) => `${pad(s)}–${pad(e)}`).join(", ");
     const offLabel = p.phaseLabel["off-peak"];
     const pct = offLabel.includes("%") ? "" : ` ${Math.round((p.phaseFactor["off-peak"] ?? 0) * 100)}%`;
     peakNote = `${p.phaseLabel.peak} ${win} UTC · ${offLabel}${pct}`;
-    if (p.weekendOffPeak) {
-      peakNote += lang === "de" ? ` · Sa/So ${offLabel}` : ` · Sat/Sun ${offLabel}`;
-    } else {
-      peakNote += lang === "de" ? ` · täglich` : ` · daily`;
-    }
+    const offDays = describeWeekdays(p.offPeak.days, lang);
+    peakNote += offDays ? ` · ${offDays}` : lang === "de" ? " · täglich" : " · daily";
   }
 
   return {

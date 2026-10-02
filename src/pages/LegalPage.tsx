@@ -54,7 +54,7 @@ export function buildLegal(t: Translation): LegalContent {
 
 export default function LegalPage(props: LegalPageProps) {
   const { path } = useRouter();
-  const t = () => ({ ...shell[props.lang], peakWeekendNote: "" }) as Translation;
+  const t = () => shell[props.lang] as Translation;
   const content = createMemo(() => buildLegal(t()));
 
   return (

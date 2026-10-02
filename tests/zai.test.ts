@@ -32,13 +32,16 @@ test("zai: parseZaiOverview liefert Credit-Multiplier", async () => {
   assert.deepEqual(parsed.multipliers["glm-5.3-flash"], { input: 2.3, cached: 0.56, output: 8 });
 });
 
-test("zai: parseZaiOverview liefert Peak-Konfiguration", async () => {
+test("zai: parseZaiOverview liefert Peak-Konfiguration (datengetriebene Form)", async () => {
   const parsed = parseZaiOverview(await overview());
-  assert.deepEqual(parsed.peak.windows, [[6, 10]]);
-  assert.equal(parsed.peak.factor, 0.5);
-  assert.equal(parsed.peak.weekend, true);
-  assert.equal(parsed.peak.tz, 480);
-  assert.equal(parsed.peak.effectiveFrom, Date.parse("2026-07-30T00:00:00+08:00"));
+  assert.equal(parsed.peak.timezone, "Asia/Singapore");
+  assert.deepEqual(parsed.peak.peak.days, [1, 2, 3, 4, 5]);
+  assert.deepEqual(parsed.peak.peak.windowsUtc, [[6, 10]]);
+  assert.deepEqual(parsed.peak.offPeak.days, [6, 7]);
+  assert.equal(parsed.peak.offPeak.allDay, true);
+  assert.equal(parsed.peak.holidays, undefined); // Quelle nennt keine Feiertage
+  assert.equal(parsed.peak.phaseFactor["off-peak"], 0.5);
+  assert.equal(parsed.peak.effectiveFromMs, Date.parse("2026-07-30T00:00:00+08:00"));
 });
 
 test("zai: parseZaiPricing liefert API-Preise (USD/1M)", async () => {

@@ -1,6 +1,6 @@
 // scripts/scrape-ollama.mjs — Ollama Cloud (ollama.com/pricing): Pro/Max Pläne + Modell-API-Preise.
 import * as cheerio from "cheerio";
-import { assertPatternConsistency, enrichModelMeta, extractTableRows, fetchText, loadModelsDev, normalizeName, parsePrice, readFixture, readJsonSafe, validateVendorData, writeSnapshot } from "./lib.mjs";
+import { assertPatternConsistency, buildPeakConfig, enrichModelMeta, extractTableRows, fetchText, loadModelsDev, normalizeName, parsePrice, readFixture, readJsonSafe, validateVendorData, writeSnapshot } from "./lib.mjs";
 
 export const OLLAMA_PRICING_URL = "https://ollama.com/pricing";
 
@@ -12,7 +12,7 @@ export const OLLAMA_PRICING_URL = "https://ollama.com/pricing";
  * - Peak-Fenster aus dem Satz „Peak pricing applies between 12:00 and 18:00 UTC, Monday to Friday."
  * - Cached „-" (mistral-large-3, nemotron-3-nano, qwen) → null (Key wird weggelassen).
  * @param {string} html
- * @returns {{plans: Array, modelPrices: Record<string,{input:number,cached:number|null,output:number}>, peakPrices: Record<string,{input:number,cached:number|null,output:number}>|null, peak: {windows: Array, weekendOffPeak: boolean}}}
+ * @returns {{plans: Array, modelPrices: Record<string,{input:number,cached:number|null,output:number}>, peakPrices: Record<string,{input:number,cached:number|null,output:number}>|null, peak: object}}
  */
 export function parseOllamaPricing(html) {
   let rawText = String(html ?? "");
@@ -144,19 +144,28 @@ export function parseOllamaPricing(html) {
   }
 
   // Peak-Fenster aus „Peak pricing applies between 12:00 and 18:00 UTC, Monday to Friday."
-  let windows = [];
-  let weekendOffPeak = false;
+  let windowsUtc = [];
+  let weekdayOnly = false;
   const windowMatch = text.match(
     /Peak pricing applies between\s+(\d{1,2})(?::\d{2})?\s*(?:-|–|—|and|to|until)\s*(\d{1,2})(?::\d{2})?\s*UTC/i
   );
   if (windowMatch) {
     const startH = Number(windowMatch[1]);
     const endH = Number(windowMatch[2]);
-    if (Number.isFinite(startH) && Number.isFinite(endH)) windows = [[startH, endH]];
-    weekendOffPeak = /Monday to Friday/i.test(text);
+    if (Number.isFinite(startH) && Number.isFinite(endH)) windowsUtc = [[startH, endH]];
+    weekdayOnly = /Monday to Friday/i.test(text);
   }
+  const peak = buildPeakConfig({
+    timezone: "UTC",
+    days: weekdayOnly ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6, 7],
+    windowsUtc: windowsUtc.length ? windowsUtc : [[12, 18]],
+    offPeakDays: weekdayOnly ? [6, 7] : [],
+    offPeakFactor: 0.5,
+    // Quelle nennt keine Feiertage → kein holidays.
+    effectiveFromMs: null,
+  });
 
-  return { plans, modelPrices, peakPrices, peak: { windows, weekendOffPeak } };
+  return { plans, modelPrices, peakPrices, peak };
 }
 
 /**
@@ -193,14 +202,13 @@ export async function scrapeOllama(opts = {}) {
           base[m.id] = api;
         }
       }
+      const livePeak = parsed.peak;
       parsed = {
         plans: committed.plans,
         modelPrices: base,
         peakPrices: Object.keys(peakP).length ? peakP : null,
-        peak: {
-          windows: committed.peak?.windows ?? [],
-          weekendOffPeak: committed.peak?.weekendOffPeak ?? false,
-        },
+        // Kommitteter Peak-Block bevorzugt (sofern neue Form), sonst der Live-Parse.
+        peak: committed.peak?.timezone ? committed.peak : livePeak,
       };
     } else if (!parsed.plans.length) {
       throw new Error("parseOllamaPricing: keine Pläne gefunden");
@@ -312,15 +320,7 @@ export async function scrapeOllama(opts = {}) {
     sourceUrls: [OLLAMA_PRICING_URL],
     plans: parsed.plans,
     models,
-    peak: {
-      windows: parsed.peak?.windows?.length ? parsed.peak.windows : [[12, 18]],
-      phaseFactor: { peak: 1, "off-peak": 0.5 },
-      weekendOffPeak: parsed.peak?.weekendOffPeak ?? true,
-      tzOffsetMin: 0,
-      timezoneLabel: "UTC",
-      phaseLabel: { peak: "Peak", "off-peak": "Off-Peak" },
-      effectiveFromMs: null,
-    },
+    peak: parsed.peak,
   };
 
   const validated = validateVendorData(data, "ollama");
