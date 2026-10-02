@@ -199,11 +199,12 @@ interface PeakConfig {
 
 ## Scrum/Arbeitsweise (Orchestrierung + Verifikation)
 
-- **Der Build-Agent orchestriert zum überwiegenden Teil** und delegiert unabhängige Arbeitspakete an
-  parallele Subagenten (z. B. Vendor-Module, Scraper/Tests, UI-Komponenten).
-- **Kleine Änderungen** (einzelne Edits, Versionskosmetik) macht er direkt selbst.
-- **Initialer Wurf** (Scaffolding, Router, App-Shell, Fixture-Stubs, i18n-Shell) wurde direkt vom
-  Orchestrator erstellt — künftige größere Arbeiten wieder nach Delegations-Muster.
+- **Der Arbeits-Flow steht im Skill `build-verify`** (`~/dev/agents-skills/.agents/skills/build-verify/SKILL.md`,
+  Always-on-Kernel `~/dev/agents-skills/.agents/rules/build-verify.md`): pullen → delegieren →
+  unabhängig verifizieren → committen → bei CHANGES REQUIRED amendieren → pushen + CI beobachten.
+  Er wird hier **nicht** dupliziert.
+- **Historik:** Das initiale Scaffolding (Router, App-Shell, Fixture-Stubs, i18n-Shell) wurde
+  noch vom Orchestrator selbst geschrieben, also vor Einführung des Delegations-Flows.
 - **Unabhängige Verifikation:** Nach jeder Umsetzung prüft ein separater Verify-Agent (frischer
   Kontext, keine Annahmen) in `~/dev/provider-plans`:
   `pnpm typecheck`, `pnpm test`, `pnpm scrape:stub`, `pnpm build`, `pnpm preview`-200 plus
@@ -255,6 +256,12 @@ git log --oneline origin/main..ocgo-price-tracker/main --no-decorate | head
 
 ## Verifikation
 
-Nach jeder Umsetzung prüft ein unabhängiger Agent: `pnpm test` grün, `pnpm typecheck` grün,
-`pnpm build` grün, `pnpm smoke` grün, `dist/` enthält `data/latest.{zai,mimo,ollama}.json` + `404.html` + `CNAME`,
-`pnpm preview` liefert 200 für `/`, `/z-ai`, `/mimo`. Node ≥ 22, pnpm aus `packageManager`.
+Der Verifikations-Flow selbst (unabhängiger Lauf mit `nach-verify`-Flag, Commit nach **jeder**
+Runde unabhängig vom Verdict, Amend nur nach eigenem CHANGES REQUIRED, Push + CI beobachten)
+steht im Skill `build-verify` (`~/dev/agents-skills/.agents/skills/build-verify/SKILL.md`,
+Always-on-Kernel `.agents/rules/build-verify.md`) — hier nicht wiederholt.
+
+Was in **diesem** Repo grün sein muss, prüft der unabhängige Agent:
+`pnpm test` grün, `pnpm typecheck` grün, `pnpm build` grün, `pnpm smoke` grün, `dist/` enthält
+`data/latest.{zai,mimo,ollama}.json` + `404.html` + `CNAME`, `pnpm preview` liefert 200 für `/`,
+`/z-ai`, `/mimo`. Node ≥ 22, pnpm aus `packageManager`.
