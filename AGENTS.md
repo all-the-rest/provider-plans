@@ -200,7 +200,7 @@ interface PeakConfig {
 ## Scrum/Arbeitsweise (Orchestrierung + Verifikation)
 
 - **Der Arbeits-Flow steht im Skill `build-verify`** (`~/dev/agents-skills/.agents/skills/build-verify/SKILL.md`,
-  Always-on-Kernel `~/dev/agents-skills/.agents/rules/build-verify.md`): pullen → delegieren →
+  Kernregel `~/dev/agents-skills/.agents/rules/build-verify.md`): pullen → delegieren →
   unabhängig verifizieren → committen → bei CHANGES REQUIRED amendieren → pushen + CI beobachten.
   Er wird hier **nicht** dupliziert.
 - **Historik:** Das initiale Scaffolding (Router, App-Shell, Fixture-Stubs, i18n-Shell) wurde
@@ -259,7 +259,7 @@ git log --oneline origin/main..ocgo-price-tracker/main --no-decorate | head
 Der Verifikations-Flow selbst (unabhängiger Lauf mit `nach-verify`-Flag, Commit nach **jeder**
 Runde unabhängig vom Verdict, Amend nur nach eigenem CHANGES REQUIRED, Push + CI beobachten)
 steht im Skill `build-verify` (`~/dev/agents-skills/.agents/skills/build-verify/SKILL.md`,
-Always-on-Kernel `.agents/rules/build-verify.md`) — hier nicht wiederholt.
+Kernregel `.agents/rules/build-verify.md`) — hier nicht wiederholt.
 
 Was in **diesem** Repo grün sein muss, prüft der unabhängige Agent:
 `pnpm test` grün, `pnpm typecheck` grün, `pnpm build` grün, `pnpm smoke` grün, `dist/` enthält
