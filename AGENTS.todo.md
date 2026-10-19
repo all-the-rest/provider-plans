@@ -7,11 +7,11 @@ Aus `AGENTS.md` ausgelagerte TODOs — verifiziert am 2026-09-01.
 - `Repo (geplant): all-the-rest/provider-plans` — Repo existiert, Push `080cc70` erfolgreich, Pages-Domain `ai-vendor-price-tracking.all-the-rest` (CNAME `public/CNAME`) aktiv.
 - `CI/CD (geplant: .github/workflows/provider-plans.yml)` — Workflow existiert (`provider-plans.yml:1`), Trigger `schedule`/`workflow_dispatch`/`push`, Container `mcr.microsoft.com/playwright:v1.62.1-jammy`, Steps `pnpm test`/`scrape`/`build`/`commit` vorhanden.
 
-`AGENTS.md` enthält nun `Repo:` und `CI/CD (.github/workflows/provider-plans.yml)` ohne `(geplant)`-Marker (`AGENTS.md:10`, `AGENTS.md:98`), `grep -rn "geplant\|TODO\|FIXME" AGENTS.md` ohne Treffer.
+`AGENTS.md` enthält nun `Repo:` und `CI/CD (.github/workflows/provider-plans.yml)` ohne `(geplant)`-Marker (Abschnitte „Projektüberblick" und „CI/CD"), `grep -rn "geplant\|TODO\|FIXME" AGENTS.md` ohne Treffer.
 
 ## Offen — noch nicht umgesetzt (aus OpenCode-Plänen / Referenz-Tracker übernommen)
 
-Quelle: manuelle Übernahme-Muster aus `~/dev/cc-price-tracker` und `~/dev/ocgo-price-tracker` (AGENTS.md:12), bisher nur Pattern-Quelle `opencode.ai/docs/de/go/` genutzt.
+Quelle: manuelle Übernahme-Muster aus `~/dev/cc-price-tracker` und `~/dev/ocgo-price-tracker` (Abschnitt „Projektüberblick"), bisher nur Pattern-Quelle `opencode.ai/docs/de/go/` genutzt.
 
 - [ ] **OpenCode Go als eigener Vendor** — analog `ocgo-price-tracker` als `src/vendors/opencode/` (Preistabelle mit `usage`/`multiplier`/`effective*`, `freeModels`, `privacy`, `capabilities` via `@opencode-ai/models`). Bisher nur `src/vendors/stats/opencode-patterns.json` als Pattern-Fallback.
 - [ ] **Dynamisches Monatsguthaben/Monatspreis** — `ocgo` `parseMonthlyPricing`/`parseMonthlyCost`/`parseCreditFactor` (CTA `[data-slot="cta-price-old"]`/`cta-price` × Prosa-Faktor „das Sechsfache“ = 6, Fallback 60/10). Provider-Plans nutzt je Vendor statische `creditsWeekly`/`creditsMonthly` und feste `priceMonthly`, kein dynamischer Credit-Fallback.
