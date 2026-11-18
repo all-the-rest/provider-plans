@@ -17,8 +17,8 @@
       "value": 1
     },
     "unverified-commits": {
-      "value": 41,
-      "reason": "merged foreign history without Verify: footers during the migration rebase; the count records history, not new work"
+      "value": 42,
+      "reason": "pre-existing drift: the PR merge history has one more commit without a Verify: footer than the recorded baseline; predates the v0.8.0 migration and only shows in the CI merge checkout. Reducing requires a forbidden history rewrite."
     }
   }
 }
