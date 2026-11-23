@@ -152,7 +152,7 @@
       "name": "gemma4",
       "provider": "Google",
       "tier": null,
-      "contextWindow": 131072,
+      "contextWindow": 262144,
       "creditPerM": {
         "input": 0.14,
         "cached": 0.05,
