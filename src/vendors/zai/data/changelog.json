@@ -1,3 +1,15 @@
 {
-  "entries": []
+  "entries": [
+    {
+      "id": "zai-2026-11-25",
+      "date": "2026-11-25",
+      "changes": [
+        {
+          "de": "GLM-5.3-Flash: Modell entfernt (Credits/Token 0.00023/–/0.0008, API $0.15/–/$0.5 je 1M Token)",
+          "en": "GLM-5.3-Flash: model removed (credits/token 0.00023/–/0.0008, API $0.15/–/$0.5 per 1M tokens)",
+          "kind": "removed"
+        }
+      ]
+    }
+  ]
 }

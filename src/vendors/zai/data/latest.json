@@ -92,52 +92,6 @@
         "output": 163
       },
       "note": null
-    },
-    {
-      "id": "glm-5.3-flash",
-      "name": "GLM-5.3-Flash",
-      "provider": "Z.ai",
-      "tier": "peak",
-      "contextWindow": 1000000,
-      "creditPerM": {
-        "input": 230,
-        "cached": 56,
-        "output": 800
-      },
-      "apiPrice": {
-        "input": 0.15,
-        "cached": 0.03,
-        "output": 0.5
-      },
-      "pattern": {
-        "input": 850,
-        "cached": 49000,
-        "output": 163
-      },
-      "note": null
-    },
-    {
-      "id": "glm-5.3-flash",
-      "name": "GLM-5.3-Flash",
-      "provider": "Z.ai",
-      "tier": "off-peak",
-      "contextWindow": 1000000,
-      "creditPerM": {
-        "input": 230,
-        "cached": 56,
-        "output": 800
-      },
-      "apiPrice": {
-        "input": 0.15,
-        "cached": 0.03,
-        "output": 0.5
-      },
-      "pattern": {
-        "input": 850,
-        "cached": 49000,
-        "output": 163
-      },
-      "note": null
     }
   ],
   "peak": {
